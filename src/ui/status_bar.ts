@@ -153,9 +153,15 @@ export class StatusBarManager {
 		this.main_item.backgroundColor = undefined;
 
 		const show_gauges = this.get_show_gauges();
+		const pinned = this.get_pinned_models();
 
 		// Group models for display (Anthropic together, Gemini Pro together, etc.)
-		const grouped = group_models(snapshot.models);
+		let grouped = group_models(snapshot.models);
+
+		// If user has pinned specific groups, filter to only show those
+		if (pinned.length > 0) {
+			grouped = grouped.filter(g => pinned.includes(g.group_id));
+		}
 
 		if (show_gauges && grouped.length > 0) {
 			// Show grouped items with colored balls
@@ -274,14 +280,19 @@ export class StatusBarManager {
 		pick.onDidAccept(async () => {
 			if (!currentActiveItem) return;
 
-			// Check if it's a model item
-			if ('model_id' in currentActiveItem) {
-				await this.toggle_pinned_model((currentActiveItem as any).model_id);
+			// Check if it's a group item
+			if ('group_id' in currentActiveItem) {
+				await this.toggle_pinned_group((currentActiveItem as any).group_id);
 				pick.items = this.build_menu_items();
 				if (this.last_snapshot) {
 					const config = vscode.workspace.getConfiguration('techquotas');
 					this.update(this.last_snapshot, !!config.get('showPromptCredits'));
 				}
+			}
+			// Check if it's Dashboard
+			else if ('action' in currentActiveItem && (currentActiveItem as any).action === 'dashboard') {
+				pick.hide();
+				vscode.commands.executeCommand('techquotas.openDashboard');
 			}
 			// Check if it's Settings
 			else if ('action' in currentActiveItem && (currentActiveItem as any).action === 'settings') {
@@ -312,43 +323,46 @@ export class StatusBarManager {
 		return config.get<boolean>('showGauges', true);
 	}
 
-	private async toggle_pinned_model(model_id: string): Promise<void> {
+	private async toggle_pinned_group(group_id: string): Promise<void> {
 		const config = vscode.workspace.getConfiguration('techquotas');
 		const pinned = [...(config.get<string[]>('pinnedModels') || [])];
 
-		const index = pinned.indexOf(model_id);
+		const index = pinned.indexOf(group_id);
 		if (index >= 0) {
 			pinned.splice(index, 1);
 		} else {
-			pinned.push(model_id);
+			pinned.push(group_id);
 		}
 
 		await config.update('pinnedModels', pinned, vscode.ConfigurationTarget.Global);
 	}
 
 	private build_menu_items(): vscode.QuickPickItem[] {
-		const items: (vscode.QuickPickItem & { model_id?: string; action?: string })[] = [];
+		const items: (vscode.QuickPickItem & { group_id?: string; action?: string })[] = [];
 		const snapshot = this.last_snapshot;
 		const pinned = this.get_pinned_models();
 
-		items.push({ label: '📊 Model Quotas', kind: vscode.QuickPickItemKind.Separator });
+		items.push({ label: '📊 Model Groups (click to pin/unpin)', kind: vscode.QuickPickItemKind.Separator });
 
 		if (snapshot && snapshot.models.length > 0) {
-			for (const m of snapshot.models) {
-				const pct = m.remaining_percentage ?? 0;
+			const grouped = group_models(snapshot.models);
+
+			for (const g of grouped) {
+				const pct = g.remaining_percentage;
 				const ball = get_status_ball(pct);
 				const bar = this.draw_progress_bar(pct);
-				const is_pinned = pinned.includes(m.model_id);
+				const is_pinned = pinned.includes(g.group_id);
 
 				const pin_icon = is_pinned ? '📌' : '  ';
+				const model_count = g.source_models.length > 1 ? ` (${g.source_models.length} models)` : '';
 
-				const item: vscode.QuickPickItem & { model_id?: string } = {
-					label: `${pin_icon} ${ball} ${m.label}`,
+				const item: vscode.QuickPickItem & { group_id?: string } = {
+					label: `${pin_icon} ${ball} ${g.display_name}${model_count}`,
 					description: `${bar} ${pct.toFixed(1)}%`,
-					detail: `    ⏱️ Resets: ${m.time_until_reset_formatted}`,
+					detail: `    ⏱️ Resets: ${g.time_until_reset_formatted}`,
 				};
 
-				(item as any).model_id = m.model_id;
+				(item as any).group_id = g.group_id;
 				items.push(item);
 			}
 		} else {
@@ -361,6 +375,13 @@ export class StatusBarManager {
 		// Actions section
 		items.push({ label: '', kind: vscode.QuickPickItemKind.Separator });
 		items.push({ label: '⚡ Actions', kind: vscode.QuickPickItemKind.Separator });
+
+		const dashboardItem: vscode.QuickPickItem & { action?: string } = {
+			label: '$(dashboard) Open Dashboard',
+			description: 'Full quota dashboard with charts',
+		};
+		(dashboardItem as any).action = 'dashboard';
+		items.push(dashboardItem);
 
 		const refreshItem: vscode.QuickPickItem & { action?: string } = {
 			label: '$(refresh) Refresh Now',

@@ -3,17 +3,22 @@
  */
 
 import * as https from 'https';
-import {quota_snapshot, model_quota_info, prompt_credits_info, server_user_status_response} from '../utils/types';
+import { quota_snapshot, model_quota_info, prompt_credits_info, server_user_status_response } from '../utils/types';
 
 export class QuotaManager {
 	private port: number = 0;
 	private csrf_token: string = '';
+	private last_snapshot: quota_snapshot | undefined;
 
 	private update_callback?: (snapshot: quota_snapshot) => void;
 	private error_callback?: (error: Error) => void;
 	private polling_timer?: NodeJS.Timeout;
 
-	constructor() {}
+	constructor() { }
+
+	get_last_snapshot(): quota_snapshot | undefined {
+		return this.last_snapshot;
+	}
 
 	init(port: number, csrf_token: string) {
 		this.port = port;
@@ -93,6 +98,7 @@ export class QuotaManager {
 			});
 
 			const snapshot = this.parse_response(data);
+			this.last_snapshot = snapshot;
 
 			if (this.update_callback) {
 				this.update_callback(snapshot);

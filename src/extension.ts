@@ -8,7 +8,10 @@ import { ConfigManager } from './core/config_manager';
 import { ProcessFinder } from './core/process_finder';
 import { QuotaManager } from './core/quota_manager';
 import { StatusBarManager } from './ui/status_bar';
+import { DashboardPanel } from './ui/dashboard';
 import { logger } from './utils/logger';
+
+let extensionUri: vscode.Uri;
 
 let config_manager: ConfigManager;
 let process_finder: ProcessFinder;
@@ -17,6 +20,7 @@ let status_bar: StatusBarManager;
 let is_initialized = false;
 
 export async function activate(context: vscode.ExtensionContext) {
+	extensionUri = context.extensionUri;
 	logger.init(context);
 	logger.section('Extension', 'TechQuotas Antigravity Activating');
 	logger.info('Extension', `VS Code Version: ${vscode.version}`);
@@ -79,6 +83,15 @@ export async function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
+	// Open Dashboard command
+	context.subscriptions.push(
+		vscode.commands.registerCommand('techquotas.openDashboard', () => {
+			logger.info('Extension', 'Opening dashboard');
+			const snapshot = quota_manager.get_last_snapshot();
+			DashboardPanel.createOrShow(extensionUri, snapshot);
+		})
+	);
+
 	// Setup Quota Manager Callbacks
 	quota_manager.on_update(snapshot => {
 		const current_config = config_manager.get_config();
@@ -88,6 +101,11 @@ export async function activate(context: vscode.ExtensionContext) {
 			timestamp: snapshot.timestamp,
 		});
 		status_bar.update(snapshot, current_config.show_prompt_credits ?? false);
+
+		// Also update dashboard if open
+		if (DashboardPanel.currentPanel) {
+			DashboardPanel.currentPanel.update(snapshot);
+		}
 	});
 
 	quota_manager.on_error(err => {

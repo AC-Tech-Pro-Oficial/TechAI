@@ -33,6 +33,10 @@
       {
         "command": "techquotas.show_logs",
         "title": "TechQuotas: Show Debug Log"
+      },
+      {
+        "command": "techquotas.openDashboard",
+        "title": "TechQuotas: Open Dashboard"
       }
     ],
     "configuration": {
