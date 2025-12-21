@@ -161,20 +161,34 @@ function group_models(models: model_quota_info[]): grouped_model[] {
 class StatusBarGroupRender {
 	private iconItem: vscode.StatusBarItem;
 	private textItem: vscode.StatusBarItem;
+	private currentPriority: number;
 
 	constructor(priority: number) {
+		this.currentPriority = priority;
+		this.createItems();
+	}
+
+	private createItems() {
 		// Icon item (Higher priority to appear on left)
-		this.iconItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, priority);
+		this.iconItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, this.currentPriority);
 
 		// Text item (Lower priority to appear on right of icon)
-		this.textItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, priority - 0.1);
+		this.textItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, this.currentPriority - 0.1);
 
 		// Only the text item is clickable
 		// Icon is now static visual
 		this.textItem.command = 'techquotas.show_menu';
 	}
 
-	update(group: grouped_model) {
+	update(group: grouped_model, newPriority: number) {
+		// Check if priority changed significantly
+		if (Math.abs(this.currentPriority - newPriority) > 0.01) {
+			this.iconItem.dispose();
+			this.textItem.dispose();
+			this.currentPriority = newPriority;
+			this.createItems();
+		}
+
 		const pct = group.remaining_percentage;
 		const resetTime = format_short_time(group.time_until_reset_ms);
 		const tooltip = build_group_tooltip(group);
@@ -288,7 +302,7 @@ export class StatusBarManager {
 					this.group_renders.set(group.group_id, render);
 				}
 
-				render.update(group);
+				render.update(group, priority); // Pass dynamic priority
 				priority -= 1;
 			}
 
