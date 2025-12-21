@@ -71,30 +71,32 @@ interface grouped_model {
 }
 
 /** Build tooltips */
-function build_group_tooltip(group: grouped_model): string {
+function build_group_tooltip(group: grouped_model): vscode.MarkdownString {
 	const pct = group.remaining_percentage;
 	const bar = draw_progress_bar(pct);
 	const ball = get_status_ball(pct);
 	const status = group.is_exhausted ? 'Exhausted' : pct < 20 ? 'Low' : pct < 50 ? 'Warning' : 'Available';
 
-	const lines = [
-		`${group.display_name}`,
-		`━━━━━━━━━━━━━━━━━━━━`,
-		`${bar} ${pct.toFixed(1)}%`,
-		`Status: ${ball} ${status}`,
-		`Resets: ${group.time_until_reset_formatted}`,
-	];
+	const md = new vscode.MarkdownString();
+	md.supportThemeIcons = true;
+	md.isTrusted = true;
+
+	md.appendMarkdown(`### ${group.display_name}\n`);
+	md.appendMarkdown(`---\n`);
+	md.appendMarkdown(`${bar} **${pct.toFixed(1)}%**\n\n`);
+	md.appendMarkdown(`Status: ${ball} ${status}\n\n`);
+	md.appendMarkdown(`Resets: ${group.time_until_reset_formatted}\n`);
 
 	if (group.source_models.length > 1) {
-		lines.push('', '📋 Models in group:');
+		md.appendMarkdown(`\n---\n**📋 Models in group:**\n`);
 		for (const m of group.source_models) {
 			const mPct = m.remaining_percentage ?? 0;
 			const mBall = get_status_ball(mPct);
-			lines.push(`  ${mBall} ${m.label}: ${mPct.toFixed(0)}%`);
+			md.appendMarkdown(`\n${mBall} ${m.label}: ${mPct.toFixed(0)}%`);
 		}
 	}
 
-	return lines.join('\n');
+	return md;
 }
 
 /** Helper to group models */
