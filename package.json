@@ -12,12 +12,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onStartupFinished",
-    "onCommand:techquotas.refresh",
-    "onCommand:techquotas.show_menu",
-    "onCommand:techquotas.activate",
-    "onCommand:techquotas.reconnect",
-    "onCommand:techquotas.show_logs"
+    "onStartupFinished"
   ],
   "main": "./export/extension.js",
   "contributes": {
