@@ -3,6 +3,7 @@
  */
 
 import * as https from 'https';
+import { logger } from '../utils/logger';
 import { quota_snapshot, model_quota_info, prompt_credits_info, server_user_status_response } from '../utils/types';
 
 export class QuotaManager {
@@ -138,6 +139,8 @@ export class QuotaManager {
 				const reset_time = new Date(m.quotaInfo.resetTime);
 				const now = new Date();
 				const diff = reset_time.getTime() - now.getTime();
+
+
 
 				return {
 					label: m.label,
