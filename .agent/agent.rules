@@ -1,0 +1,205 @@
+﻿# TechAgents - Global Directives for AI Agents
+
+## Identity
+You are an assistant/agent of **AC Tech**, performing diverse tasks for the company and its partners (Vinicyus Abdala and Moacir Costa).
+
+---
+
+## Critical Directory Structure
+
+| Directory | Purpose |
+| --------- | ------- |
+| `D:\TechAI\Credentials` | API Keys and authentication |
+| `D:\TechAI\Personal Context Memory.txt` | Personal information of Moacir Costa |
+| `D:\Images` | Image resources for all projects |
+| `D:\Videos` | Video resources for all projects |
+
+---
+
+## Media Resource Management
+
+All AC Tech projects use centralized directories for media resources:
+
+| Media Type | Base Directory | Example by Project |
+| ---------- | -------------- | ------------------ |
+| Images | `D:\Images` | `D:\Images\TechAir`, `D:\Images\TechAI` |
+| Videos | `D:\Videos` | `D:\Videos\TechAir`, `D:\Videos\TechAI` |
+
+### Media Rules
+- **Primary Search**: Always look for media resources first in `D:\Images\{Project}` and `D:\Videos\{Project}`.
+- **Reuse**: If an asset exists in another project, copy it to the current project folder instead of creating duplicates.
+- **Organization**: Keep subfolders organized by category (e.g., `D:\Images\TechAir\icons`, `D:\Images\TechAir\screenshots`).
+- **New Assets**: When creating/generating new media resources, save them in the corresponding centralized directory.
+- **Reference**: Projects can directly reference centralized assets or copy them as needed.
+
+---
+
+## Operational Rules
+
+### Autonomy
+- Work autonomously whenever possible.
+- Solve problems and proceed instead of stopping to ask.
+- Make administrative decisions when necessary.
+
+### Tools
+- Maximize use of: MCP servers, IDE extensions, CLI tools, browser.
+- Use local AI models to get relevant context.
+- Maximum authorization to modify any directory.
+
+### Cleanup
+- **Always** remove temporary files, scripts, and reports generated for specific purposes.
+- Do not leave trash in the system.
+
+### Security
+- Value information security and client privacy.
+- Never expose credentials in logs or commits.
+
+### Automated Synchronization
+- **Watchdog**: The system runs a lightweight "Watchdog" (`Synchronization Watchdog.ps1`) that monitors rule files for changes.
+- **Auto-Sync**: Any change to `GLOBAL_RULES.md` or `PROJECT_RULES.md` triggers an immediate update to all `agent.rules` files via `Synchronize Rules.ps1`.
+- **Startup**: This service starts silently with Windows.
+
+---
+
+## Commit Conventions (Git)
+
+```
+<emoji> <description in pt-BR>
+```
+
+**Examples**:
+- `âœ¨ Adiciona novo recurso de login` (Adds new login feature)
+- `ðŸ› Corrige bug no cÃ¡lculo de orÃ§amento` (Fixes budget calculation bug)
+- `ðŸ“ Atualiza documentaÃ§Ã£o` (Updates documentation)
+- `ðŸ”§ Ajusta configuraÃ§Ã£o` (Adjusts configuration)
+
+*Note: Keep commit messages in Portuguese (pt-BR) as per company standard.*
+
+---
+
+## Main Repositories
+
+| Project | GitHub |
+| ------- | ------ |
+| AC Tech (Organization) | https://github.com/ac-tech-pro |
+| TechAir | https://github.com/moacirbcj/TechAir |
+| TechAI | https://github.com/moacirbcj/TechAI |
+| MS Ultimate Installer | https://github.com/moacirbcj/Microsoft-Ultimate-Installer |
+
+---
+
+
+---
+
+# Project Specific Rules
+
+# TechQuotas Antigravity - Project Rules
+
+## Project Overview
+**TechQuotas Antigravity** is an advanced quota monitoring extension for the Antigravity IDE, developed by AC Tech. It provides real-time visual quota tracking with circular gauge indicators for each AI model.
+
+## Quick Reference
+
+| Item | Value |
+|------|-------|
+| **Name** | TechQuotas Antigravity |
+| **Publisher** | ac-tech-pro |
+| **Repository** | https://github.com/ac-tech-pro/TechQuotas-Antigravity |
+| **Directory** | `D:\TechQuotas Antigravity` |
+| **Language** | TypeScript |
+| **Framework** | VS Code Extension API |
+
+## Build Commands
+
+```powershell
+# Install dependencies
+npm install
+
+# Compile TypeScript
+npm run compile
+
+# Watch mode (for development)
+npm run watch
+
+# Package as VSIX
+npx vsce package
+
+# Lint code
+npm run lint
+```
+
+## Project Structure
+
+```
+D:\TechQuotas Antigravity\
+â”œâ”€â”€ src/
+â”‚   â”œâ”€â”€ extension.ts          # Main entry point
+â”‚   â”œâ”€â”€ core/
+â”‚   â”‚   â”œâ”€â”€ config_manager.ts # Settings management
+â”‚   â”‚   â”œâ”€â”€ process_finder.ts # Language server detection (D:\ fix)
+â”‚   â”‚   â”œâ”€â”€ quota_manager.ts  # API communication
+â”‚   â”‚   â””â”€â”€ platform_strategies.ts
+â”‚   â”œâ”€â”€ ui/
+â”‚   â”‚   â””â”€â”€ status_bar.ts     # Visual gauge display
+â”‚   â””â”€â”€ utils/
+â”‚       â”œâ”€â”€ logger.ts
+â”‚       â””â”€â”€ types.ts
+â”œâ”€â”€ assets/
+â”‚   â””â”€â”€ logo.png              # Extension icon
+â”œâ”€â”€ package.json              # Extension manifest
+â”œâ”€â”€ tsconfig.json            # TypeScript config
+â””â”€â”€ PROJECT_RULES.md         # This file
+```
+
+## Key Features
+
+1. **D:\ Root Fix**: Uses `spawn` with `{shell: false}` to avoid quote escaping issues
+2. **Circular Gauge Icons**: Visual indicators (â—‹â—”â—‘â—•â—) showing usage percentage
+3. **Per-Model Tracking**: Individual status bar items for each AI model
+4. **Color Coding**: Green (>50%), Yellow (20-50%), Red (<20%)
+5. **Rich Tooltips**: Detailed quota info on hover
+
+## Configuration Settings
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `techquotas.enabled` | boolean | true | Enable monitoring |
+| `techquotas.pollingInterval` | number | 120 | Refresh interval (seconds) |
+| `techquotas.showGauges` | boolean | true | Show visual gauge icons |
+| `techquotas.pinnedModels` | array | [] | Models to show in status bar |
+| `techquotas.showPromptCredits` | boolean | false | Show prompt credits |
+
+## Commands
+
+| Command | Title |
+|---------|-------|
+| `techquotas.refresh` | TechQuotas: Refresh Now |
+| `techquotas.reconnect` | TechQuotas: Reconnect |
+| `techquotas.show_logs` | TechQuotas: Show Debug Log |
+
+## Development Guidelines
+
+1. **Commit Messages**: Use emoji prefixes in Portuguese (pt-BR)
+   - `âœ¨ Adiciona novo recurso`
+   - `ðŸ› Corrige bug`
+   - `ðŸ“ Atualiza documentaÃ§Ã£o`
+
+2. **Version Numbering**: Semantic Versioning (MAJOR.MINOR.PATCH)
+
+3. **Testing**: Always test with workspace at `D:\` root to verify the spawn fix
+
+## Credits
+
+- **Original Base**: AG Quota by Henrik Mertens (henrikdev)
+- **Fork & Enhancements**: AC Tech (Moacir Costa & Vinicyus Abdala)
+- **License**: MIT
+
+- **License**: MIT
+
+
+---
+
+> **Auto-generated by Synchronize Rules.ps1** on 2025-12-22 00:23:18
+> Source: Global + Project Rules
+> Do not edit this file directly.
+

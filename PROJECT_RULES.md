@@ -98,3 +98,5 @@ D:\TechQuotas Antigravity\
 - **Original Base**: AG Quota by Henrik Mertens (henrikdev)
 - **Fork & Enhancements**: AC Tech (Moacir Costa & Vinicyus Abdala)
 - **License**: MIT
+
+- **License**: MIT
