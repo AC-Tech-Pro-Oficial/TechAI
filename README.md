@@ -58,7 +58,7 @@ Hover over any model to see detailed statistics:
 
 ### From Source
 ```bash
-git clone https://github.com/moacirbcj/TechQuotas-Antigravity.git
+git clone https://github.com/ACTechPRO/TechQuotas-Antigravity.git
 cd TechQuotas-Antigravity
 npm install
 npm run compile
@@ -96,7 +96,7 @@ Access via Command Palette (`Ctrl+Shift+P`):
 
 ## 👥 Credits
 
-- **Developed by**: [AC Tech](https://github.com/ac-tech-pro)
+- **Developed by**: [AC Tech](https://github.com/ACTechPRO)
   - Moacir Costa ([@moacirbcj](https://github.com/moacirbcj))
   - Vinicyus Abdala ([@vinzabdala](https://github.com/vinzabdala))
 - **Based on**: [AG Quota](https://github.com/Henrik-3/AntigravityQuota) by Henrik Mertens

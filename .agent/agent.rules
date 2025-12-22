@@ -5,6 +5,11 @@ You are an assistant/agent of **AC Tech**, performing diverse tasks for the comp
 
 ---
 
+## Temporal Context
+- **Current Date**: Monday, December 22, 2025
+
+---
+
 ## Critical Directory Structure
 
 | Directory | Purpose |
@@ -43,8 +48,22 @@ All AC Tech projects use centralized directories for media resources:
 
 ### Tools
 - Maximize use of: MCP servers, IDE extensions, CLI tools, browser.
-- Use local AI models to get relevant context.
+- Use cloud models (Claude 4.5 Opus, Gemini 3 Pro) for all AI-assisted tasks.
 - Maximum authorization to modify any directory.
+
+---
+
+## Cloud-First Development Model
+
+### Primary Tools
+- **IDE**: Google Antigravity (Primary)
+- **Orchestration**: Vortex AI (for multi-agent tasks)
+- **Models**: Claude 4.5 Opus (reasoning), Gemini 3 Pro (coding/context)
+
+### Model Selection
+- Use **Claude 4.5 Opus** for: complex debugging, architectural decisions, code review
+- Use **Gemini 3 Pro** for: rapid prototyping, large codebase analysis, multi-file operations
+- **No local models** should be used unless explicitly requested
 
 ### Cleanup
 - **Always** remove temporary files, scripts, and reports generated for specific purposes.
@@ -53,11 +72,6 @@ All AC Tech projects use centralized directories for media resources:
 ### Security
 - Value information security and client privacy.
 - Never expose credentials in logs or commits.
-
-### Automated Synchronization
-- **Watchdog**: The system runs a lightweight "Watchdog" (`Synchronization Watchdog.ps1`) that monitors rule files for changes.
-- **Auto-Sync**: Any change to `GLOBAL_RULES.md` or `PROJECT_RULES.md` triggers an immediate update to all `agent.rules` files via `Synchronize Rules.ps1`.
-- **Startup**: This service starts silently with Windows.
 
 ---
 
@@ -81,125 +95,67 @@ All AC Tech projects use centralized directories for media resources:
 
 | Project | GitHub |
 | ------- | ------ |
-| AC Tech (Organization) | https://github.com/ac-tech-pro |
-| TechAir | https://github.com/moacirbcj/TechAir |
-| TechAI | https://github.com/moacirbcj/TechAI |
-| MS Ultimate Installer | https://github.com/moacirbcj/Microsoft-Ultimate-Installer |
+| AC Tech (Organization) | https://github.com/ACTechPRO |
+| TechAir | https://github.com/ACTechPRO/TechAir |
+| TechAI | https://github.com/ACTechPRO/TechAI |
+| MS Ultimate Installer | https://github.com/ACTechPRO/Microsoft-Ultimate-Installer |
+| TechQuotas Antigravity | https://github.com/ACTechPRO/TechQuotas-Antigravity |
 
 ---
+
+## Company Profile & Universal Context
+- **Company**: AC Tech (AC Tech Solutions)
+- **Owners**: Vinicyus Abdala & Moacir Costa (50/50 partnership)
+- **Mission**: Provide technological solutions including software, apps, and specialized hardware.
+- **Location**: Brazil (Follows Brazilian Legislation)
+- **Language**: Primary communication in Portuguese (Brazil) for documentation and commits.
+
+### Digital Presence
+- **Website**: [ac-tech.pro](https://ac-tech.pro) (Hosted on Hostinger)
+- **GitHub**: [ACTechPRO](https://github.com/ACTechPRO)
+- **Instagram**: [@actech.oficial](https://www.instagram.com/actech.oficial/)
+- **X (Twitter)**: [@ACTechOficial](https://x.com/ACTechOficial)
+
+### Contact Information
+- **General**: `contato@ac-tech.pro`
+- **Admin**: `admin@ac-tech.pro` / `management.actech@outlook.com`
+- **Google Account**: `management.actech@gmail.com`
+- **Automated**: `noreply@ac-tech.pro`
 
 
 ---
 
 # Project Specific Rules
 
-# TechQuotas Antigravity - Project Rules
+# TechQuotas Antigravity - Project-Specific Rules
 
 ## Project Overview
-**TechQuotas Antigravity** is an advanced quota monitoring extension for the Antigravity IDE, developed by AC Tech. It provides real-time visual quota tracking with circular gauge indicators for each AI model.
+- **Name**: TechQuotas Antigravity (VS Code Extension)
+- **Repository**: https://github.com/ACTechPRO/TechQuotas-Antigravity
+- **Local Path**: `D:\TechQuotas Antigravity`
+- **Purpose**: Manage and visualize AI API quotas (OpenAI, Anthropic, etc.) directly in reusable panels.
 
-## Quick Reference
-
-| Item | Value |
-|------|-------|
-| **Name** | TechQuotas Antigravity |
-| **Publisher** | ac-tech-pro |
-| **Repository** | https://github.com/ac-tech-pro/TechQuotas-Antigravity |
-| **Directory** | `D:\TechQuotas Antigravity` |
-| **Language** | TypeScript |
-| **Framework** | VS Code Extension API |
-
-## Build Commands
-
-```powershell
-# Install dependencies
-npm install
-
-# Compile TypeScript
-npm run compile
-
-# Watch mode (for development)
-npm run watch
-
-# Package as VSIX
-npx vsce package
-
-# Lint code
-npm run lint
-```
-
-## Project Structure
-
-```
-D:\TechQuotas Antigravity\
-â”œâ”€â”€ src/
-â”‚   â”œâ”€â”€ extension.ts          # Main entry point
-â”‚   â”œâ”€â”€ core/
-â”‚   â”‚   â”œâ”€â”€ config_manager.ts # Settings management
-â”‚   â”‚   â”œâ”€â”€ process_finder.ts # Language server detection (D:\ fix)
-â”‚   â”‚   â”œâ”€â”€ quota_manager.ts  # API communication
-â”‚   â”‚   â””â”€â”€ platform_strategies.ts
-â”‚   â”œâ”€â”€ ui/
-â”‚   â”‚   â””â”€â”€ status_bar.ts     # Visual gauge display
-â”‚   â””â”€â”€ utils/
-â”‚       â”œâ”€â”€ logger.ts
-â”‚       â””â”€â”€ types.ts
-â”œâ”€â”€ assets/
-â”‚   â””â”€â”€ logo.png              # Extension icon
-â”œâ”€â”€ package.json              # Extension manifest
-â”œâ”€â”€ tsconfig.json            # TypeScript config
-â””â”€â”€ PROJECT_RULES.md         # This file
-```
+## Tech Stack
+- **Runtime**: Node.js / Bun
+- **Language**: TypeScript
+- **Framework**: VS Code Extension API
+- **Build Tool**: `vsce` (Visual Studio Code Extensions), `npm`/`bun`.
 
 ## Key Features
+- **Quota Visualization**: Bars/Charts showing API usage.
+- **Multi-Provider**: Supports OpenAI, Anthropic, Gemini, Groq.
+- **Settings**: Configurable via `settings.json`.
+- **Alerts**: Notifications when quotas approach limits.
 
-1. **D:\ Root Fix**: Uses `spawn` with `{shell: false}` to avoid quote escaping issues
-2. **Circular Gauge Icons**: Visual indicators (â—‹â—”â—‘â—•â—) showing usage percentage
-3. **Per-Model Tracking**: Individual status bar items for each AI model
-4. **Color Coding**: Green (>50%), Yellow (20-50%), Red (<20%)
-5. **Rich Tooltips**: Detailed quota info on hover
-
-## Configuration Settings
-
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `techquotas.enabled` | boolean | true | Enable monitoring |
-| `techquotas.pollingInterval` | number | 120 | Refresh interval (seconds) |
-| `techquotas.showGauges` | boolean | true | Show visual gauge icons |
-| `techquotas.pinnedModels` | array | [] | Models to show in status bar |
-| `techquotas.showPromptCredits` | boolean | false | Show prompt credits |
-
-## Commands
-
-| Command | Title |
-|---------|-------|
-| `techquotas.refresh` | TechQuotas: Refresh Now |
-| `techquotas.reconnect` | TechQuotas: Reconnect |
-| `techquotas.show_logs` | TechQuotas: Show Debug Log |
-
-## Development Guidelines
-
-1. **Commit Messages**: Use emoji prefixes in Portuguese (pt-BR)
-   - `âœ¨ Adiciona novo recurso`
-   - `ðŸ› Corrige bug`
-   - `ðŸ“ Atualiza documentaÃ§Ã£o`
-
-2. **Version Numbering**: Semantic Versioning (MAJOR.MINOR.PATCH)
-
-3. **Testing**: Always test with workspace at `D:\` root to verify the spawn fix
-
-## Credits
-
-- **Original Base**: AG Quota by Henrik Mertens (henrikdev)
-- **Fork & Enhancements**: AC Tech (Moacir Costa & Vinicyus Abdala)
-- **License**: MIT
-
-- **License**: MIT
+## Development Constraints
+- Use `npm run compile` to build.
+- Manifest `package.json` drives the activation events.
+- Keep `CHANGELOG.md` updated with every release.
 
 
 ---
 
-> **Auto-generated by Synchronize Rules.ps1** on 2025-12-22 00:23:18
+> **Auto-generated by Synchronize Rules.ps1** on 2025-12-22 04:14:16
 > Source: Global + Project Rules
 > Do not edit this file directly.
 
