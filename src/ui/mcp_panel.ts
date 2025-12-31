@@ -447,6 +447,12 @@ export class MCPPanel {
 					opacity: 1;
 				}
 
+				.active-tag-highlight {
+					border: 1px solid var(--accent-color);
+					background: rgba(88, 166, 255, 0.25);
+					box-shadow: 0 0 0 1px var(--accent-color);
+				}
+
 				.card-desc {
 					font-size: 0.9em;
 					line-height: 1.5;
@@ -655,31 +661,31 @@ export class MCPPanel {
 					vscode.postMessage({ command, ...payload });
 				}
 
-				let currentInstalledFilter = null;
+				let activeInstalledFilters = [];
 				let recommendedActiveTags = [];
 
-				function renderServers(servers) {
 					console.log('[MCP Debug] renderServers called, servers:', servers);
-					console.log('[MCP Debug] currentInstalledFilter:', currentInstalledFilter);
+					console.log('[MCP Debug] activeInstalledFilters:', activeInstalledFilters);
 					serversData = servers;
 					const container = document.getElementById('servers-list');
 					
 					// Apply filter if active
 					let displayServerIds = Object.keys(servers || {});
 					console.log('[MCP Debug] All server IDs:', displayServerIds);
-					if (currentInstalledFilter) {
+					if (activeInstalledFilters.length > 0) {
 						displayServerIds = displayServerIds.filter(id => {
 							const config = servers[id];
-							let matches = false;
 							
-							if (currentInstalledFilter === 'Env Vars') {
-								matches = config.env && Object.keys(config.env).length > 0;
-							} else {
-								matches = config.command === currentInstalledFilter;
-							}
+							// AND Logic: Server must match ALL active filters
+							const matches = activeInstalledFilters.every(filterTag => {
+								if (filterTag === 'Env Vars') {
+									return config.env && Object.keys(config.env).length > 0;
+								} else {
+									return config.command === filterTag;
+								}
+							});
 							
-							console.log('[MCP Debug] Checking:', id, 'command:', config.command, 'matches:', matches);
-							// Filter by command (which is the main 'tag' shown)
+							console.log('[MCP Debug] Checking:', id, 'filters:', activeInstalledFilters, 'matches:', matches);
 							return matches;
 						});
 						console.log('[MCP Debug] Filtered server IDs:', displayServerIds);
@@ -693,8 +699,8 @@ export class MCPPanel {
 					if (displayServerIds.length === 0) {
 						container.innerHTML = \`
 							<div style="grid-column: 1/-1; text-align: center; padding: 20px;">
-								<p style="color: var(--text-secondary);">No servers match filter "<strong>\${currentInstalledFilter}</strong>"</p>
-								<button class="btn secondary" style="width: auto; margin-top: 10px;" onclick="clearInstalledFilter()">Clear Filter</button>
+								<p style="color: var(--text-secondary);">No servers match filters "<strong>\${activeInstalledFilters.join(', ')}</strong>"</p>
+								<button class="btn secondary" style="width: auto; margin-top: 10px;" onclick="clearInstalledFilter()">Clear All</button>
 							</div>
 						\`;
 						return;
@@ -702,14 +708,17 @@ export class MCPPanel {
 
 					// Show Active Filter Indicator if needed
 					let filterHtml = '';
-					if (currentInstalledFilter) {
+					if (activeInstalledFilters.length > 0) {
 						filterHtml = \`
-							<div style="grid-column: 1/-1; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
-								<span style="color: var(--text-secondary); font-size: 0.9em;">Filtering by:</span>
-								<span class="tag-chip">
-									\${currentInstalledFilter}
-									<span class="tag-chip-remove" onclick="clearInstalledFilter()">×</span>
-								</span>
+							<div style="grid-column: 1/-1; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+								<span style="color: var(--text-secondary); font-size: 0.9em;">Active Filters:</span>
+								\${activeInstalledFilters.map(tag => \`
+									<span class="tag-chip">
+										\${tag}
+										<span class="tag-chip-remove" onclick="filterInstalledServers('\${tag === 'Env Vars' ? 'Env Vars' : JSON.stringify(tag).replace(/^"|"$/g, '')}')">×</span>
+									</span>
+								\`).join('')}
+								<span style="color: var(--accent-color); cursor: pointer; font-size: 0.8em; text-decoration: underline;" onclick="clearInstalledFilter()">Clear All</span>
 							</div>
 						\`;
 					}
@@ -717,6 +726,11 @@ export class MCPPanel {
 					const listHtml = displayServerIds.map(id => {
 						const config = servers[id];
 						const isEnabled = !config.disabled;
+						
+						// Highlight logic
+						const isCommandActive = activeInstalledFilters.includes(config.command);
+						const isEnvActive = activeInstalledFilters.includes('Env Vars');
+
 						return \`
 						<div class="card" style="\${!isEnabled ? 'opacity: 0.7;' : ''}">
 							<div class="card-header">
@@ -729,8 +743,8 @@ export class MCPPanel {
 								</label>
 							</div>
 							<div class="card-meta">
-								<span class="tag click-tag" onclick='filterInstalledServers(\${JSON.stringify(config.command)})' title="Filter by \${config.command}">\${config.command}</span>
-								\${config.env && Object.keys(config.env).length > 0 ? '<span class="tag cloud click-tag" onclick="filterInstalledServers(\\'Env Vars\\')">Env Vars</span>' : ''}
+								<span class="tag click-tag \${isCommandActive ? 'active-tag-highlight' : ''}" onclick='filterInstalledServers(\${JSON.stringify(config.command)})' title="Filter by \${config.command}">\${config.command}</span>
+								\${config.env && Object.keys(config.env).length > 0 ? \`<span class="tag cloud click-tag \${isEnvActive ? 'active-tag-highlight' : ''}" onclick="filterInstalledServers('Env Vars')">Env Vars</span>\` : ''}
 							</div>
 							<div class="card-desc">
 								Running via \${config.command} with arguments: \${config.args.join(' ')}
@@ -745,14 +759,17 @@ export class MCPPanel {
 				}
 
 				function filterInstalledServers(tag) {
-					console.log('[MCP Debug] filterInstalledServers called with:', tag);
-					console.log('[MCP Debug] serversData:', serversData);
-					currentInstalledFilter = tag;
+					console.log('[MCP Debug] filterInstalledServers toggle:', tag);
+					if (activeInstalledFilters.includes(tag)) {
+						activeInstalledFilters = activeInstalledFilters.filter(t => t !== tag);
+					} else {
+						activeInstalledFilters.push(tag);
+					}
 					renderServers(serversData);
 				}
 
 				function clearInstalledFilter() {
-					currentInstalledFilter = null;
+					activeInstalledFilters = [];
 					renderServers(serversData);
 				}
 
