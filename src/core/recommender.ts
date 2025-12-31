@@ -236,7 +236,11 @@ export class MCPRecommender {
         let score = 0;
         const reasons: string[] = [];
         const lowerName = item.name.toLowerCase();
-        const lowerDesc = item.description.toLowerCase();
+
+        // Strip URLs and markdown links from description to prevent false positives
+        // e.g., "uses [tool](https://github.com/user/tool)" shouldn't match "github"
+        const cleanDesc = this.stripUrls(item.description.toLowerCase());
+
         const tags = (item.tags || []).map(t => t.toLowerCase());
 
         serviceScores.forEach((serviceScore, service) => {
@@ -248,8 +252,8 @@ export class MCPRecommender {
                 score += serviceScore * 1.5;
                 reasons.push(`Name: ${service}`);
             }
-            // Check description
-            else if (regex.test(lowerDesc)) {
+            // Check cleaned description (no URLs)
+            else if (regex.test(cleanDesc)) {
                 score += serviceScore;
                 reasons.push(`Desc: ${service}`);
             }
@@ -261,6 +265,23 @@ export class MCPRecommender {
         });
 
         return { item, score, reasons };
+    }
+
+    /**
+     * Strip URLs and markdown links from text
+     * Removes: [text](url), https://..., http://..., github.com/...
+     */
+    private stripUrls(text: string): string {
+        return text
+            // Remove markdown links: [text](url) -> text
+            .replace(/\[([^\]]*)\]\([^)]+\)/g, '$1')
+            // Remove plain URLs
+            .replace(/https?:\/\/[^\s)]+/g, '')
+            // Remove github.com/... patterns without protocol
+            .replace(/github\.com\/[^\s)]+/g, '')
+            // Clean up extra spaces
+            .replace(/\s+/g, ' ')
+            .trim();
     }
 
     /**
