@@ -108,11 +108,12 @@ export class UpdateChecker {
         return new Promise((resolve, reject) => {
             const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases/latest`;
 
-            https.get(url, {
+            const req = https.get(url, {
                 headers: {
                     'User-Agent': 'TechQuotas-Antigravity-Extension',
                     'Accept': 'application/vnd.github.v3+json'
-                }
+                },
+                timeout: 10000 // 10s timeout
             }, (res) => {
                 if (res.statusCode === 404) {
                     resolve(null); // No releases yet
@@ -132,7 +133,13 @@ export class UpdateChecker {
                         reject(e);
                     }
                 });
-            }).on('error', reject);
+            });
+
+            req.on('error', reject);
+            req.on('timeout', () => {
+                req.destroy();
+                reject(new Error('GitHub API request timed out'));
+            });
         });
     }
 
@@ -140,6 +147,12 @@ export class UpdateChecker {
      * Simple semver comparison: returns true if latest > current
      */
     private isNewerVersion(latest: string, current: string): boolean {
+        // Safety check: if current is 0.0.0 (dev or undetected), don't update to avoid loops
+        if (current === '0.0.0') {
+            logger.warn(LOG_CAT, 'Current version is 0.0.0, skipping update check');
+            return false;
+        }
+
         const latestParts = latest.split('.').map(Number);
         const currentParts = current.split('.').map(Number);
 
@@ -194,6 +207,11 @@ export class UpdateChecker {
             const vsixPath = path.join(tempDir, `techquotas-${version}.vsix`);
 
             try {
+                // Ensure we delete any existing temp file first
+                if (fs.existsSync(vsixPath)) {
+                    fs.unlinkSync(vsixPath);
+                }
+
                 await this.downloadFile(downloadUrl, vsixPath);
                 progress.report({ message: 'Installing...' });
 
@@ -203,7 +221,9 @@ export class UpdateChecker {
                 );
 
                 // Clean up temp file
-                fs.unlinkSync(vsixPath);
+                if (fs.existsSync(vsixPath)) {
+                    fs.unlinkSync(vsixPath);
+                }
 
                 const reload = await vscode.window.showInformationMessage(
                     `TechQuotas v${version} installed. Reload to activate.`,
@@ -216,6 +236,11 @@ export class UpdateChecker {
             } catch (e: any) {
                 logger.error(LOG_CAT, `Install failed: ${e.message}`);
                 vscode.window.showErrorMessage(`Failed to install update: ${e.message}`);
+                
+                // Cleanup on error
+                if (fs.existsSync(vsixPath)) {
+                    fs.unlinkSync(vsixPath);
+                }
             }
         });
     }
@@ -223,10 +248,16 @@ export class UpdateChecker {
     private downloadFile(url: string, destPath: string): Promise<void> {
         return new Promise((resolve, reject) => {
             const file = fs.createWriteStream(destPath);
+            
+            file.on('error', (err) => {
+                fs.unlink(destPath, () => {}); // Async unlink, don't wait
+                reject(err);
+            });
 
             const request = (urlToFetch: string) => {
-                https.get(urlToFetch, {
-                    headers: { 'User-Agent': 'TechQuotas-Antigravity-Extension' }
+                const req = https.get(urlToFetch, {
+                    headers: { 'User-Agent': 'TechQuotas-Antigravity-Extension' },
+                    timeout: 15000 // 15s timeout for download
                 }, (res) => {
                     // Handle redirects (GitHub uses them for downloads)
                     if (res.statusCode === 302 || res.statusCode === 301) {
@@ -238,18 +269,31 @@ export class UpdateChecker {
                     }
 
                     if (res.statusCode !== 200) {
+                        file.close();
+                        fs.unlink(destPath, () => {});
                         reject(new Error(`Download failed with status ${res.statusCode}`));
                         return;
                     }
 
                     res.pipe(file);
+                    
                     file.on('finish', () => {
                         file.close();
                         resolve();
                     });
-                }).on('error', (e) => {
-                    fs.unlinkSync(destPath);
+                });
+
+                req.on('error', (e) => {
+                    file.close();
+                    fs.unlink(destPath, () => {});
                     reject(e);
+                });
+
+                req.on('timeout', () => {
+                    req.destroy();
+                    file.close();
+                    fs.unlink(destPath, () => {});
+                    reject(new Error('Download timed out'));
                 });
             };
 
