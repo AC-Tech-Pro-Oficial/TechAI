@@ -135,17 +135,17 @@ export class MCPRecommender {
                 const isRuntime = ['typescript', 'javascript', 'python', 'go', 'rust', 'node', 'java', 'php'].includes(tech);
 
                 if (isRuntime) {
-                    // Only boost if it seems like a Tooling/SDK match, not just "Written in X"
-                    if (lowerDesc.includes(`debug ${tech}`) || lowerDesc.includes(`${tech} language`) || lowerDesc.includes(`for ${tech}`)) {
+                    // STRICT CHECK: Only recommend if it is explicitly a tool FOR that language.
+                    const toolingKeywords = ['debug', 'linter', 'compiler', 'sdk', 'playground', 'introspector', 'server for', 'api for'];
+                    const isTooling = toolingKeywords.some(k => lowerDesc.includes(k) || lowerName.includes(k));
+
+                    if (isTooling) {
                         score += techScore * 2.0;
                         reasons.push(`Tooling match: ${tech}`);
-                    } else {
-                        // Tiny boost just for compatibility, but not enough to surface it alone
-                        score += techScore * 0.1;
                     }
                 } else {
                     // It's a Subject match (e.g. 'react', 'postgres', 'docker', 'aws')
-                    score += techScore * 2.5;
+                    score += techScore * 3.0;
                     reasons.push(`Subject match: ${tech}`);
                 }
             }
@@ -156,12 +156,26 @@ export class MCPRecommender {
             }
             // 3. Description Match
             else if (lowerDesc.includes(tech)) {
-                // Context Check: "Written in TypeScript" vs "TypeScript Linter"
-                const contextRegex = new RegExp(`(written in|built with|based on)\\s+${tech}`, 'i');
-                if (contextRegex.test(lowerDesc)) {
-                    score += 0.5; // Minimal boost for implementation details
+                // Same Runtime check for description matches
+                const isRuntime = ['typescript', 'javascript', 'python', 'go', 'rust', 'node', 'java', 'php'].includes(tech);
+
+                if (isRuntime) {
+                    // Only count if it looks like the subject, not implementation
+                    const toolingKeywords = ['debug', 'linter', 'compiler', 'sdk', 'playground', 'introspector', 'server for', 'api for'];
+                    if (toolingKeywords.some(k => lowerDesc.includes(k))) {
+                        score += techScore * 1.5;
+                        reasons.push(`Tooling desc match: ${tech}`);
+                    }
+                    // Otherwise 0
                 } else {
-                    score += techScore * 0.8;
+                    // Subject match in description
+                    // Context Check: "Written in X" vs "X Linter"
+                    const contextRegex = new RegExp(`(written in|built with|based on)\\s+${tech}`, 'i');
+                    if (contextRegex.test(lowerDesc)) {
+                        score += 0.5; // Minimal boost
+                    } else {
+                        score += techScore * 0.8;
+                    }
                 }
             }
         });

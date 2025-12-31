@@ -652,15 +652,53 @@ export class MCPPanel {
 					vscode.postMessage({ command, ...payload });
 				}
 
+				let currentInstalledFilter = null;
+
 				function renderServers(servers) {
 					serversData = servers;
 					const container = document.getElementById('servers-list');
+					
+					// Apply filter if active
+					let displayServerIds = Object.keys(servers);
+					if (currentInstalledFilter) {
+						displayServerIds = displayServerIds.filter(id => {
+							const config = servers[id];
+							// Filter by command (which is the main 'tag' shown)
+							return config.command === currentInstalledFilter;
+						});
+					}
+
 					if (!servers || Object.keys(servers).length === 0) {
 						container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; grid-column: 1/-1; padding: 40px;">No servers configured. Visit the Marketplace to install one.</p>';
 						return;
 					}
 
-					container.innerHTML = Object.entries(servers).map(([id, config]) => {
+					if (displayServerIds.length === 0) {
+						container.innerHTML = \`
+							<div style="grid-column: 1/-1; text-align: center; padding: 20px;">
+								<p style="color: var(--text-secondary);">No servers match filter "<strong>\${currentInstalledFilter}</strong>"</p>
+								<button class="btn secondary" style="width: auto; margin-top: 10px;" onclick="clearInstalledFilter()">Clear Filter</button>
+							</div>
+						\`;
+						return;
+					}
+
+					// Show Active Filter Indicator if needed
+					let filterHtml = '';
+					if (currentInstalledFilter) {
+						filterHtml = \`
+							<div style="grid-column: 1/-1; margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+								<span style="color: var(--text-secondary); font-size: 0.9em;">Filtering by:</span>
+								<span class="tag-chip">
+									\${currentInstalledFilter}
+									<span class="tag-chip-remove" onclick="clearInstalledFilter()">×</span>
+								</span>
+							</div>
+						\`;
+					}
+
+					const listHtml = displayServerIds.map(id => {
+						const config = servers[id];
 						const isEnabled = !config.disabled;
 						return \`
 						<div class="card" style="\${!isEnabled ? 'opacity: 0.7;' : ''}">
@@ -674,7 +712,7 @@ export class MCPPanel {
 								</label>
 							</div>
 							<div class="card-meta">
-								<span class="tag click-tag" onclick="switchTab('marketplace'); document.getElementById('search').value = '\${config.command}'; filterMarketplace();" title="Search in Marketplace">\${config.command}</span>
+								<span class="tag click-tag" onclick="filterInstalledServers('\${config.command}')" title="Filter by \${config.command}">\${config.command}</span>
 								\${config.env && Object.keys(config.env).length > 0 ? '<span class="tag cloud">Env Vars</span>' : ''}
 							</div>
 							<div class="card-desc">
@@ -685,6 +723,18 @@ export class MCPPanel {
 							</div>
 						</div>
 					\`}).join('');
+
+					container.innerHTML = filterHtml + listHtml;
+				}
+
+				function filterInstalledServers(tag) {
+					currentInstalledFilter = tag;
+					renderServers(serversData);
+				}
+
+				function clearInstalledFilter() {
+					currentInstalledFilter = null;
+					renderServers(serversData);
 				}
 
 				function renderRecommended(items) {
