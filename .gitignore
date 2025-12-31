@@ -1,0 +1,13 @@
+# Credentials - NEVER COMMIT
+Credentials/
+*.env
+*.key
+*_key.txt
+*_token.txt
+*_api_key.txt
+*.json
+!projects.json
+
+# Temp files
+.sync_projects_tmpy.json
+*.tmp
