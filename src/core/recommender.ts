@@ -27,7 +27,8 @@ export class MCPRecommender {
         'postgres': ['modelcontextprotocol/server-postgres'],
         'slack': ['modelcontextprotocol/server-slack'],
         'filesystem': ['modelcontextprotocol/server-filesystem'],
-
+        // Cloudflare Docs server only (lightweight, avoids context overload from full server)
+        'cloudflare-docs': ['cloudflare/mcp-server-cloudflare-docs'],
         'vercel': ['vercel/mcp-server'], // Official Vercel MCP
     };
 

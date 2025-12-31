@@ -307,8 +307,9 @@ export class MCPAutoManager {
      * trusted: true = auto-install allowed, false = requires manual confirmation
      */
     private static readonly INSTALLERS: Record<string, {
-        type: 'npm' | 'python';
-        package: string;
+        type: 'npm' | 'python' | 'remote';
+        package?: string;
+        url?: string;
         trusted: boolean;
         requires?: string[]; // Required Environment Variables
         runConfig?: { command: string; args: string[] };
@@ -378,6 +379,12 @@ export class MCPAutoManager {
                 package: 'firebase-mcp',
                 trusted: true, // gannonh's is widely adopted
             },
+            // Cloudflare Docs server (remote MCP - lightweight, no npm install needed)
+            'cloudflare-docs': {
+                type: 'remote',
+                url: 'https://docs.mcp.cloudflare.com/mcp',
+                trusted: true,
+            },
             'cloudflare-mcp': {
                 type: 'npm',
                 package: '@cloudflare/mcp-server-cloudflare',
@@ -432,9 +439,15 @@ export class MCPAutoManager {
             }
 
             if (installer.type === 'npm') {
-                config = await this.buildNpmConfig(installer.package, envVars);
+                config = await this.buildNpmConfig(installer.package!, envVars);
             } else if (installer.type === 'python') {
-                config = await this.buildPythonConfig(installer.package, envVars);
+                config = await this.buildPythonConfig(installer.package!, envVars);
+            } else if (installer.type === 'remote') {
+                // Remote MCP server (HTTP-based, no local install)
+                config = {
+                    url: installer.url,
+                    transport: 'streamable-http'
+                };
             }
 
             if (!config) {

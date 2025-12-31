@@ -536,6 +536,46 @@ export class MCPPanel {
 					left: 22px;
 				}
 
+				/* Checkbox-based toggle (for Auto-Apply) */
+				.toggle-switch input[type="checkbox"] {
+					opacity: 0;
+					width: 0;
+					height: 0;
+				}
+
+				.toggle-switch .slider {
+					position: absolute;
+					cursor: pointer;
+					top: 0;
+					left: 0;
+					right: 0;
+					bottom: 0;
+					background-color: rgba(255,255,255,0.1);
+					transition: 0.3s;
+					border-radius: 24px;
+				}
+
+				.toggle-switch .slider:before {
+					position: absolute;
+					content: "";
+					height: 20px;
+					width: 20px;
+					left: 2px;
+					bottom: 2px;
+					background-color: white;
+					transition: 0.3s;
+					border-radius: 50%;
+					box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+				}
+
+				.toggle-switch input:checked + .slider {
+					background-color: var(--success-color);
+				}
+
+				.toggle-switch input:checked + .slider:before {
+					transform: translateX(20px);
+				}
+
 				.toggle-label {
 					font-size: 0.8em;
 					color: var(--text-secondary);
