@@ -7,7 +7,8 @@ import * as vscode from 'vscode';
 import { MCPManager } from '../core/mcp_manager';
 import { MCPRegistry } from '../core/mcp_registry';
 import { logger } from '../utils/logger';
-import { MCPServersCollection, RegistryData } from '../utils/mcp_types';
+import { MCPServersCollection, RegistryData, RegistryItem } from '../utils/mcp_types';
+import { MCPRecommender } from '../core/recommender';
 
 export class MCPPanel {
 	public static currentPanel: MCPPanel | undefined;
@@ -22,6 +23,8 @@ export class MCPPanel {
 
 	private _currentServers: MCPServersCollection = {};
 	private _registryData: RegistryData | null = null;
+	private _recommendedItems: RegistryItem[] = [];
+	private _recommender: MCPRecommender;
 	private _isInstallerBusy: boolean = false;
 
 	public static createOrShow(
@@ -64,6 +67,7 @@ export class MCPPanel {
 		this._extensionUri = extensionUri;
 		this._mcpManager = mcpManager;
 		this._mcpRegistry = mcpRegistry;
+		this._recommender = new MCPRecommender();
 
 		// Set the webview's initial html content
 		this._panel.webview.html = this._getHtmlForWebview();
@@ -115,6 +119,9 @@ export class MCPPanel {
 		// Load Registry data
 		this._panel.webview.postMessage({ command: 'setLoading', value: true });
 		this._registryData = await this._mcpRegistry.get_registry_data();
+		if (this._registryData) {
+			this._recommendedItems = await this._recommender.getRecommendations(this._registryData);
+		}
 		this._panel.webview.postMessage({ command: 'setLoading', value: false });
 
 		await this._updateWebviewState();
@@ -124,7 +131,8 @@ export class MCPPanel {
 		await this._panel.webview.postMessage({
 			command: 'updateData',
 			servers: this._currentServers,
-			registry: this._registryData
+			registry: this._registryData,
+			recommended: this._recommendedItems
 		});
 	}
 
@@ -390,7 +398,14 @@ export class MCPPanel {
 					border-radius: 20px;
 					font-size: 0.75em;
 					font-weight: 600;
+					font-weight: 600;
 					border: 1px solid rgba(88, 166, 255, 0.2);
+					cursor: pointer;
+					transition: all 0.2s;
+				}
+
+				.tag:hover {
+					background: rgba(88, 166, 255, 0.3);
 				}
 
 				.tag.local { background: rgba(52, 211, 153, 0.15); color: #6ee7b7; border-color: rgba(52, 211, 153, 0.2); }
@@ -527,8 +542,9 @@ export class MCPPanel {
 		</head>
 		<body>
 			<div class="tabs">
-				<div class="tab active" onclick="switchTab('installed')">Installed Apps</div>
-				<div class="tab" onclick="switchTab('marketplace')">Marketplace Registry</div>
+				<div class="tab" id="tab-installed" onclick="switchTab('installed')">Installed Apps</div>
+				<div class="tab" id="tab-recommended" onclick="switchTab('recommended')">Recommended</div>
+				<div class="tab" id="tab-marketplace" onclick="switchTab('marketplace')">Marketplace Registry</div>
 			</div>
 
 			<!-- INSTALLED TAB -->
@@ -542,6 +558,17 @@ export class MCPPanel {
 				</div>
 				<div id="servers-list" class="grid">
 					<!-- Servers injected here -->
+				</div>
+			</div>
+
+			<!-- RECOMMENDED TAB -->
+			<div id="recommended" class="content hidden">
+				<div class="header-bar">
+					<h2>Recommended for this Workspace</h2>
+					<button class="btn secondary" onclick="sendMessage('refresh')" style="flex: 0 0 auto; width: auto;">Refresh</button>
+				</div>
+				<div id="recommended-list" class="grid">
+					<!-- Recommendations injected here -->
 				</div>
 			</div>
 
@@ -565,9 +592,11 @@ export class MCPPanel {
 			</div>
 
 			<script>
+			<script>
 				const vscode = acquireVsCodeApi();
 				let registryData = [];
 				let serversData = {};
+				let recommendedData = [];
 
 				function switchTab(tabId) {
 					document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -577,8 +606,10 @@ export class MCPPanel {
 					// Actually the onclick in HTML passes the ID, so let's match by that.
 					// We need to find the tab element that triggers this.
 					const buttons = document.querySelectorAll('.tab');
-					if (tabId === 'installed') buttons[0].classList.add('active');
-					else buttons[1].classList.add('active');
+					buttons.forEach(b => b.classList.remove('active'));
+					
+					const activeTab = document.getElementById('tab-' + tabId);
+					if (activeTab) activeTab.classList.add('active');
 
 					document.getElementById(tabId).classList.remove('hidden');
 				}
@@ -620,6 +651,40 @@ export class MCPPanel {
 							</div>
 						</div>
 					\`}).join('');
+				}
+
+				function renderRecommended(items) {
+					recommendedData = items || [];
+					const container = document.getElementById('recommended-list');
+					
+					if (!recommendedData || recommendedData.length === 0) {
+						container.innerHTML = '<p style="text-align: center; grid-column: 1/-1; padding: 40px; color: var(--text-secondary);">No specific recommendations found for this workspace.</p>';
+						return;
+					}
+
+					container.innerHTML = recommendedData.map(item => \`
+						<div class="card">
+							<div class="card-header">
+								<span class="card-title" title="\${item.name}">\${item.name.split('/').pop()}</span>
+								<small style="color: var(--text-secondary); font-size: 0.8em">\${item.name.split('/')[0]}</small>
+							</div>
+							<div class="card-meta">
+								\${(item.tags || []).map(t => {
+									let cls = 'tag';
+									if(t === 'Cloud') cls += ' cloud';
+									if(t === 'Local') cls += ' local';
+									return \`<span class="\${cls}" onclick="filterWithTag('\${t}')">\${t}</span>\`;
+								}).join('')}
+							</div>
+							<div class="card-desc" title="\${item.description}">
+								\${item.description}
+							</div>
+							<div class="actions">
+								<button class="btn" onclick="installServer('\${item.url}', '\${item.name}')">Install</button>
+								<button class="btn secondary" onclick="sendMessage('openLink', {url: '\${item.url}'})">GitHub</button>
+							</div>
+						</div>
+					\`).join('');
 				}
 
 				function renderRegistry(data) {
@@ -679,6 +744,16 @@ export class MCPPanel {
 					container.innerHTML = hasResults ? html : '<p style="text-align: center; padding: 40px; color: var(--text-secondary);">No servers found matching your search.</p>';
 				}
 
+				function filterWithTag(tag) {
+					// Switch to marketplace
+					switchTab('marketplace');
+					// Set search box
+					const searchBox = document.getElementById('search');
+					searchBox.value = tag;
+					// Trigger filter
+					filterMarketplace();
+				}
+
 				function toggleServer(id, enabled) {
 					sendMessage('toggleServer', { id, enabled });
 				}
@@ -704,6 +779,7 @@ export class MCPPanel {
 						case 'updateData':
 							renderServers(message.servers);
 							renderRegistry(message.registry);
+							renderRecommended(message.recommended);
 							setLoading(false); // Ensure loading is cleared when data arrives
 							break;
 						case 'setLoading': // Fallback for pure loading events
