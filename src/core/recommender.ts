@@ -136,7 +136,7 @@ export class MCPRecommender {
 
                 if (isRuntime) {
                     // STRICT CHECK: Only recommend if it is explicitly a tool FOR that language.
-                    const toolingKeywords = ['debug', 'linter', 'compiler', 'profiler', 'formatter', 'playground', 'introspector'];
+                    const toolingKeywords = ['debug', 'linter', 'compiler', 'profiler', 'formatter', 'playground', 'introspector', 'language server', 'lsp', 'runtime', 'interpreter', 'cli'];
                     const isTooling = toolingKeywords.some(k => lowerDesc.includes(k) || lowerName.includes(k));
 
                     if (isTooling) {
@@ -166,7 +166,7 @@ export class MCPRecommender {
 
                 if (isRuntime) {
                     // Only count if it looks like the subject, not implementation
-                    const toolingKeywords = ['debug', 'linter', 'compiler', 'profiler', 'formatter', 'playground', 'introspector'];
+                    const toolingKeywords = ['debug', 'linter', 'compiler', 'profiler', 'formatter', 'playground', 'introspector', 'language server', 'lsp', 'runtime', 'interpreter', 'cli'];
                     if (toolingKeywords.some(k => lowerDesc.includes(k))) {
                         score += techScore * 1.5;
                         reasons.push(`Tooling desc match: ${tech}`);
