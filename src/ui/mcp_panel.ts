@@ -409,7 +409,10 @@ export class MCPPanel {
 				}
 
 				.tag.local { background: rgba(52, 211, 153, 0.15); color: #6ee7b7; border-color: rgba(52, 211, 153, 0.2); }
+				.tag.local:hover { background: rgba(52, 211, 153, 0.3); }
+				
 				.tag.cloud { background: rgba(167, 139, 250, 0.15); color: #c4b5fd; border-color: rgba(167, 139, 250, 0.2); }
+				.tag.cloud:hover { background: rgba(167, 139, 250, 0.3); }
 
 				/* Active Filter Chips */
 				.active-tags-container {
