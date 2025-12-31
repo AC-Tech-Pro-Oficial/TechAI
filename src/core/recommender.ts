@@ -28,6 +28,7 @@ export class MCPRecommender {
         'slack': ['modelcontextprotocol/server-slack'],
         'filesystem': ['modelcontextprotocol/server-filesystem'],
         'cloudflare': ['cloudflare/mcp-server-cloudflare'],
+        'vercel': ['vercel/mcp-server'], // Official Vercel MCP
     };
 
     /**

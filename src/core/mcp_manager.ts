@@ -30,6 +30,21 @@ export class MCPManager {
      * Matches path found in research: C:\Users\MBCJ\AppData\Roaming\Antigravity\User\mcp_config.json
      */
     private resolve_config_path(): string {
+        // 1. Check for Antigravity specific path (User Request)
+        const antigravityPath = path.join(os.homedir(), '.gemini', 'antigravity', 'mcp_config.json');
+        // We prioritize this path if we are in the Antigravity context or if it exists
+        // Since the user explicitly requested it, we check for it.
+        // We'll trust it exists or we default to it if we want to create it there.
+        // But for safety, let's check existence first, or just return it if we want to switch entirely.
+
+        // Actually, let's just make it the primary path for Windows if it exists.
+        // Or if the directory exists.
+        const antigravityDir = path.dirname(antigravityPath);
+        if (fs.existsSync(antigravityDir)) {
+            return antigravityPath;
+        }
+
+        // 2. Fallback to Standard Logic
         if (process.platform === 'win32') {
             const appData = process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming');
             return path.join(appData, 'Antigravity', 'User', 'mcp_config.json');

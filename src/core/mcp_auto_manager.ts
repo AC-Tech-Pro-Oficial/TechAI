@@ -374,6 +374,11 @@ export class MCPAutoManager {
                 package: '@cloudflare/mcp-server-cloudflare',
                 trusted: true,
             },
+            'mcp-server': { // Vercel Official
+                type: 'npm',
+                package: '@vercel/mcp-server',
+                trusted: true,
+            },
             // === COMMUNITY: Require Warning ===
             'mcp-git-ingest': {
                 type: 'python',
