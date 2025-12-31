@@ -712,7 +712,7 @@ export class MCPPanel {
 								</label>
 							</div>
 							<div class="card-meta">
-								<span class="tag click-tag" onclick="filterInstalledServers('\${config.command}')" title="Filter by \${config.command}">\${config.command}</span>
+								<span class="tag click-tag" onclick="filterInstalledServers('\${config.command.replace(/\\/g, '\\\\')}')" title="Filter by \${config.command}">\${config.command}</span>
 								\${config.env && Object.keys(config.env).length > 0 ? '<span class="tag cloud">Env Vars</span>' : ''}
 							</div>
 							<div class="card-desc">

@@ -151,8 +151,13 @@ export class MCPRecommender {
             }
             // 2. Name Match (Strong indicator of Subject)
             else if (lowerName.includes(tech)) {
-                score += techScore * 2.0;
-                reasons.push(`Name match: ${tech}`);
+                // Runtime check: Don't boost if it's just a runtime language in the name
+                const isRuntime = ['typescript', 'javascript', 'python', 'go', 'rust', 'node', 'java', 'php'].includes(tech);
+                if (!isRuntime) {
+                    score += techScore * 2.0;
+                    reasons.push(`Name match: ${tech}`);
+                }
+                // Runtimes in names are ignored (e.g., time-node-mcp shouldn't match just because of 'node')
             }
             // 3. Description Match
             else if (lowerDesc.includes(tech)) {
