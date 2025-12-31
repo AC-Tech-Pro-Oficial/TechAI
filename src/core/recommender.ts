@@ -125,19 +125,44 @@ export class MCPRecommender {
 
         techScores.forEach((techScore, tech) => {
             // Check if this tech is relevant to the item
+
             // 1. Direct Tag Match (Best)
             if (tags.includes(tech)) {
-                score += techScore * 2.0; // Multiplier for tag matches
-                reasons.push(`Tag match: ${tech}`);
+                // PENALTY: If the matched tag is a programming language (Runtime), 
+                // but the item description suggests it's just WRITTEN in that language, not FOR that language.
+                // We assume 'typescript', 'python', 'go', 'rust', 'node' are primarily Runtimes unless
+                // the description explicitly focuses on them as a Subject.
+                const isRuntime = ['typescript', 'javascript', 'python', 'go', 'rust', 'node', 'java', 'php'].includes(tech);
+
+                if (isRuntime) {
+                    // Only boost if it seems like a Tooling/SDK match, not just "Written in X"
+                    if (lowerDesc.includes(`debug ${tech}`) || lowerDesc.includes(`${tech} language`) || lowerDesc.includes(`for ${tech}`)) {
+                        score += techScore * 2.0;
+                        reasons.push(`Tooling match: ${tech}`);
+                    } else {
+                        // Tiny boost just for compatibility, but not enough to surface it alone
+                        score += techScore * 0.1;
+                    }
+                } else {
+                    // It's a Subject match (e.g. 'react', 'postgres', 'docker', 'aws')
+                    score += techScore * 2.5;
+                    reasons.push(`Subject match: ${tech}`);
+                }
             }
-            // 2. Name Match
+            // 2. Name Match (Strong indicator of Subject)
             else if (lowerName.includes(tech)) {
-                score += techScore * 1.5;
+                score += techScore * 2.0;
                 reasons.push(`Name match: ${tech}`);
             }
             // 3. Description Match
             else if (lowerDesc.includes(tech)) {
-                score += techScore * 0.5; // Lower weight for description mentions
+                // Context Check: "Written in TypeScript" vs "TypeScript Linter"
+                const contextRegex = new RegExp(`(written in|built with|based on)\\s+${tech}`, 'i');
+                if (contextRegex.test(lowerDesc)) {
+                    score += 0.5; // Minimal boost for implementation details
+                } else {
+                    score += techScore * 0.8;
+                }
             }
         });
 

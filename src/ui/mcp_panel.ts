@@ -674,7 +674,7 @@ export class MCPPanel {
 								</label>
 							</div>
 							<div class="card-meta">
-								<span class="tag">\${config.command}</span>
+								<span class="tag click-tag" onclick="switchTab('marketplace'); document.getElementById('search').value = '\${config.command}'; filterMarketplace();" title="Search in Marketplace">\${config.command}</span>
 								\${config.env && Object.keys(config.env).length > 0 ? '<span class="tag cloud">Env Vars</span>' : ''}
 							</div>
 							<div class="card-desc">
