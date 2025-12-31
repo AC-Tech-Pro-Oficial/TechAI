@@ -125,6 +125,13 @@ export class MCPPanel {
 						await this._context.globalState.update('mcp.autoApplyBestPicks', message.value);
 						await this._updateWebviewState();
 						break;
+					case 'updateSetting':
+						await this._context.globalState.update(message.key, message.value);
+						logger.info('MCPPanel', `Setting updated: ${message.key} = ${message.value}`);
+						break;
+					case 'showLogs':
+						vscode.commands.executeCommand('workbench.action.output.toggleOutput');
+						break;
 				}
 			},
 			null,
@@ -156,7 +163,14 @@ export class MCPPanel {
 			servers: this._currentServers,
 			registry: this._registryData,
 			recommended: this._recommendedItems,
-			autoApplyEnabled: this._context.globalState.get('mcp.autoApplyBestPicks', false)
+			autoApplyEnabled: this._context.globalState.get('mcp.autoApplyBestPicks', false),
+			settings: {
+				autoApplyEnabled: this._context.globalState.get('mcp.autoApplyBestPicks', false),
+				maxContextTokens: this._context.globalState.get('mcp.maxContextTokens', 50000),
+				showBadges: this._context.globalState.get('mcp.showBadges', true),
+				debugEnabled: this._context.globalState.get('mcp.debugLogging', false),
+				configPath: this._mcpManager.get_config_path()
+			}
 		});
 	}
 
@@ -708,13 +722,68 @@ export class MCPPanel {
 					font-weight: 300;
 					letter-spacing: 1px;
 				}
+
+				/* Settings Tab Styles */
+				.settings-section {
+					background: var(--card-bg);
+					border: 1px solid var(--card-border);
+					border-radius: 12px;
+					padding: 25px;
+					margin-bottom: 20px;
+				}
+
+				.settings-row {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					padding: 15px 0;
+					border-bottom: 1px solid var(--card-border);
+				}
+
+				.settings-row:last-child {
+					border-bottom: none;
+					padding-bottom: 0;
+				}
+
+				.settings-row:first-child {
+					padding-top: 0;
+				}
+
+				.settings-label {
+					flex: 1;
+					padding-right: 20px;
+				}
+
+				/* Range Slider Styling */
+				input[type="range"] {
+					-webkit-appearance: none;
+					height: 8px;
+					background: rgba(255,255,255,0.1);
+					border-radius: 4px;
+					outline: none;
+				}
+
+				input[type="range"]::-webkit-slider-thumb {
+					-webkit-appearance: none;
+					width: 20px;
+					height: 20px;
+					background: var(--accent-color);
+					border-radius: 50%;
+					cursor: pointer;
+					transition: transform 0.2s;
+				}
+
+				input[type="range"]::-webkit-slider-thumb:hover {
+					transform: scale(1.1);
+				}
 			</style>
 		</head>
 		<body>
 			<div class="tabs">
-				<div class="tab active" id="tab-installed" onclick="switchTab('installed')">Installed Apps</div>
+				<div class="tab active" id="tab-installed" onclick="switchTab('installed')">Installed</div>
 				<div class="tab" id="tab-recommended" onclick="switchTab('recommended')">Recommended</div>
-				<div class="tab" id="tab-marketplace" onclick="switchTab('marketplace')">Marketplace Registry</div>
+				<div class="tab" id="tab-marketplace" onclick="switchTab('marketplace')">Marketplace</div>
+				<div class="tab" id="tab-settings" onclick="switchTab('settings')">⚙ Settings</div>
 			</div>
 
 			<!-- INSTALLED TAB -->
@@ -757,6 +826,120 @@ export class MCPPanel {
 				</div>
 			</div>
 
+			<!-- SETTINGS TAB -->
+			<div id="settings" class="content hidden">
+				<div class="header-bar">
+					<h2>Extension Settings</h2>
+				</div>
+				<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+					<!-- Auto-Apply Section -->
+					<div class="settings-section">
+						<h3 class="section-title" style="margin-top: 0;">🚀 Automation</h3>
+						<div class="settings-row">
+							<div class="settings-label">
+								<strong>Auto-Apply Best Picks on Startup</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 5px 0 0;">
+									Automatically check and apply recommended MCP servers when you open a workspace.
+								</p>
+							</div>
+							<div class="server-toggle">
+								<label class="toggle-switch">
+									<input type="checkbox" id="setting-auto-apply" onchange="updateSetting('autoApply', this.checked)">
+									<span class="slider"></span>
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<!-- Token Limit Section -->
+					<div class="settings-section">
+						<h3 class="section-title">📊 Context Token Limits</h3>
+						<div class="settings-row" style="flex-direction: column; align-items: flex-start;">
+							<div class="settings-label" style="margin-bottom: 15px;">
+								<strong>Maximum MCP Context Tokens</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 5px 0 0;">
+									Limit the total tokens used by MCP tool definitions. Servers exceeding this limit will show a warning.
+									Lower values prevent model context overload.
+								</p>
+							</div>
+							<div style="width: 100%; display: flex; align-items: center; gap: 15px;">
+								<input type="range" id="setting-max-tokens" min="10000" max="200000" step="5000" value="50000" 
+									style="flex: 1; accent-color: var(--accent-color);"
+									oninput="document.getElementById('token-display').textContent = (this.value/1000) + 'K'; updateSetting('maxTokens', parseInt(this.value));">
+								<span id="token-display" style="min-width: 60px; text-align: right; font-weight: bold; color: var(--accent-color);">50K</span>
+							</div>
+							<div style="display: flex; justify-content: space-between; width: 100%; color: var(--text-secondary); font-size: 0.8em; margin-top: 5px;">
+								<span>10K (Minimal)</span>
+								<span>200K (Maximum)</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- Display Section -->
+					<div class="settings-section">
+						<h3 class="section-title">🎨 Display</h3>
+						<div class="settings-row">
+							<div class="settings-label">
+								<strong>Show Best Picks Badge</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 5px 0 0;">
+									Display the "★ Best Pick" badge on curated recommendations.
+								</p>
+							</div>
+							<div class="server-toggle">
+								<label class="toggle-switch">
+									<input type="checkbox" id="setting-show-badges" checked onchange="updateSetting('showBadges', this.checked)">
+									<span class="slider"></span>
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<!-- Debug Section -->
+					<div class="settings-section">
+						<h3 class="section-title">🔧 Developer</h3>
+						<div class="settings-row">
+							<div class="settings-label">
+								<strong>Enable Debug Logging</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 5px 0 0;">
+									Log detailed information to the Output panel for troubleshooting.
+								</p>
+							</div>
+							<div class="server-toggle">
+								<label class="toggle-switch">
+									<input type="checkbox" id="setting-debug" onchange="updateSetting('debug', this.checked)">
+									<span class="slider"></span>
+								</label>
+							</div>
+						</div>
+						<div class="settings-row" style="margin-top: 15px;">
+							<div class="settings-label">
+								<strong>Configuration Path</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 5px 0 0;">
+									Location of your MCP configuration file.
+								</p>
+							</div>
+							<code id="config-path" style="background: var(--card-bg); padding: 8px 12px; border-radius: 6px; font-size: 0.85em; color: var(--text-secondary); word-break: break-all;"></code>
+						</div>
+						<div style="margin-top: 20px;">
+							<button class="btn secondary" onclick="sendMessage('editConfig')" style="width: auto;">
+								📝 Edit Config File
+							</button>
+							<button class="btn secondary" onclick="sendMessage('showLogs')" style="width: auto; margin-left: 10px;">
+								📋 View Logs
+							</button>
+						</div>
+					</div>
+
+					<!-- About Section -->
+					<div class="settings-section" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--card-border);">
+						<div style="text-align: center; color: var(--text-secondary);">
+							<p style="margin: 0; font-size: 1.1em; font-weight: 600; color: var(--text-primary);">TechQuotas Antigravity</p>
+							<p style="margin: 5px 0 0; font-size: 0.9em;">v<span id="version-display">1.7.2</span> by AC Tech</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<div id="loading" class="loading-overlay hidden">
 				<div class="spinner"></div>
 				<div class="loading-text">PROCESSING</div>
@@ -770,9 +953,66 @@ export class MCPPanel {
 				let activeTags = [];
 				let showOnlyBestPicks = false;
 				let autoApplyEnabled = false;
+				let maxContextTokens = 50000;
+				let showBadges = true;
+				let debugEnabled = false;
+				let configPath = '';
 
 				function toggleAutoApply() {
-					sendMessage('toggleAutoApply', { value: !autoApplyEnabled });
+					autoApplyEnabled = !autoApplyEnabled;
+					sendMessage('toggleAutoApply', { value: autoApplyEnabled });
+				}
+
+				function updateSetting(key, value) {
+					switch(key) {
+						case 'autoApply':
+							autoApplyEnabled = value;
+							sendMessage('updateSetting', { key: 'mcp.autoApplyBestPicks', value });
+							break;
+						case 'maxTokens':
+							maxContextTokens = value;
+							sendMessage('updateSetting', { key: 'mcp.maxContextTokens', value });
+							break;
+						case 'showBadges':
+							showBadges = value;
+							sendMessage('updateSetting', { key: 'mcp.showBadges', value });
+							break;
+						case 'debug':
+							debugEnabled = value;
+							sendMessage('updateSetting', { key: 'mcp.debugLogging', value });
+							break;
+					}
+				}
+
+				function syncSettingsUI(settings) {
+					// Sync toggles
+					if (settings.autoApplyEnabled !== undefined) {
+						autoApplyEnabled = settings.autoApplyEnabled;
+						const el = document.getElementById('setting-auto-apply');
+						if (el) el.checked = autoApplyEnabled;
+					}
+					if (settings.maxContextTokens !== undefined) {
+						maxContextTokens = settings.maxContextTokens;
+						const slider = document.getElementById('setting-max-tokens');
+						const display = document.getElementById('token-display');
+						if (slider) slider.value = maxContextTokens;
+						if (display) display.textContent = (maxContextTokens/1000) + 'K';
+					}
+					if (settings.showBadges !== undefined) {
+						showBadges = settings.showBadges;
+						const el = document.getElementById('setting-show-badges');
+						if (el) el.checked = showBadges;
+					}
+					if (settings.debugEnabled !== undefined) {
+						debugEnabled = settings.debugEnabled;
+						const el = document.getElementById('setting-debug');
+						if (el) el.checked = debugEnabled;
+					}
+					if (settings.configPath !== undefined) {
+						configPath = settings.configPath;
+						const el = document.getElementById('config-path');
+						if (el) el.textContent = configPath;
+					}
 				}
 
 				function uninstallServer(id) {
@@ -1163,9 +1403,16 @@ export class MCPPanel {
 							renderServers(message.servers);
 							renderRegistry(message.registry);
 							renderRecommended(message.recommended);
-							setLoading(false); // Ensure loading is cleared when data arrives
+							// Sync settings if provided
+							if (message.settings) {
+								syncSettingsUI(message.settings);
+							}
+							setLoading(false);
 							break;
-						case 'setLoading': // Fallback for pure loading events
+						case 'syncSettings':
+							syncSettingsUI(message.settings);
+							break;
+						case 'setLoading':
 							setLoading(message.value);
 							break;
 						case 'setBusy':
