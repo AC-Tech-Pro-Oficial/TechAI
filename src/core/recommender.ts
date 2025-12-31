@@ -16,79 +16,133 @@ export class MCPRecommender {
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (!workspaceFolders) return [];
 
-        const technologies = await this.detectTechnologies();
-        const recommendations: WeightedMatch[] = [];
+        // 1. Detect technologies with confidence scores
+        const techScores = await this.detectTechnologies();
 
-        // Flatten registry for searching
+        // 2. Calculate matches
+        const recommendations: WeightedMatch[] = [];
         const allItems = registry.flatMap(cat => cat.items);
 
         for (const item of allItems) {
-            const match = this.calculateMatch(item, technologies);
-            if (match.score > 0) {
+            const match = this.calculateMatch(item, techScores);
+            // Threshold: Only recommend if score is significant (> 5)
+            // or if it's a very generic highly-rated tool (optional future heuristic)
+            if (match.score > 5) {
                 recommendations.push(match);
             }
         }
 
-        // Sort by score (descending) and return items
+        // 3. Sort by score (descending)
         return recommendations
             .sort((a, b) => b.score - a.score)
             .map(m => m.item);
     }
 
-    private async detectTechnologies(): Promise<Set<string>> {
-        const techs = new Set<string>();
+    private async detectTechnologies(): Promise<Map<string, number>> {
+        const scores = new Map<string, number>();
+        const addScore = (tech: string, points: number) => {
+            scores.set(tech, (scores.get(tech) || 0) + points);
+        };
 
-        // 1. Check Files
-        if (await this.hasFile('**/pubspec.yaml')) techs.add('dart').add('flutter');
+        // --- Node.js / JS Ecosystem ---
         if (await this.hasFile('**/package.json')) {
-            techs.add('node').add('npm');
-            // Deep check for specific deps could go here (e.g. react, next)
-            // For now, let's just infer generic JS/TS
-            techs.add('javascript').add('typescript');
+            addScore('node', 5);
+            addScore('npm', 5);
+            addScore('javascript', 3);
+
+            // Analyze package.json content for specific frameworks
+            const pkgContent = await this.readFileContent('**/package.json');
+            if (pkgContent) {
+                if (pkgContent.includes('"react"')) addScore('react', 10);
+                if (pkgContent.includes('"next"')) addScore('nextjs', 10);
+                if (pkgContent.includes('"vue"')) addScore('vue', 10);
+                if (pkgContent.includes('"express"')) addScore('express', 10);
+                if (pkgContent.includes('"typescript"')) {
+                    addScore('typescript', 10);
+                }
+                if (pkgContent.includes('"tailwindcss"')) addScore('tailwind', 5);
+            }
         }
-        if (await this.hasFile('**/tsconfig.json')) techs.add('typescript');
-        if (await this.hasFile('**/*.py') || await this.hasFile('**/requirements.txt') || await this.hasFile('**/pyproject.toml')) techs.add('python');
-        if (await this.hasFile('**/go.mod') || await this.hasFile('**/*.go')) techs.add('go').add('golang');
-        if (await this.hasFile('**/Cargo.toml')) techs.add('rust');
-        if (await this.hasFile('**/*.java') || await this.hasFile('**/pom.xml')) techs.add('java');
-        if (await this.hasFile('**/*.php') || await this.hasFile('**/composer.json')) techs.add('php');
+        if (await this.hasFile('**/tsconfig.json')) addScore('typescript', 5);
 
-        // 2. Capabilities / Infra
-        if (await this.hasFile('**/docker-compose.yml') || await this.hasFile('**/Dockerfile')) techs.add('docker');
-        if (await this.hasFile('**/*.sql')) techs.add('sql').add('database');
-        if (await this.hasFile('**/firebase.json')) techs.add('firebase');
-        if (await this.hasFile('**/.github/**')) techs.add('github');
-        if (await this.hasFile('**/.git/**')) techs.add('git');
+        // --- Python Ecosystem ---
+        if (await this.hasFile('**/*.py')) {
+            addScore('python', 5);
+        }
+        if (await this.hasFile('**/requirements.txt') || await this.hasFile('**/pyproject.toml')) {
+            addScore('python', 5);
+            // Analyze requirements
+            const reqContent = (await this.readFileContent('**/requirements.txt')) || (await this.readFileContent('**/pyproject.toml'));
+            if (reqContent) {
+                if (reqContent.includes('django')) addScore('django', 10);
+                if (reqContent.includes('flask')) addScore('flask', 10);
+                if (reqContent.includes('fastapi')) addScore('fastapi', 10);
+                if (reqContent.includes('pandas')) addScore('pandas', 8);
+                if (reqContent.includes('numpy')) addScore('numpy', 8);
+            }
+        }
 
-        // 3. Cloud / Platforms (could infer from config files or imports in future)
-        if (await this.hasFile('**/*.tf') || await this.hasFile('**/*.tfvars')) techs.add('terraform').add('aws').add('gcp');
+        // --- Dart / Flutter ---
+        if (await this.hasFile('**/pubspec.yaml')) {
+            addScore('dart', 10);
+            const pubContent = await this.readFileContent('**/pubspec.yaml');
+            if (pubContent && pubContent.includes('flutter:')) {
+                addScore('flutter', 15); // Higher confidence for Flutter
+            }
+        }
 
-        return techs;
+        // --- Go ---
+        if (await this.hasFile('**/go.mod')) addScore('go', 10);
+
+        // --- Rust ---
+        if (await this.hasFile('**/Cargo.toml')) addScore('rust', 10);
+
+        // --- Infrastructure ---
+        if (await this.hasFile('**/Dockerfile') || await this.hasFile('**/docker-compose.yml')) addScore('docker', 10);
+        if (await this.hasFile('**/*.tf') || await this.hasFile('**/*.hcl')) {
+            addScore('terraform', 10);
+            addScore('aws', 5); // Infer AWS often used with TF
+            addScore('cloud', 5);
+        }
+        if (await this.hasFile('**/*.sql')) {
+            addScore('sql', 10);
+            addScore('database', 10);
+        }
+        if (await this.hasFile('**/firebase.json')) addScore('firebase', 15);
+
+        // --- Git ---
+        if (await this.hasFile('**/.git/**')) addScore('git', 5);
+
+        return scores;
     }
 
-    private calculateMatch(item: RegistryItem, techs: Set<string>): WeightedMatch {
+    private calculateMatch(item: RegistryItem, techScores: Map<string, number>): WeightedMatch {
         let score = 0;
         const reasons: string[] = [];
         const lowerName = item.name.toLowerCase();
         const lowerDesc = item.description.toLowerCase();
         const tags = (item.tags || []).map(t => t.toLowerCase());
 
-        // Simple Keyword Matching
-        for (const tech of techs) {
-            // High relevance if tech is in name
-            if (lowerName.includes(tech)) {
-                score += 10;
-                reasons.push(`Matches project technology: ${tech}`);
+        techScores.forEach((techScore, tech) => {
+            // Check if this tech is relevant to the item
+            // 1. Direct Tag Match (Best)
+            if (tags.includes(tech)) {
+                score += techScore * 2.0; // Multiplier for tag matches
+                reasons.push(`Tag match: ${tech}`);
             }
-            // Moderate relevance if tech is in description or tags
-            else if (lowerDesc.includes(tech) || tags.includes(tech)) {
-                score += 5;
-                reasons.push(`Related to ${tech}`);
+            // 2. Name Match
+            else if (lowerName.includes(tech)) {
+                score += techScore * 1.5;
+                reasons.push(`Name match: ${tech}`);
             }
-        }
+            // 3. Description Match
+            else if (lowerDesc.includes(tech)) {
+                score += techScore * 0.5; // Lower weight for description mentions
+            }
+        });
 
-        // Boost for "General Utility" or extremely popular tools if we wanted
-        // For now, purely context-aware
+        // Boost for "Local" or "Cloud" if generic tech triggers present
+        // (Optional future refinement)
 
         return { item, score, reason: reasons };
     }
@@ -96,5 +150,18 @@ export class MCPRecommender {
     private async hasFile(globPattern: string): Promise<boolean> {
         const files = await vscode.workspace.findFiles(globPattern, '**/node_modules/**', 1);
         return files.length > 0;
+    }
+
+    private async readFileContent(globPattern: string): Promise<string | null> {
+        try {
+            const files = await vscode.workspace.findFiles(globPattern, '**/node_modules/**', 1);
+            if (files.length > 0) {
+                const uint8Array = await vscode.workspace.fs.readFile(files[0]);
+                return new TextDecoder().decode(uint8Array);
+            }
+        } catch (e) {
+            console.error(`Error reading file for recommendation: ${globPattern}`, e);
+        }
+        return null;
     }
 }
