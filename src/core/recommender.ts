@@ -21,7 +21,7 @@ export class MCPRecommender {
      */
     private static readonly BEST_PICKS: Record<string, string[]> = {
         'github': ['github/github-mcp-server', 'modelcontextprotocol/server-github'],
-        'git': ['anthropic/mcp-server-git', 'adhikasp/mcp-git-ingest'],
+        'git': ['anthropic/mcp-server-git', 'adhikasp/mcp-git-ingest', 'modelcontextprotocol/server-git'],
         'firebase': ['anthropic/firebase-mcp', 'anthropic/mcp-server-firebase'],
         'docker': ['modelcontextprotocol/server-docker'],
         'postgres': ['modelcontextprotocol/server-postgres'],
