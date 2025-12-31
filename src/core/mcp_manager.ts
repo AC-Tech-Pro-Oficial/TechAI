@@ -268,7 +268,16 @@ export class MCPManager {
 
             // Remove both enabled and disabled versions
             const disabledKey = `_disabled_${server_id}`;
-            const deleted = delete json.mcpServers[server_id] || delete json.mcpServers[disabledKey];
+            let deleted = false;
+
+            if (server_id in json.mcpServers) {
+                delete json.mcpServers[server_id];
+                deleted = true;
+            }
+            if (disabledKey in json.mcpServers) {
+                delete json.mcpServers[disabledKey];
+                deleted = true;
+            }
 
             if (deleted) {
                 await this.write_config(json);
