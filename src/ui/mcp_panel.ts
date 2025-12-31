@@ -453,6 +453,70 @@ export class MCPPanel {
 					box-shadow: 0 0 0 1px var(--accent-color);
 				}
 
+				/* Best Pick Badge */
+				.best-pick-badge {
+					background: linear-gradient(135deg, #fbbf24, #f59e0b);
+					color: #1a1a1a;
+					padding: 3px 10px;
+					border-radius: 12px;
+					font-size: 0.7em;
+					font-weight: 700;
+					text-transform: uppercase;
+					letter-spacing: 0.5px;
+					display: inline-flex;
+					align-items: center;
+					gap: 4px;
+					box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+				}
+
+				.best-pick-badge::before {
+					content: '★';
+					font-size: 1.1em;
+				}
+
+				/* Server Toggle Switch */
+				.server-toggle {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+				}
+
+				.toggle-switch {
+					position: relative;
+					width: 44px;
+					height: 24px;
+					background: rgba(255,255,255,0.1);
+					border-radius: 12px;
+					cursor: pointer;
+					transition: all 0.3s;
+				}
+
+				.toggle-switch.enabled {
+					background: var(--accent-color);
+				}
+
+				.toggle-switch::after {
+					content: '';
+					position: absolute;
+					top: 2px;
+					left: 2px;
+					width: 20px;
+					height: 20px;
+					background: white;
+					border-radius: 50%;
+					transition: all 0.3s;
+					box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+				}
+
+				.toggle-switch.enabled::after {
+					left: 22px;
+				}
+
+				.toggle-label {
+					font-size: 0.8em;
+					color: var(--text-secondary);
+				}
+
 				.card-desc {
 					font-size: 0.9em;
 					line-height: 1.5;
@@ -821,7 +885,10 @@ export class MCPPanel {
 						<div class="card">
 							<div class="card-header">
 								<span class="card-title" title="\${item.name}">\${item.name.split('/').pop()}</span>
-								<small style="color: var(--text-secondary); font-size: 0.8em">\${item.name.split('/')[0]}</small>
+								<div style="display: flex; align-items: center; gap: 8px;">
+									\${item.isBestPick ? '<span class="best-pick-badge">Best Pick</span>' : ''}
+									<small style="color: var(--text-secondary); font-size: 0.8em">\${item.name.split('/')[0]}</small>
+								</div>
 							</div>
 							<div class="card-meta">
 								\${(item.tags || []).map(t => {

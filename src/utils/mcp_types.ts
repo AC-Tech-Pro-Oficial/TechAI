@@ -42,6 +42,7 @@ export interface RegistryItem {
     url: string; // GitHub URL
     tags?: string[];
     author?: string;
+    isBestPick?: boolean; // Curated "Best-in-Class" recommendation
 }
 
 export interface RegistryCategory {

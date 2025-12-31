@@ -16,6 +16,20 @@ interface WeightedMatch {
 export class MCPRecommender {
 
     /**
+     * Curated "Best-in-Class" tools for each service category.
+     * These are hand-picked for quality, reliability, and official status.
+     */
+    private static readonly BEST_PICKS: Record<string, string[]> = {
+        'github': ['github/github-mcp-server', 'modelcontextprotocol/server-github'],
+        'git': ['anthropic/mcp-server-git', 'adhikasp/mcp-git-ingest'],
+        'firebase': ['anthropic/firebase-mcp', 'anthropic/mcp-server-firebase'],
+        'docker': ['modelcontextprotocol/server-docker'],
+        'postgres': ['modelcontextprotocol/server-postgres'],
+        'slack': ['modelcontextprotocol/server-slack'],
+        'filesystem': ['modelcontextprotocol/server-filesystem'],
+    };
+
+    /**
      * Analyze workspace and return recommended servers from the registry
      */
     public async getRecommendations(registry: RegistryData): Promise<RegistryItem[]> {
@@ -31,19 +45,38 @@ export class MCPRecommender {
         const recommendations: WeightedMatch[] = [];
         const allItems = registry.flatMap(cat => cat.items);
 
+        // Get list of best pick names for detected services
+        const detectedServices = Array.from(serviceScores.keys());
+        const bestPickNames = new Set<string>();
+        for (const service of detectedServices) {
+            const picks = MCPRecommender.BEST_PICKS[service] || [];
+            picks.forEach(p => bestPickNames.add(p.toLowerCase()));
+        }
+
         for (const item of allItems) {
             const match = this.calculateMatch(item, serviceScores);
             // Threshold: Only recommend if score is meaningful
             if (match.score >= 10) {
+                // Mark as Best Pick if in curated list
+                const lowerName = item.name.toLowerCase();
+                if (bestPickNames.has(lowerName) ||
+                    Array.from(bestPickNames).some(bp => lowerName.includes(bp.split('/').pop() || ''))) {
+                    match.item.isBestPick = true;
+                }
                 recommendations.push(match);
             }
         }
 
         console.log('[MCPRecommender] Found', recommendations.length, 'recommendations');
 
-        // 3. Sort by score (descending) and limit results
+        // 3. Sort by score (descending), Best Picks first, and limit results
         return recommendations
-            .sort((a, b) => b.score - a.score)
+            .sort((a, b) => {
+                // Best picks come first
+                if (a.item.isBestPick && !b.item.isBestPick) return -1;
+                if (!a.item.isBestPick && b.item.isBestPick) return 1;
+                return b.score - a.score;
+            })
             .slice(0, 20) // Limit to top 20
             .map(m => m.item);
     }
