@@ -1,0 +1,175 @@
+---
+description: Semantic sync - analyzes changes & context to update rules, then pushes to GitHub
+matches: "^/sync"
+---
+// turbo-all
+
+# Context-Aware Sync Workflow v3.1 (Turbo Optimized)
+
+> **Source of Truth**: `C:\Users\MBCJ\.gemini\antigravity\global_workflows\`
+> **Config File**: `D:\TechAI\projects.json`
+> **Goal**: Automatically discover & sync projects with advanced insights and notifications.
+
+---
+
+## Command Variants
+| Command | Description |
+|---------|-------------|
+| `/sync` | Full sync all projects |
+| `/sync dry-run` | Visualize changes without writing |
+| `/sync quick` | Skip analysis, execute immediately |
+
+---
+
+## Phase 1: Discovery & Analysis (Consolidated)
+// turbo
+```powershell
+# --- PART 1: SETUP ---
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+Write-Host "🔧 Starting Sync v3.1..."
+
+$dryRun = $false; $quickMode = $false; $targetFilter = $null
+foreach ($arg in $args) {
+    if ($arg -eq "dry-run" -or $arg -eq "--dry-run") { $dryRun = $true; Write-Host "🧪 DRY RUN" }
+    elseif ($arg -eq "quick" -or $arg -eq "--quick") { $quickMode = $true; Write-Host "⚡ QUICK MODE" }
+    elseif ($arg -like "--*") { continue }
+    else { $targetFilter = $arg }
+}
+
+if (-not (Test-Connection github.com -Count 1 -Quiet)) { Write-Host "❌ ABORT: No Internet"; exit 1 }
+
+$config = Get-Content "D:\TechAI\projects.json" -Raw | ConvertFrom-Json
+$stateFile = "D:\TechAI\.sync_state.json"
+
+# --- PART 2: DISCOVERY ---
+$scanPaths = $config.autoDiscover.scanPaths
+$excludePaths = $config.autoDiscover.excludePaths
+$discoveredProjects = @()
+
+foreach ($scanPath in $scanPaths) {
+    if (-not (Test-Path $scanPath)) { continue }
+    $gitDirs = Get-ChildItem -Path $scanPath -Directory -Recurse -Depth $config.autoDiscover.maxDepth -Force -ErrorAction SilentlyContinue |
+        Where-Object { $_.Name -eq ".git" } |
+        Where-Object { 
+            $parent = $_.Parent.FullName
+            $excluded = $false
+            foreach ($ex in $excludePaths) { if ($parent -like "$ex*") { $excluded = $true; break } }
+            -not $excluded
+        }
+    
+    foreach ($gitDir in $gitDirs) {
+        $path = $gitDir.Parent.FullName; $name = $gitDir.Parent.Name
+        $type = "Unknown"
+        if ($name -eq "TechAI") { $type = "Hub" }
+        elseif (Test-Path "$path\pubspec.yaml") { $type = "Flutter" }
+        elseif (Test-Path "$path\next.config.js") { $type = "Next.js" }
+        elseif (Test-Path "$path\package.json") { $type = "Node.js" }
+        elseif (Test-Path "$path\requirements.txt") { $type = "Python" }
+        elseif (Get-ChildItem -Path $path -Filter "*.typ" -Recurse -Depth 1 -ErrorAction SilentlyContinue) { $type = "Typst" }
+        
+        $discoveredProjects += @{ Name = $name; Path = $path; Type = $type }
+    }
+}
+
+if ($targetFilter) {
+    $discoveredProjects = $discoveredProjects | Where-Object { $_.Name -like "*$targetFilter*" }
+    if (!$discoveredProjects) { Write-Host "❌ No matching projects"; exit 0 }
+}
+Write-Host "📦 Found $($discoveredProjects.Count) projects"
+
+# --- PART 3: SEMANTIC ANALYSIS ---
+if (!$quickMode) {
+    $lastSync = if (Test-Path $stateFile) { (Get-Content $stateFile | ConvertFrom-Json).timestamp } else { "HEAD~10" }
+    
+    foreach ($proj in $discoveredProjects) {
+        Push-Location $proj.Path
+        if ($proj.Type -eq "Flutter" -and (git diff --name-only $lastSync HEAD 2>$null | Select-String "pubspec.yaml")) {
+             $diff = git diff $lastSync HEAD -- pubspec.yaml 2>$null
+             if ($diff -match "^\+.*:\s*\^") { Write-Host "📊 $($proj.Name): Dependency Update Detected" }
+        }
+        Pop-Location
+    }
+}
+
+# Export for Phase 2 (Persist State)
+$discoveredProjects | ConvertTo-Json | Set-Content "D:\TechAI\.sync_projects_tmpy.json"
+```
+
+---
+
+## Phase 2: Agent Drafting
+*   **Agent**: `TechRules`
+*   **Action**: Read `D:\TechAI\.sync_projects_tmpy.json`. Generate `PROJECT_RULES.draft.md` in each project.
+    *   **Logic**:
+        1. **Preserve**: `<!-- MANUAL -->` blocks.
+        2. **Auto-Update Facts**: Check versions/folders and update facts.
+        3. **No Placeholders**: Strict sovereignty.
+*   **Context**: Filter brain retrieval by Project Name.
+
+---
+
+## Phase 3: Execution (Consolidated)
+> [!CAUTION]
+> **Check before proceeding.** If `$dryRun`, Agent MUST stop here.
+
+// turbo
+```powershell
+# Retrieve Context
+if (-not (Test-Path "D:\TechAI\.sync_projects_tmpy.json")) { Write-Host "❌ No projects context"; exit 1 }
+$discoveredProjects = Get-Content "D:\TechAI\.sync_projects_tmpy.json" -Raw | ConvertFrom-Json
+$dryRun = ($args -contains "dry-run" -or $args -contains "--dry-run")
+$quickMode = ($args -contains "quick" -or $args -contains "--quick")
+
+if ($dryRun) { Write-Host "🧪 DRY RUN COMPLETE. No changes applied."; exit 0 }
+
+# --- PART 1: APPLY DRAFTS & BACKUP ---
+foreach ($p in $discoveredProjects) {
+    if (Test-Path "$($p.Path)\PROJECT_RULES.draft.md") { Move-Item "$($p.Path)\PROJECT_RULES.draft.md" "$($p.Path)\PROJECT_RULES.md" -Force }
+}
+
+$source = "C:\Users\MBCJ\.gemini\antigravity\global_workflows"
+$destinations = @("D:\TechAI\.agent\workflows", "D:\.agent\workflows", "C:\Users\MBCJ\.agent\workflows")
+foreach ($dest in $destinations) {
+    if (-not (Test-Path $dest)) { New-Item $dest -ItemType Directory -Force | Out-Null }
+    Copy-Item "$source\*.md" "$dest\" -Force
+}
+
+# --- PART 2: GIT SYNC LOOP ---
+$results = @()
+foreach ($p in $discoveredProjects) {
+    Push-Location $p.Path
+    $pull = git pull --rebase 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        $results += @{ Name = $p.Name; Status = "❌ Conflict" }
+        Pop-Location; continue 
+    }
+    
+    if (git status --porcelain) {
+        git add -A; git commit -m "🔄 Sync v3.1"
+        git push; $pushStatus = $LASTEXITCODE
+        
+        if ($pushStatus -eq 0) { 
+            $tag = "sync-$($p.Name)-$(Get-Date -Format 'yyyyMMdd-HHmm')"
+            git tag $tag; git push origin $tag 2>&1 | Out-Null
+            $results += @{ Name = $p.Name; Status = "✅ Pushed & Tagged" }
+        } else {
+            $results += @{ Name = $p.Name; Status = "❌ Push Failed" }
+        }
+    } else {
+        $results += @{ Name = $p.Name; Status = "⚪ No changes" }
+    }
+    Pop-Location
+}
+
+# --- PART 3: NOTIFICATIONS ---
+$config = Get-Content "D:\TechAI\projects.json" -Raw | ConvertFrom-Json
+$summary = $results | Out-String
+$discord = $config.settings.notifications.discordWebhook
+$slack = $config.settings.notifications.slackWebhook
+
+if ($discord) { Invoke-RestMethod -Uri $discord -Method Post -Body (@{ content = "**Sync Complete**`n$summary" } | ConvertTo-Json) -ContentType 'application/json' -ErrorAction SilentlyContinue }
+if ($slack) { Invoke-RestMethod -Uri $slack -Method Post -Body (@{ text = "*Sync Complete*`n```$summary```" } | ConvertTo-Json) -ContentType 'application/json' -ErrorAction SilentlyContinue }
+
+$results | Format-Table -AutoSize
+Remove-Item "D:\TechAI\.sync_projects_tmpy.json" -ErrorAction SilentlyContinue
+```

@@ -1,0 +1,29 @@
+# 🧬 Mission: Deep Code Transformation & Hygiene
+
+**Role**: Chief Software Architect & DevOps Engineer
+**Objective**: Transform the codebase from "Functional" to "World-Class".
+
+## 🏗️ Phase 1: Architectural X-Ray
+1.  **Code Mapping**: Generate a high-level map of the system's architecture (Entry points, Data flow, Key classes).
+2.  **Dependency Audit**: Review `package.json` / `pubspec.yaml` / `requirements.txt`. Identify unused or outdated packages.
+3.  **Environment Check**: Verify all necessary API keys and local environment variables (.env) are configured for *maximum* feature availability.
+
+## 🧹 Phase 2: The Great Purge (Hygiene)
+Perform a "Search & Destroy" for project clutter:
+*   [ ] **Dead Files**: Scripts, reports, or backups that are no longer referenced.
+*   [ ] **Commented-Out Code**: Remove large blocks of zombie code.
+*   [ ] **Temp Artifacts**: Logs/Tmp files that should be gitignored.
+*   **Rule**: *If it doesn't run, it doesn't stay.* (Ask confirmation before deleting non-trivial files).
+
+## ⚡ Phase 3: Radical Refactoring (Performance & Logic)
+Identify the "Big Rocks" - the 3-5 areas hindering performance or scalability.
+*   **Refactor**: Simplify complex logic. Apply DRY (Don't Repeat Yourself) and SOLID principles.
+*   **Optimize**: Hunt for N+1 queries, memory leaks, or unoptimized assets.
+*   **Secure**: Scan for hardcoded secrets or weak endpoints.
+
+## 🛡️ Execution Protocol
+1.  **Iterative Commits**: For every major change, create a detailed commit/step.
+2.  **Validation**: Run the build/test suite after EACH refactor.
+3.  **Fallback**: Ensure we can revert if a "radical" change breaks core flow.
+
+*Start by listing the project structure and primary configuration files.*

@@ -1,0 +1,38 @@
+# ⌨️ Mission: Ultimate IDE Control Configuration
+
+**Target**: `keybindings.json` & `settings.json` (Antigravity/VS Code)
+**Role**: IDE Customization Specialist
+
+## 🎯 Objective
+Create a unified, conflict-free configuration that maximizes speed and minimizes interruption. The goal is "Zero Friction" - no confirmation popups, absolute control via keyboard.
+
+## ⚙️ Configuration Requirements
+
+### 1. The "God Mode" Toggle (F1 Macro)
+**Trigger**: `F1`
+**Action**: Execute a composite command (`runCommands`) that simultaneously focuses:
+*   [ ] **Side Bar**: `workbench.view.extension.seamless-agent` (Left)
+*   [ ] **Auxiliary Bar**: `workbench.action.openView: antigravity-chat` (Right)
+*   [ ] **Panel**: `workbench.action.terminal.focus` (Bottom)
+*   [ ] **Webview**: `antigravity.agentManager`
+
+### 2. Absolute Input Control
+*   **Enter**: "Confirm Everything". Context: `textInputFocus`, `notificationFocus`, `widgetFocus`.
+*   **Escape**: "Abort Everything". Context: `!editorFocus` (or precise contexts for widgets/notifications).
+*   **F5**: "Hard Reset". Remap to `workbench.action.reloadWindow`.
+
+### 3. Key Remapping
+*   **Shift + F1**: `workbench.action.showCommands` (The old F1).
+*   **Remove**: Any existing binds for `Shift + F1`.
+
+### 4. Zero Interruption Policy (`settings.json`)
+Disable all "Are you sure?" prompts. Set the following to `false` or "always":
+*   `git.confirmSync`
+*   `explorer.confirmDelete`
+*   `bterm.terminal.confirmOnExit`
+*   *Add any others that block flow.*
+
+## 📝 Output Format
+Provide the exact JSON blocks to insert:
+1.  **`keybindings.json`**: Use `runCommands` for the F1 macro. Ensure correct `when` clauses for Enter/Esc.
+2.  **`settings.json`**: List of settings to suppress confirmations.

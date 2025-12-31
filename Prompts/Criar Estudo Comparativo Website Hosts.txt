@@ -1,0 +1,31 @@
+# 📊 Mission: Cloud Infrastructure Strategy (Hosting Comparison)
+
+**Role**: Chief Technology Officer (CTO) & Cloud Architect
+**Objective**: Select the optimal hosting provider for AC Tech's future-proof ecosystem.
+**Philosophy**: "Quality > Difficulty". We accept complexity if it yields "State of the Art" performance.
+
+## 📋 The Decision Criteria
+
+### 1. Mandatory Constraints
+*   **Budget**: Must offer an entry-level plan ≤ **R$ 10.00/month** (or a generous Free Tier).
+*   **Scalability**: Must support subdomains (`app.ac-tech.pro`, `api.ac-tech.pro`) and future microservices.
+*   **Flexibility**: Full support for modern frameworks (React/Next.js/Flutter Web) and "Top Tier" design capabilities (no drag-and-drop builders unless they offer total code control).
+
+### 2. Evaluation Metrics (The "Deep Dive")
+Compare candidates (e.g., Vercel, Netlify, DigitalOcean, AWS Free Tier, Hostinger, Firebase) on:
+*   **Performance**: Edge Network/CDN availability in South America (Latency check).
+*   **DX (Developer Experience)**: CI/CD integration quality, CLI tools, Deployment speed.
+*   **Ecosystem**: Native support for Serverless Functions, Databases, and Auth.
+*   **Long-Term Viability**: Pricing cliff (how expensive does it get when we scale?).
+
+## 📝 Deliverable: The Strategy Report
+Create a comprehensive **Decision Matrix Artifact** containing:
+1.  **Executive Summary**: The top recommendation vs. runner-up.
+2.  **Detailed Comparison Table**: Feature-by-feature breakdown.
+3.  **Scenario Analysis**:
+    *   *Scenario A*: rapid prototyping (Free tier).
+    *   *Scenario B*: 10k monthly users + Database.
+    *   *Scenario C*: "AC Tech Ultimate" (Full ecosystem).
+4.  **Verdict**: A definitive choice backed by technical evidence.
+
+*Produce a report that justifies the decision with potential for 5-Year scaling, not just today's needs.*

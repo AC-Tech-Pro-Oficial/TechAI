@@ -1,0 +1,16 @@
+I am trying to understand the best way for me to install Google Cloud CLI and Gemini Code Assist. For context, I am developing an app with a friend (we intend to develop more and officiate it as a business) and the app is located in "D:\TechAir". This app uses Firebase and Google Cloud. In the Google account that me and my friend created (the one which I will use for Gemini CLI, Google Cloud and all services related to this app and coding in general) I got a Google AI Pro plan. Also usually I start my IDE application from the directory "D:\" which I have more projects inside. Additionally, the drive "D:\" is a devdrive partition that I have only for my development projects, so every project I create will necessarily be within this folder (D:\). Will my Gemini Code Assist identify this automatically? Moreover, I intend to use Vertex AI Studio in the future and integrate some custom agents with my directories.
+
+Considering my setup and my personal situation, what mode would be better to be logged in? Consider that I will install the appropriated extensions in my IDE and will use all services from there. The CLI tools are installed exclusively for the AI agents to use. Will the IDE google extensions generate erros because I am starting the IDE from a directory without any google project? In this case, is there any way my Google AI Pro subscription can leverage me?
+
+You will do a deep investigative research and compile a PhD academic journal-level report that is dense in information and text, explaining things in details and with examples. You will also include graphical elements like screenshots, videos, tables and graphs. Try to include benchmarks as well and explain the graphical elements (like you would have to do in a PhD academic journal-level report). Now in regards to the richness of graphic elements, it should be similar to a corporate demonstrative report that is made for investors.
+
+The first attachment is a academic journal for you to understand the level of depth and quality (including sources) that I want.
+
+The second attachment is a corporate report so you can understand the quality and amount of graphic resources I want.
+
+You can use freedom to format it however you think it'll be better. The academic journal is for you to understand the depth of research and information quality, you don't need to follow strict formatting rules like they usually have for this academic documents.
+
+Rules:
+
+- Report must have at least 20 pages riches of graphical and textual information.
+- At least 100 sources must be consulted (academic journals, software official documentation etc.) before the report is finished.

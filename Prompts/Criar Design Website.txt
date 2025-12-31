@@ -1,0 +1,42 @@
+# 🎨 Mission: AC Tech Visual Experience Design
+
+**Role**: Creative Director & Lead UI/UX Engineer
+**Aesthetics**: "NASA meets Apple" (Premium Dark Mode, Functional Density, Clean Lines).
+**Stack**: TailwindCSS (or Vanilla CSS), Modern HTML5, Interactiveness.
+
+## 🎯 Design Philosophy
+*   **Vibe**: High-Tech, Cyberpunk accents (Neon Blue #3b82f6), Deep Space Backgrounds (#0f172a).
+*   **Interaction**: Micro-animations on hover, smooth transitions, "glassmorphism" panels.
+*   **Goal**: Create a "WOW" effect. The user should feel they are entering a futuristic control center.
+
+## 🏢 Site Map & Core Components
+
+### 1. Hero Section (The "Hook")
+*   **Visual**: Abstract 3D tech visualization or Flagship Product shot.
+*   **Copy**: Bold value proposition ("Future of Tech", "Zero-Maintenance").
+*   **CTAs**: [Explore Solutions] [Get Protech Home].
+
+### 2. Spotlight: "Protech Home" (Hardware)
+*   **Context**: Network-wide ad-blocker & firewall physical device.
+*   **Component**: "Digital Twin" Dashboard Preview.
+    *   *Status Indicator*: 🟢 Online (Pulsing).
+    *   *Live Counter*: "Ads Blocked: 1,242" (Animated ticker).
+    *   *Controls*: Toggle switches for [Block YouTube], [Parental Control].
+*   **Visual Style**: Sleek black/orange industrial design.
+
+### 3. Product Ecosystem (Grid)
+*   **Cards**: Minimalist, floating effect on hover.
+    *   *Software Solutions* (Custom Apps).
+    *   *Consulting* (Serverless Architecture).
+*   **Downloads Center**: Secure, tabular view for Drivers/Firmware (PDF/EXE icons).
+
+### 4. User Portal (Authenticated)
+*   **Layout**: Sidebar Navigation (Dashboard, Devices, Support).
+*   **Data Viz**: Real-time traffic graphs (Line charts with gradients).
+
+## 🛠️ Execution Requirements
+1.  **Mobile First**: Responsive design is non-negotiable.
+2.  **Performance**: Optimize assets. Use CSS shapes/gradients over heavy images where possible.
+3.  **Typography**: `Inter` for UI, `JetBrains Mono` for data/metrics.
+
+*Produce the Design System tokens (Colors, Typography) first, then implement the Home Page.*

@@ -1,0 +1,33 @@
+{
+  "version": "2.0",
+  "lastUpdated": "2024-12-30",
+  "autoDiscover": {
+    "enabled": true,
+    "scanPaths": [
+      "D:\\",
+      "S:\\Files\\Cognicir Language School"
+    ],
+    "excludePaths": [
+      "D:\\$RECYCLE.BIN",
+      "D:\\System Volume Information",
+      "D:\\Images",
+      "D:\\Videos",
+      "D:\\Downloads",
+      "D:\\Backup"
+    ],
+    "maxDepth": 2
+  },
+  "discoveredProjects": [],
+  "settings": {
+    "ideGlobalWorkflows": "C:\\Users\\MBCJ\\.gemini\\antigravity\\global_workflows",
+    "brainFolder": "C:\\Users\\MBCJ\\.gemini\\antigravity\\brain",
+    "manifestoPath": "D:\\TechAI\\TechAI_Manifesto.md",
+    "syncHistoryLog": "D:\\TechAI\\sync_history.log",
+    "contextWindowHours": 24,
+    "notifications": {
+      "discordWebhook": "https://discord.com/api/webhooks/1455721258800124059/Sj9WCPZAayLZjlnMICuS49kUWBee8iHllC0fUOYq0SDMEHbKnXp8qzk-fEuBFdBiOZCz",
+      "slackWebhook": "https://hooks.slack.com/services/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",
+      "slackBotToken": "xoxb-9635040209879-10223828240129-lvzlb89Dk6unyEyUv7ShUchG"
+    }
+  }
+}

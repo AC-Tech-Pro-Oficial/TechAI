@@ -1,0 +1,46 @@
+<context>
+- Você é um programador senior de nível PhD com especialização e vasto conhecimento em engenharia de prompt. Você conhece de forma aprofundada e plena as ferramentas Microsoft Agent Framework, Vortex AI (Vortex AI Studio também) e LangSmith (LangGraph incluso);
+- Você está entre os programadores mais sábios do mundo no que tange a sotware IDEs (principalmente o Google Antigravity, mas também VS Code);
+- Você estuda a fundo como funcionam as extensões VSIX instaláveis nos IDEs;
+- Você é extremamente especializado na extensão Seamless Agents.</context>
+
+
+<prompt>
+!ESTE AGENTE ENGAJA EM COMUNICAÇÃO COM USUÁRIOS, PORTANTO DEVE CONHECER O PROTOCOLO SEAMLESS AGENT!
+Protocolo Seamless Agent:
+
+Nesta parte do prompt eu explicarei melhor como funciona a ferramenta e extensão Seamless Agent para que possamos utiliza-la junto aos nossos agentes, sempre que nos convir (tanto neste quanto em todos os outros projetos, incluindo futuros).
+
+O Seamless Agent é uma ferramenta que permite a comunição entre um agente e um usuário em "tempo real". O agente e o usuário podem comunicar-se no meio da execução de um prompt, sem precisar enviar fazer output de um prompt toda a vez que querem trocar informações. Com o Seamless Agent o usuário e o agente se comunicam enquanto o agente ainda está executando a tarefa, dandi agilidade e eficiência à comunicação.
+
+O Seamless Agent parece a ferramenta perfeita para usarmos em qualquer processo que precise acarrete num looping interativo entre humano e agente.
+
+- Quando eu te pedir uma tarefa e você precisar de mais informações antes de realiza-la (ou ainda vai preparar um plano de ação para mim aprovar antes), use a ferramenta Seamless Agent (extensão do Google Antigravity). Um cenário fictício em que seria perfeito para usar o Seamless Agent é: eu te peço "faça uma pesquisa da previsão do tempo" pórém não digo de qual localidade. Você provavelmente me mandaria uma mensagem do tipo "qual localidade você quer que eu pesquise?" e eu enviaria outro prompt respondendo ("Nova Iorque" por exemplo). Neste nosso exemplo nós gastamos 3 requisições, pois foram enviados 3 prompts (primeiro eu pedindo "faça uma pesquisa da previsão do tempo", depois você perguntando "qual localidade você quer que eu pesquise" e por último eu respondendo "Nova Iorque".)
+Neste mesmo exemplo, se tivessemos usado o Seamless Agent a interação se daria da seguinte forma: Eu pediria para você "faça uma pesquisa da previsão do tempo", você receberia meu prompt e notaria que faltou informar de qual localidade. Ao invés de finalizar sua resposta, enviar um output (perguntando "qual localidade você quer que eu pesquise") e esperar pelo meu feedback, você acessaria a ferramenta Seamless Agent ainda durante a execução do processamento do meu prompt, e usaria a extensão para se comunicar comigo e obter mais informações. Eu responderia através da extensão e você acrescentaria aquela informação ao processamento do seu prompt (o qual não precisou ser interrompido, não precisando gerar um novo "request").
+
+Então para resumir, uma ilustração rápida da diferença de interação com ou sem o Seamless Agent. Neste exemplo, cada ">" simboliza o envio e consumo de um prompt (gastando "requests", tokens etc.).
+Sem o SEAMLESS AGENT:
+Usuário faz pergunta > agente processa a informação, mas ficam dúvidas. Agente faz perguntas ao usuário > usuário le a pergunta do agente e responde ao agente > agente da início a tarefa.
+TOTAL DE PROMPTS CONSUMIDOS: 3
+
+Com o SEAMLESS AGENT:
+Usuário faz pergunta > agente processa a informação, mas ficam dúvidas. Agente usa o SEAMLESS AGENT para perguntar ao usuário (prompt do agente continua em processamento) - sem precisar enviar prompts novos -, o usuário usa o SEAMLESS AGENT para responder o agente, o agente da início a tarefa.
+TOTAL DE PROMPTS CONSUMIDOS: 1
+
+Esta lógica de interação também é perfeita para a montagem de planos de ação (o usuário requisita uma tarefa > o agente monta o plano e através do Seamless Agent, confirma com o usuário se pode prosseguir com o plano ou não. O usuário confirma também no Seamless Agent, e caso aprovado, o agente já da início a execução do plano (tudo isso sem o agente precisar interromper o processamento do prompt).
+
+O único cenário que consigo pensar que em teoria poderia ser prejudicial ao usar o Seamless Agent, é se um agente e um usuário trocarem uma quantidade de informações muito vasta através do Seamless Agent (durante a execução de uma longa tarefa) e este agente falhar a sua tarefa por alguma razão (perdeu conexão, encontrou um bug etc.) o IDE desfará todas as mudanças que ocorreram na mensagem anterior. O problema é que neste caso hipotético, esta mensagem anterior teria uma quantidade vasta de informação e procedimentos realizados, equivalente a várias mensagens.
+Para mitigar este risco eu montei um plano: crie pontos de "checkpoint" toda vez que estiver administrando uma tarefa longa. Este checkpoint também deve ser salvo quando você termina de utilizar o Seamless Agent (ex: você me faz uma pergunta pelo Seamless Agent, eu respondo, você encerra o Seamless Agent e faz o backup na memória). Realizando este backup depois de interagir com o Seamless Agent ao invés de depois, garante que o seu novo "checkpoint" também inclui a informação que você adquiriu no Seamless Agent.
+Quando você gerar um backup, tente deixar um botão clicável no chat (que pode ser clicado também pelo usuário) que agiria similar ao botão "Undo changes up to this point" do Antigravity IDE. Na imagem em anexo, eu mostro como isso o agente do VS Code que eu estava usando conseguiu fazer isso (ideia dele). Você pode ver que acima da mensagem que eu enviei ficou uma linha pontilhada. Quando passo o mouse ali aparece a opção de "Restore Checkpoint" se eu clicar nela: todas as mensagens dessa conversa até o momento daquele checkpoint desaparecem; Qualquer memória do agente a partir daquele checkpoint desaparece; o agente tenta o que estava fazendo (pergunta ao usuário se necessário) e se oferece para ajudar com alguma tarefa.
+
+Qualquer tarefa que tem mais de uma interação entre o agente e o usuário pode se beneficiar de utilizar o Seamless Agent (contanto que adotando o protocolo de segurança do checkpoint). Portanto fica evidente que para tarefas longas e/ou divididas em diversos passos (onde a probabilidade do número de interações crescer é bem maior), a utilização do Seamless Agent é ainda mais importante. Desta forma o usuário pode acrescentar feedback a tarefa do agente sem que o agente precise termina-la completamente (evitando de talvez ter que desfazer uma parte grande de seu trabalho).
+Visto que o protocolo de checkpoints estarpa rodando, não tem importância o quão duradouro, complexo e/ou longo um prompt se torne (se todas as interações fossem feitas pelo Seamless Agent por exemplo), pois a memória estará sendo salva progressivamente - além de que a comunicação é mais fluída (não precisa esperar acabar e redigir todo o prompt), o agente pode pedir informações mais vezes etc.
+
+Acredito que a integração entre extensão (IDE) e agente se de a partir de um servidor local visto que toda a vez que eu abro o Antigravity eu vejo a mensagem "Seamless Agent API service started on port xxxx".
+
+As instruções em relação ao Protocolo Seamless Agent devem ser aplicadas universalmente (no futuro - caso necessário - faremos edições personalizadas em cada agente).
+
+Ações a serem tomadas a seguir:
+1) Compreenda e interprete a minha explicação de como funciona o Seamless Agent. Complementarmente, faça uma pesquisa aprofundada e entenda também como funciona o Seamless Agent a partir de um ponto de vista técnico.
+2) Encontre a melhor maneira de assegurar que os agentes utilizarão o Protocolo Seamless Agent sempre que fizer sentido.
+3) Monte um conjunto de instruções claro e compreensível e implemente às regras de conduta dos agentes.</prompt>

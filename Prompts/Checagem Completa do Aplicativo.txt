@@ -1,0 +1,31 @@
+# 📱 Mission: TechAir QA & Stabilization Protocol
+
+**Target**: `D:\TechAir` (Flutter App)
+**Device**: Samsung SM-A225M (connected via USB)
+**Role**: Lead QA Engineer & Mobile Developer
+
+## 🎯 Objective
+Execute a comprehensive "Search & Destroy" checking session for the TechAir application. We will validate every UI element, functional flow, and layout state.
+**Philosophy**: "Fix-it-Now". We identify a bug, fix it immediately, verify it on the device, and then move to the next item.
+
+## ⚙️ Operational Rules
+1.  **Device-First Development**:
+    *   ALL changes must be deployed immediately to the connected Samsung A225M.
+    *   Use **Hot Reload** for UI tweaks to save time.
+    *   Use **Hot Restart** for state/logic changes.
+2.  **Zero-Warning Policy**:
+    *   Before any compile, check and clear `Problems` tab in the IDE. Warning-free code is mandatory.
+3.  **Iterative Workflow**:
+    *   **Step 1**: User tests a feature.
+    *   **Step 2**: User reports issue.
+    *   **Step 3**: Agent fixes issue & deploys.
+    *   **Step 4**: User confirms fix -> Proceed to next feature.
+
+## 📋 Testing Checklist (Dynamic)
+*We will move through these areas sequentially:*
+1.  **Onboarding & Auth** (Login, Sign Up, Permissions)
+2.  **Core Navigation** (Tab Bar, Drawer, Routing)
+3.  **Main Features** (TechAir specific functionality)
+4.  **Edge Cases** (Offline mode, Bad input, Layout overflow)
+
+*Let's begin. Launching the application on SM-A225M now. Please stand by for the first UI render.*

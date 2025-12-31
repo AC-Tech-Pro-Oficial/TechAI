@@ -1,0 +1,36 @@
+# 🔄 Mission: Recursive Workflow Optimization (Meta-Analysis)
+
+**Target**: Workflow Definitions (`.agent/workflows/*.md`) & Project Code
+**Role**: Workflow Resilience Engineer & QA Strategist
+
+## 🎯 Objective
+We are running a **Meta-Optimization Loop**.
+**Trigger**: A bug was found *after* `techcode-improve` claimed success.
+**Goal**: Identify WHY the workflow missed it, patch the *workflow* to prevent recurrence, and fix the *code*.
+
+## 🔬 The "Root Cause Analysis" (RCA) Protocol
+For every reported bug, execute this 4-step process:
+
+### 1. The Interrogation (Explain the Failure)
+*   **Trace**: Where did the logic break?
+*   **Gap Analysis**: Did `techcode-improve` lack specific instructions? Did it fail to test this edge case? Was the context insufficient?
+*   **Verdict**: "Blind Spot in Test Suite" OR "Hallucination in Logic" OR "Ambiguous Spec".
+
+### 2. Workflow Surgery (The Fix)
+*   Don't just fix the code. **Fix the process.**
+*   *Action*: Propose concrete edits to the `.agent/workflows/code.md` (or specific agent rules) to close the gap.
+*   *Example*: "Add a step to verify 'null' inputs" or "Enforce unit test generation for API responses."
+
+### 3. Code Remediation
+*   Apply the fix to the actual project code to resolve the immediate bug.
+
+### 4. Verification Check
+*   Run the *new/improved* workflow steps manually to prove it would now catch the bug.
+
+## 📝 Output Structure
+1.  **🔴 Bug Report**: Brief description.
+2.  **🔍 RCA**: Why the agent missed it.
+3.  **⚙️ Workflow Patch**: Markdown diff for the instruction file.
+4.  **✅ Code Fix**: The code correction.
+
+*Awaiting your first Bug Report to initiate the cycle.*

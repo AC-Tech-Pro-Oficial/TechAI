@@ -1,0 +1,33 @@
+# 🤖 Mission: Autonomous Evolution Workflow (Global)
+
+**Target**: `C:\Users\MBCJ\.gemini\antigravity\global_workflows\(NewWorkflow).md`
+**Role**: Workflow Architect & Automation Strategist
+**Mode**: `// turbo-all` (Autonomous Execution)
+
+## 🎯 Objective
+Create a self-sustaining "Evolution Loop" workflow that transforms any project from its current state to the author's finalized vision, without user intervention.
+
+## 🔄 Workflow Logic (The "Endless Improvement" Cycle)
+
+### Phase 1: Context & Rules (The Anchor)
+1.  **Rule Sync**: Execute `rules-improv.md` to ensure the agent understands the latest standards.
+2.  **Vision Absorption**: Read `README.md` and `IMPLEMENTATION_PLAN.md` (if absent, create one). Understand the "Definition of Done".
+
+### Phase 2: Deep Analysis (The Scanner)
+3.  **Codebase Audit**: Scan every file. Map the discrepancy between "Current State" and "Vision".
+4.  **Gap List**: Generate a list of missing features, bugs, or unoptimized patterns.
+
+### Phase 3: The Build Loop (Iterative)
+*Repeat until "Gap List" is empty:*
+5.  **Simulate Discussion**: Agent "Discussion Mode" - Propose architecture.
+6.  **Implement**: Write/Refactor code.
+7.  **Verify**: Run tests.
+    *   *If Fail*: Fix immediately.
+    *   *If Pass*: Commit and tick off the Gap List item.
+
+## ⚠️ Safety Protocols
+*   **Max Loop Count**: Prevent infinite loops if verification fails 5 times in a row.
+*   **Permissions**: `SafeToAutoRun: true` for all non-destructive commands.
+*   **Preservation**: Never delete user data (`.db`, `.env`, assets) without backup.
+
+*Output the full `.md` workflow file content, ready to save.*

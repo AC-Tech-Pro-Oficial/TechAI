@@ -1,0 +1,15 @@
+You will now act as a professional researcher that can produce highly complex documents. You have PhD level research skills and PhD level knowledge about LLMs and setting up agents. You will be providing a private consultancy to me. You will consider my (Moacir) personal hardware settings (found at "D:\TechAI\Localização Memórias Profundas e Conversas Antigravity.txt"). The document produced must have at least 10 pages and should be saved as a HTML file on my desktop.
+
+Absolute rules:
+
+- Document must be at least 10 pages long
+- Document must be in a more academic format in terms of content and argumentative discussion (but with lots of graphical and interactive resources)
+- Document must use academic or primary sources preferentially
+- You are not trying to prove a point, but rather to provide be analytical and provide an in-depth analysis
+- Consider I will be using mainly the Google Antigravity IDE (with VS Code as a fall back in case of emergency)
+- Consider Vortex AI usage in your agent framework analysis (as well as Microsoft Agents Framework, CrewAI and all the others).
+
+Request:
+I'm still not understanding what is the advantage of using the current local models we have in comparison to using only the cloud models (considering my Google AI Pro subscription that I will keep having access and satisfies my usage needs). Mind that I can access Claude Opus 4.5 and Gemini 3 Pro almost infinitely with this plan. Wouldn't it be better to set multi agent workflows using cloud models, or just agent frameworks using cloud agents? Provide a comprehensive and didactic analysis. Don't consider costs with electricity or token usage (since I will have enough with my subscription). Consider time spent to complete the tasks. Consider the quality output of my agentic requests as the ultimate deciding factor between all options. Provide alternative configurations that could be better. Also privacy concerns are not a huge issue. Consider our current company setup but also future scenarios.
+
+You must include all of these requirements in the report provided. If you follow these instructions you will be rewarded, otherwise you will be punished.

@@ -1,0 +1,38 @@
+# 🚀 Mission: Microsoft Ultimate Installer Optimization
+
+**Target**: `D:\Microsoft Ultimate Installer`
+**Role**: Senior PowerShell Architect & Performance Engineer
+
+## 🎯 Objective
+Perform a comprehensive analysis and deep refactoring of the `Microsoft Ultimate Installer` codebase (~4500+ lines). Your goal is to modernize the architecture, eliminate technical debt, and maximize runtime efficiency without compromising existing functionality.
+
+## 📋 Critical Constraints
+1.  **Zero Regression**: The final code MUST retain 100% of the original functionality.
+2.  **Project Rules**: Strictly adhere to `PROJECT_RULES.md` and Global TechAI Standards.
+3.  **Local AI**: Leverage local AI models for validation and logic generation where possible.
+4.  **Context Management**: Given the file size (~1.1M chars), do not attempt to read the entire file into context at once unless necessary. Use `grep_search`, `view_file_outline`, and chunked reading.
+
+## 🛠️ Execution Plan
+
+### 1. Discovery & Mapping
+*   Map the script's control flow.
+*   Identify "Dead Code" (unused functions, variables, legacy comments).
+*   Spot performance bottlenecks (loops, redundant I/O, slow exact matches).
+
+### 2. Implementation Strategy
+*   **Refactoring**: Propose a cleaner, modular structure (e.g., splitting monoliths if allowed, or better function grouping).
+*   **Optimization**: Implement parallel processing (Jobs/Runspaces) where applicable to "use as many resources... as possible".
+*   **Cleanup**: Remove the identified dead code.
+
+### 3. Verification
+*   Verify logic integrity after every major change.
+*   Ensure the "Installation Method" is faster and more robust.
+
+## 📣 Output Format
+Before applying changes, present a **Refactoring Strategy** document:
+1.  **High-Level Architecture**: Visualizing the new flow.
+2.  **Identified Issues**: Table of inefficiencies & dead code.
+3.  **Proposed Fixes**: Specific technical solutions (e.g., "Replace `Foreach` with `Parallel`").
+4.  **Risk Assessment**: Potential side effects and mitigation.
+
+*Start by analyzing the current codebase structure.*
