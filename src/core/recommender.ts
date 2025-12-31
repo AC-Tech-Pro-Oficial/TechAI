@@ -295,8 +295,17 @@ export class MCPRecommender {
             }
             // Check cleaned description (no URLs)
             else if (regex.test(cleanDesc)) {
-                score += serviceScore;
-                reasons.push(`Desc: ${service}`);
+                // Penalize broad services if they only appear in description
+                const broadServices = ['git', 'github', 'node', 'npm', 'python', 'java', 'docker'];
+                if (broadServices.includes(service)) {
+                    // Only give 30% score for broad terms in description to avoid false positives
+                    // e.g. "container-use" mentioning "git branches" shouldn't trigger "git" recommendation
+                    score += serviceScore * 0.3;
+                    reasons.push(`Desc(weak): ${service}`);
+                } else {
+                    score += serviceScore;
+                    reasons.push(`Desc: ${service}`);
+                }
             }
             // Check tags
             else if (tags.some(tag => regex.test(tag))) {
