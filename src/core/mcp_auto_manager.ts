@@ -182,22 +182,27 @@ export class MCPAutoManager {
         const result = await this.mcpManager.applyServerSet(bestPicksToEnable);
         logger.info(LOG_CAT, `Applied: ${result.enabled} enabled, ${result.disabled} disabled`);
 
-        // Build result message
-        let message = `Applied Best Picks: ${bestPicksToEnable.join(', ')}`;
-        const stillMissing = missingBestPicks.filter(id => !bestPicksToEnable.includes(id));
-        if (stillMissing.length > 0) {
-            message += `\n\nFailed to install: ${stillMissing.join(', ')}`;
-        }
+        // Only prompt/notify if there were actual changes
+        if (result.enabled > 0 || result.disabled > 0) {
+            // Build result message
+            let message = `Applied Best Picks: ${bestPicksToEnable.join(', ')}`;
+            const stillMissing = missingBestPicks.filter(id => !bestPicksToEnable.includes(id));
+            if (stillMissing.length > 0) {
+                message += `\n\nFailed to install: ${stillMissing.join(', ')}`;
+            }
 
-        // Prompt to reload window
-        const reloadBtn = 'Reload Window';
-        const choice = await vscode.window.showInformationMessage(
-            message + '\n\nReload window to activate changes?',
-            reloadBtn
-        );
+            // Prompt to reload window
+            const reloadBtn = 'Reload Window';
+            const choice = await vscode.window.showInformationMessage(
+                message + '\n\nReload window to activate changes?',
+                reloadBtn
+            );
 
-        if (choice === reloadBtn) {
-            vscode.commands.executeCommand('workbench.action.reloadWindow');
+            if (choice === reloadBtn) {
+                vscode.commands.executeCommand('workbench.action.reloadWindow');
+            }
+        } else {
+            logger.debug(LOG_CAT, 'Best Picks already active, no changes needed.');
         }
     }
 
