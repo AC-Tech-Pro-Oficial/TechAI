@@ -2,7 +2,7 @@
   "name": "techquotas-antigravity",
   "displayName": "TechQuotas Antigravity",
   "description": "Advanced quota monitoring with visual gauges for Antigravity IDE by AC Tech",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "publisher": "ac-tech-pro",
   "icon": "assets/logo.png",
   "engines": {

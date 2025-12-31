@@ -305,6 +305,7 @@ export class MCPAutoManager {
         type: 'npm' | 'python';
         package: string;
         trusted: boolean;
+        requires?: string[]; // Required Environment Variables
         runConfig?: { command: string; args: string[] };
     }> = {
             // === TRUSTED: Anthropic Reference Implementations ===
@@ -312,6 +313,7 @@ export class MCPAutoManager {
                 type: 'npm',
                 package: '@modelcontextprotocol/server-github',
                 trusted: true,
+                requires: ['GITHUB_PERSONAL_ACCESS_TOKEN'],
             },
             'server-git': {
                 type: 'npm',
@@ -347,11 +349,13 @@ export class MCPAutoManager {
                 type: 'npm',
                 package: '@modelcontextprotocol/server-brave-search',
                 trusted: true,
+                requires: ['BRAVE_API_KEY'],
             },
             'server-google-maps': {
                 type: 'npm',
                 package: '@modelcontextprotocol/server-google-maps',
                 trusted: true,
+                requires: ['GOOGLE_MAPS_API_KEY'],
             },
             'server-fetch': {
                 type: 'npm',
@@ -373,11 +377,13 @@ export class MCPAutoManager {
                 type: 'npm',
                 package: '@cloudflare/mcp-server-cloudflare',
                 trusted: true,
+                requires: ['CLOUDFLARE_API_TOKEN', 'CLOUDFLARE_ACCOUNT_ID'],
             },
             'mcp-server': { // Vercel Official
                 type: 'npm',
                 package: '@vercel/mcp-server',
                 trusted: true,
+                requires: ['VERCEL_API_TOKEN'],
             },
             // === COMMUNITY: Require Warning ===
             'mcp-git-ingest': {
@@ -407,11 +413,23 @@ export class MCPAutoManager {
 
         try {
             let config: any;
+            let envVars: Record<string, string> = {};
+
+            // Check for required environment variables (Auth)
+            if (installer.requires && installer.requires.length > 0) {
+                logger.info(LOG_CAT, `Prompting for auth keys: ${installer.requires.join(', ')}`);
+                const collected = await this.promptForEnvVars(installer.requires);
+                if (!collected) {
+                    vscode.window.showWarningMessage(`Installation of ${id} cancelled (missing auth).`);
+                    return false;
+                }
+                envVars = collected;
+            }
 
             if (installer.type === 'npm') {
-                config = await this.buildNpmConfig(installer.package);
+                config = await this.buildNpmConfig(installer.package, envVars);
             } else if (installer.type === 'python') {
-                config = await this.buildPythonConfig(installer.package);
+                config = await this.buildPythonConfig(installer.package, envVars);
             }
 
             if (!config) {
@@ -428,16 +446,37 @@ export class MCPAutoManager {
     }
 
     /**
+     * Use when tool requires API keys. Prompts user securely.
+     */
+    private async promptForEnvVars(requiredKeys: string[]): Promise<Record<string, string> | null> {
+        const env: Record<string, string> = {};
+        for (const key of requiredKeys) {
+            const value = await vscode.window.showInputBox({
+                prompt: `Enter API Key/Token for ${key}`,
+                placeHolder: `Value for ${key} (required)`,
+                password: true, // Mask input
+                ignoreFocusOut: true
+            });
+            if (!value) {
+                logger.warn(LOG_CAT, `User cancelled auth prompt for ${key}`);
+                return null;
+            }
+            env[key] = value;
+        }
+        return env;
+    }
+
+    /**
      * Build config for npm-based MCP server
      */
-    private async buildNpmConfig(packageName: string): Promise<any> {
+    private async buildNpmConfig(packageName: string, env: Record<string, string> = {}): Promise<any> {
         const isWin = process.platform === 'win32';
         const command = isWin ? 'npx.cmd' : 'npx';
 
         return {
             command: command,
             args: ['-y', packageName],
-            env: {}
+            env: env
         };
     }
 
@@ -445,7 +484,7 @@ export class MCPAutoManager {
      * Build config for Python-based MCP server
      * Prefers uvx (isolated), falls back to pip
      */
-    private async buildPythonConfig(packageName: string): Promise<any> {
+    private async buildPythonConfig(packageName: string, env: Record<string, string> = {}): Promise<any> {
         const hasUvx = await this.checkCommand('uvx');
 
         if (hasUvx) {
@@ -453,7 +492,7 @@ export class MCPAutoManager {
             return {
                 command: 'uvx',
                 args: [packageName],
-                env: {}
+                env: env
             };
         }
 
@@ -463,7 +502,7 @@ export class MCPAutoManager {
             return {
                 command: 'uvx',
                 args: [packageName],
-                env: {}
+                env: env
             };
         }
 
@@ -475,9 +514,10 @@ export class MCPAutoManager {
         return {
             command: 'pip',
             args: ['install', packageName],
-            env: {}
+            env: env
         };
     }
+
 
     /**
      * Check if a command exists on the system
