@@ -41,6 +41,15 @@ if (-not (Test-Connection github.com -Count 1 -Quiet)) { Write-Host "❌ ABORT: 
 $config = Get-Content "D:\TechAI\projects.json" -Raw | ConvertFrom-Json
 $stateFile = "D:\TechAI\.sync_state.json"
 
+# --- SECURITY CHECK: Ensure credentials are NEVER committed ---
+$securityPatterns = @("Credentials/", "credentials/", "secrets/", ".secrets/", "*.pem", "*_api_key.txt", "*_token.txt")
+Write-Host "🔒 Security Check: Validating gitignore..."
+$globalIgnore = git config --global core.excludesFile
+if (-not $globalIgnore -or -not (Test-Path $globalIgnore)) {
+    Write-Host "❌ ABORT: No global gitignore found. Run security setup first."
+    exit 1
+}
+
 # --- PART 2: DISCOVERY ---
 $scanPaths = $config.autoDiscover.scanPaths
 $excludePaths = $config.autoDiscover.excludePaths

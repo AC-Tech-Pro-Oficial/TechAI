@@ -81,6 +81,14 @@ Agents must identify themselves and their peers by these personas:
 
 ---
 
+## 6. Global Protocols
+1.  **Date Awareness (Time-Travel Prohibition)**:
+    *   **Mandate**: Agents MUST ALWAYS extract the current date/time from the `<ADDITIONAL_METADATA>` block or system prompt.
+    *   **Prohibition**: DO NOT assume "today's date" based on your training data. DO NOT hallucinate dates.
+    *   **Verification**: If performing research or time-sensitive tasks, explicitely state the detected date in your reasoning.
+
+---
+
 ## 5. Commit Standards
 Format: `<emoji> <description in pt-BR>`
 *   ✨ `Adiciona...` (New Feature)
