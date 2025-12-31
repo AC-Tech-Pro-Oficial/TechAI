@@ -275,10 +275,23 @@ export class UpdateChecker {
                         return;
                     }
 
+                    const contentLength = parseInt(res.headers['content-length'] || '0', 10);
+                    
                     res.pipe(file);
                     
                     file.on('finish', () => {
                         file.close();
+                        
+                        // Verify size if Content-Length was provided
+                        if (contentLength > 0) {
+                            const stats = fs.statSync(destPath);
+                            if (stats.size !== contentLength) {
+                                fs.unlink(destPath, () => {});
+                                reject(new Error(`Download incomplete: expected ${contentLength} bytes, got ${stats.size}`));
+                                return;
+                            }
+                        }
+                        
                         resolve();
                     });
                 });

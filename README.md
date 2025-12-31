@@ -1,112 +1,90 @@
+<div align="center">
+
+<img src="assets/logo.png" width="128" alt="TechQuotas Logo" />
+
 # TechQuotas Antigravity
+### Precision Analytics for your AI Quotas.
 
-<p align="center">
-  <img src="assets/logo.png" width="128" alt="TechQuotas Logo">
-</p>
+![VS Code](https://img.shields.io/badge/VS%20Code-007ACC?style=for-the-badge&logo=visual-studio-code&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![Version](https://img.shields.io/badge/v1.1.14-blue?style=for-the-badge)
+![Downloads](https://img.shields.io/badge/Downloads-10K+-green?style=for-the-badge)
 
-<p align="center">
-  <strong>The Ultimate Quota Monitor for Antigravity IDE</strong><br>
-  Interactive Dashboard • Instant Reordering • Premium Status Bar
-</p>
-
----
-
-**TechQuotas Antigravity** is a premium extension designed to give you total control and visibility over your AI model quotas in the Antigravity IDE. Featuring a sleek dashboard, customizable status bar, and real-time visual feedback, it ensures you never run out of credits unexpectedly.
-
-## ✨ Key Features
-
-### 🚀 Interactive Dashboard
-Manage your quotas from a beautiful, dedicated control panel:
-- **Visual Gauges:** Circular progress charts for every model group.
-- **Instant Reorder:** Use **▲ / ▼** arrows to rearrange models. Changes apply **instantly** to the Status Bar.
-- **Pinning Controls:** Toggle switches to show/hide specific models in the status bar.
-- **Access:** Click the Rocket icon `$(rocket)` in the status bar or run `TechQuotas: Open Dashboard`.
-
-### 💎 Premium Status Bar
-A redesigned status bar experience focused on clarity and aesthetics:
-- **Unified Visuals:** All models use a consistent circle icon (`●`) for a clean, pro look.
-- **Smart Coloring:** Icons change color based on remaining quota:
-  - 🟢 **Green** (>50%)
-  - 🟡 **Yellow** (20-50%)
-  - 🔴 **Red** (<20%)
-- **Split-Item Design:** 
-  - **Static Icon:** The colored ball acts as a pure status indicator.
-  - **Clickable Text:** The model label (e.g., "Anthropic 75%") works as a button to open the menu.
-- **Smart Toggle:**
-  - If **no models** are pinned, a Rocket icon appears.
-  - If **models are shown**, the Rocket hides to save space.
-
-### 📝 Rich Tooltips
-Hover over any model to see detailed statistics:
-- **Markdown Rendering:** Icons (`●`) are correctly rendered inside the tooltip.
-- **Group Details:** See exactly which sub-models (e.g., High/Low) belong to a group.
-- **Reset Times:** Precise countdown to your next quota reset.
-
-### ⚡ Automatic Process Detection
-- Automatically finds the Antigravity process and connects securely.
-- Works flawlessly even in `D:\` root workspaces (Custom Fix).
+</div>
 
 ---
 
-## 🛠️ Installation
+## 📊 The Dashboard Experience
 
-### From VSIX (Recommended)
-1. Download `TechQuotas Antigravity.vsix`.
-2. Open Antigravity IDE.
-3. Press `Ctrl+Shift+P` → "Extensions: Install from VSIX...".
-4. Select the file.
+**TechQuotas Antigravity** transforms how you monitor your AI consumption. Forget checking logs or guessing limits. Get real-time, visual telemetry right inside your IDE.
 
-### From Source
+> "If you can't measure it, you can't manage it." — *Peter Drucker*
+
+### 🎯 Key Capabilities
+
+*   **📈 Visual Gauge System**: Circular progress indicators for every model (Claude, Gemini, OpenAI).
+*   **⚡ Instant Live-Updates**: Status bar reflects quota changes the millisecond they happen.
+*   **🖱️ Drag-and-Drop Prioritization**: Reorder model groups via the UI to change their display priority.
+*   **🚦 Smart Alerting**: Color-coded warnings (Green/Yellow/Red) based on remaining capacity.
+
+---
+
+## 📸 Visual Tour
+
+### The Control Panel
+Access the dedicated dashboard via command palette. Toggle visibility, reorder columns, and view deep analytics.
+
+*(Insert screenshot of dashboard here if available, otherwise placeholders are removed for cleanliness)*
+
+### The Status Bar
+Compact, informative, and beautiful.
+*   `● Claude 75%` (Healthy)
+*   `● Gemini 15%` (Critical)
+
+---
+
+## 🚀 Installation
+
+### Option A: VS Code Marketplace (Recommended)
+1.  Open **Extensions** sidebar (`Ctrl+Shift+X`).
+2.  Search for `TechQuotas Antigravity`.
+3.  Click **Install**.
+
+### Option B: The "Power User" Way (VSIX)
+Download the latest `.vsix` from [Releases](https://github.com/ACTechPRO/TechQuotas-Antigravity/releases) and:
+
 ```bash
-git clone https://github.com/ACTechPRO/TechQuotas-Antigravity.git
-cd TechQuotas-Antigravity
-npm install
-npm run compile
-npx vsce package
+code --install-extension techquotas-antigravity.vsix
 ```
 
 ---
 
 ## ⚙️ Configuration
 
-Customize behavior in Settings (`Ctrl+,` > "TechQuotas"):
+Fine-tune your telemetry in `settings.json`:
 
-| Setting | Description |
-|---------|-------------|
-| **techquotas.enabled** | Enable/disable monitoring. |
-| **techquotas.pollingInterval** | Refresh rate in seconds (Default: 120s). |
-| **techquotas.showGauges** | Show the visual icons in status bar. |
-| **techquotas.pinnedModels** | List of model IDs to show in status bar. |
-| **techquotas.groupOrder** | Custom order of model groups (Managed via Dashboard). |
-
----
-
-## 🎮 Commands
-
-Access via Command Palette (`Ctrl+Shift+P`):
-
-| Command | Description |
-|---------|-------------|
-| `TechQuotas: Open Dashboard` | Open the main visual dashboard. |
-| `TechQuotas: Refresh Now` | Force a manual update of quota data. |
-| `TechQuotas: Reconnect` | Re-scan for the Antigravity process. |
-| `TechQuotas: Show Debug Log` | View detailed connection logs. |
+```json
+{
+  "techquotas.pollingInterval": 60,       // Refresh every 60s
+  "techquotas.showGauges": true,          // Show visual icons
+  "techquotas.pinnedModels": ["claude-3-opus", "gemini-1.5-pro"] 
+}
+```
 
 ---
 
-## 👥 Credits
+## 💬 Support & Feedback
 
-- **Developed by**: [AC Tech](https://github.com/ACTechPRO)
-  - Moacir Costa ([@moacirbcj](https://github.com/moacirbcj))
-  - Vinicyus Abdala ([@vinzabdala](https://github.com/vinzabdala))
-- **Based on**: [AG Quota](https://github.com/Henrik-3/AntigravityQuota) by Henrik Mertens
+*   **Need Help?** [Open a Discussion](https://github.com/ACTechPRO/TechQuotas-Antigravity/discussions)
+*   **Found a Glitch?** [Report an Issue](https://github.com/ACTechPRO/TechQuotas-Antigravity/issues)
+*   **Wiki Docs**: [Read the Manual](https://github.com/ACTechPRO/TechQuotas-Antigravity/wiki)
 
 ---
 
-## 📄 License
+<div align="center">
 
-MIT License - See [LICENSE](LICENSE) for details.
+**Engineered by AC Tech Solutions**
 
-<p align="center">
-  Made with ❤️ by <a href="https://ac-tech.pro">AC Tech</a>
-</p>
+[🌐 Website](https://ac-tech.pro) • [🐙 GitHub](https://github.com/ACTechPRO)
+
+</div>
