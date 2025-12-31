@@ -159,6 +159,70 @@ export class MCPManager {
     }
 
     /**
+     * Applies a set of servers: enables the specified IDs, disables all others.
+     * Uses soft-toggle (rename key) - does NOT uninstall any servers.
+     * @param enableIds - Server IDs to enable
+     * @returns Object with counts of enabled and disabled servers
+     */
+    public async applyServerSet(enableIds: string[]): Promise<{ enabled: number; disabled: number }> {
+        logger.info(LOG_CAT, `Applying server set: ${enableIds.join(', ')}`);
+
+        try {
+            const content = await fs.promises.readFile(this.config_path, 'utf8');
+            const json = JSON.parse(content) as MCPConfig;
+
+            if (!json.mcpServers) {
+                return { enabled: 0, disabled: 0 };
+            }
+
+            let enabledCount = 0;
+            let disabledCount = 0;
+
+            // Get all current server keys (both enabled and disabled)
+            const allKeys = Object.keys(json.mcpServers);
+            const enableSet = new Set(enableIds.map(id => id.toLowerCase()));
+
+            for (const key of allKeys) {
+                const isDisabledKey = key.startsWith('_disabled_');
+                const baseId = isDisabledKey ? key.replace('_disabled_', '') : key;
+                const shouldEnable = enableSet.has(baseId.toLowerCase());
+
+                if (shouldEnable && isDisabledKey) {
+                    // Enable: rename _disabled_X to X
+                    const config = json.mcpServers[key];
+                    delete json.mcpServers[key];
+                    json.mcpServers[baseId] = config;
+                    enabledCount++;
+                    logger.debug(LOG_CAT, `Enabled server: ${baseId}`);
+                } else if (!shouldEnable && !isDisabledKey) {
+                    // Disable: rename X to _disabled_X
+                    const config = json.mcpServers[key];
+                    delete json.mcpServers[key];
+                    json.mcpServers[`_disabled_${key}`] = config;
+                    disabledCount++;
+                    logger.debug(LOG_CAT, `Disabled server: ${key}`);
+                }
+                // Otherwise, already in correct state
+            }
+
+            await this.write_config(json);
+            logger.info(LOG_CAT, `Applied server set: ${enabledCount} enabled, ${disabledCount} disabled`);
+            return { enabled: enabledCount, disabled: disabledCount };
+        } catch (e: any) {
+            logger.error(LOG_CAT, `Failed to apply server set: ${e.message}`);
+            return { enabled: 0, disabled: 0 };
+        }
+    }
+
+    /**
+     * Gets list of all installed server IDs (both enabled and disabled)
+     */
+    public async getInstalledServerIds(): Promise<string[]> {
+        const servers = await this.get_servers();
+        return Object.keys(servers);
+    }
+
+    /**
      * Installs a new server (adds to config)
      */
     public async install_server(server_id: string, config: MCPServerConfig): Promise<boolean> {

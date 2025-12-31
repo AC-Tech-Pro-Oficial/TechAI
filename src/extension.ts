@@ -14,6 +14,7 @@ import { MCPRegistry } from './core/mcp_registry';
 import { MCPPanel } from './ui/mcp_panel';
 import { MCPTreeProvider, MCPServerItem } from './ui/mcp_treeview';
 import { UpdateChecker } from './core/update_checker';
+import { MCPAutoManager } from './core/mcp_auto_manager';
 import { logger } from './utils/logger';
 
 let extensionUri: vscode.Uri;
@@ -25,6 +26,7 @@ let status_bar: StatusBarManager;
 let mcp_manager: MCPManager;
 let mcp_registry: MCPRegistry;
 let update_checker: UpdateChecker;
+let mcp_auto_manager: MCPAutoManager;
 let is_initialized = false;
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -49,6 +51,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// Initialize Update Checker
 	update_checker = new UpdateChecker(context);
+
+	// Initialize MCP Auto Manager for Best Picks
+	mcp_auto_manager = new MCPAutoManager(context, mcp_manager, mcp_registry);
 
 	context.subscriptions.push(status_bar);
 
@@ -141,6 +146,24 @@ export async function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
+	// Apply Best Picks command
+	context.subscriptions.push(
+		vscode.commands.registerCommand('techquotas.applyBestPicks', async () => {
+			logger.info('Extension', 'Manual apply Best Picks triggered');
+			await mcp_auto_manager.applyBestPicks();
+			vscode.window.showInformationMessage('Best Pick MCP servers applied for this workspace');
+		})
+	);
+
+	// Reset Best Picks settings (for testing)
+	context.subscriptions.push(
+		vscode.commands.registerCommand('techquotas.resetBestPicksSettings', async () => {
+			logger.info('Extension', 'Resetting Best Picks settings');
+			await mcp_auto_manager.resetPreferences();
+			vscode.window.showInformationMessage('Best Picks settings reset. Reload window to see prompt again.');
+		})
+	);
+
 	// Setup Quota Manager Callbacks
 	quota_manager.on_update(snapshot => {
 		const current_config = config_manager.get_config();
@@ -172,6 +195,13 @@ export async function activate(context: vscode.ExtensionContext) {
 	setTimeout(() => {
 		update_checker.checkForUpdates();
 	}, 5000);
+
+	// Check and prompt for Best Picks MCP servers (after short delay)
+	setTimeout(() => {
+		mcp_auto_manager.checkAndPrompt().catch(err => {
+			logger.error('Extension', 'Auto-apply Best Picks check failed:', err);
+		});
+	}, 3000);
 
 	// Handle Config Changes
 	context.subscriptions.push(
