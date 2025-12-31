@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TechAI - O Sistema Agêntico da AC Tech. Uma força de trabalho digital autônoma.">
+    <title>TechAI - Sistema Agêntico Inteligente</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/pages.css">
+
+    <style>
+        .agent-card {
+            border: 1px solid var(--border-light);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .agent-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--brand-primary);
+            box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header class="header" id="header">
+        <div class="container header-inner">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <span>TechAI</span>
+            </a>
+
+            <nav class="nav" id="mainNav">
+                <a href="index.html" class="nav-link active">Início</a>
+                <a href="manifesto.html" class="nav-link">Manifesto</a>
+                <a href="https://ac-tech.pro" class="nav-link">Voltar para Hub</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="page-header center-aligned">
+        <div class="container">
+            <div class="page-header-content text-center">
+                <span class="badge badge-primary mb-6">Tecnologia Proprietária</span>
+                <h1 class="page-title text-gradient">TechAI Agentic System</h1>
+                <p class="page-subtitle mx-auto" style="max-width: 700px;">
+                    Não é apenas automação. É uma força de trabalho digital coordenada.
+                    Agentes especializados trabalhando em enxame para construir o futuro.
+                </p>
+                <div class="mt-8 flex justify-center gap-4">
+                    <a href="manifesto.html" class="btn btn-primary">Ler Manifesto</a>
+                    <a href="https://github.com/ACTechPRO" class="btn btn-ghost">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MANIFESTO SUMMARY -->
+    <section class="section">
+        <div class="container">
+            <div class="grid grid-cols-2 gap-16 items-center">
+                <div data-animate="fade-right">
+                    <h2 class="h2 mb-6">O Mandato Cloud-First</h2>
+                    <div class="space-y-6">
+                        <div class="flex gap-4">
+                            <div
+                                class="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 shrink-0">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="h4 mb-2">Planejamento com Claude Opus</h3>
+                                <p class="text-muted">
+                                    A arquitetura e o design de sistemas são confiados ao modelo mais capaz
+                                    do mundo para raciocínio complexo. Nada é feito sem um plano.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4">
+                            <div
+                                class="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-400 shrink-0">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <polyline points="16 18 22 12 16 6"></polyline>
+                                    <polyline points="8 6 2 12 8 18"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="h4 mb-2">Execução com Gemini Pro</h3>
+                                <p class="text-muted">
+                                    Codificação e testes em larga escala utilizando janelas de contexto
+                                    massivas de mais de 1 milhão de tokens.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-8" data-animate="fade-left">
+                    <h3 class="h4 mb-4 text-center">TechAI Manifesto v1.0</h3>
+                    <div class="font-mono text-sm space-y-2 text-muted">
+                        <p class="border-b border-white/10 pb-2">1. Model Exclusivity: <span class="text-white">Opus &
+                                Gemini Only</span></p>
+                        <p class="border-b border-white/10 pb-2">2. Output Quality: <span class="text-white">Prod-Ready
+                                & Typed</span></p>
+                        <p class="border-b border-white/10 pb-2">3. Language: <span class="text-white">PT-BR
+                                (Commits/Docs)</span></p>
+                        <p class="border-b border-white/10 pb-2">4. Quality > Speed > Cost</p>
+                        <p>5. Zero Hesitation Policy</p>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <a href="manifesto.html" class="btn btn-outline btn-sm w-full">Ler Documento Completo</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- THE SWARM -->
+    <section class="section" style="background: var(--bg-surface);">
+        <div class="container">
+            <div class="section-header centered">
+                <h2 class="section-title">O Enxame (The Swarm)</h2>
+                <p class="section-description">
+                    Conheça os agentes especialistas que compõem o sistema.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-4 gap-6">
+                <!-- TechAI -->
+                <div class="agent-card text-center group">
+                    <div
+                        class="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 mx-auto mb-4 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                            <path d="M2 17l10 5 10-5"></path>
+                            <path d="M2 12l10 5 10-5"></path>
+                        </svg>
+                    </div>
+                    <h3 class="h5 mb-1">TechAI</h3>
+                    <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest">Chief of Staff</span>
+                    <p class="text-xs text-muted mt-3">Roteador central. Recebe todas as requisições e delega para
+                        especialistas.</p>
+                </div>
+
+                <!-- TechPlan -->
+                <div class="agent-card text-center group">
+                    <div
+                        class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 mx-auto mb-4 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="h5 mb-1">TechPlan</h3>
+                    <span class="text-xs font-bold text-blue-400 uppercase tracking-widest">The Architect</span>
+                    <p class="text-xs text-muted mt-3">Criador de especificações técnicas e planos de implementação
+                        detalhados.</p>
+                </div>
+
+                <!-- TechCode -->
+                <div class="agent-card text-center group">
+                    <div
+                        class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 mx-auto mb-4 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="16 18 22 12 16 6"></polyline>
+                            <polyline points="8 6 2 12 8 18"></polyline>
+                        </svg>
+                    </div>
+                    <h3 class="h5 mb-1">TechCode</h3>
+                    <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest">The Builder</span>
+                    <p class="text-xs text-muted mt-3">Engenheiro sênior. Executa o ciclo "Code -> Fix -> Repeat"
+                        autonomamente.</p>
+                </div>
+
+                <!-- TechDesign -->
+                <div class="agent-card text-center group">
+                    <div
+                        class="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 mx-auto mb-4 flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                            <path d="M2 2l7.586 7.586"></path>
+                            <circle cx="11" cy="11" r="2"></circle>
+                        </svg>
+                    </div>
+                    <h3 class="h5 mb-1">TechDesign</h3>
+                    <span class="text-xs font-bold text-rose-400 uppercase tracking-widest">The Artist</span>
+                    <p class="text-xs text-muted mt-3">Diretor criativo. UI/UX, geração de assets e estética visual.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container text-center py-8">
+            <p class="text-muted text-sm">© 2025 AC Tech Solutions. TechAI System.</p>
+        </div>
+    </footer>
+</body>
+
+</html>
