@@ -102,6 +102,18 @@ export class MCPPanel {
 						const doc = await vscode.workspace.openTextDocument(this._mcpManager.get_config_path());
 						await vscode.window.showTextDocument(doc);
 						break;
+					case 'uninstallServer':
+						const confirm = await vscode.window.showWarningMessage(
+							`Are you sure you want to uninstall "${message.id}"? This will remove it from your MCP configuration.`,
+							{ modal: true },
+							'Uninstall'
+						);
+						if (confirm === 'Uninstall') {
+							await this._mcpManager.remove_server(message.id);
+							vscode.window.showInformationMessage(`MCP Server "${message.id}" has been uninstalled.`);
+							await this._refreshData();
+						}
+						break;
 				}
 			},
 			null,
@@ -704,7 +716,11 @@ export class MCPPanel {
 				let serversData = {};
 				let recommendedData = [];
 				let activeTags = [];
+				let showOnlyBestPicks = false;
 
+				function uninstallServer(id) {
+					sendMessage('uninstallServer', { id });
+				}
 				function switchTab(tabId) {
 					document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
 					document.querySelectorAll('.content').forEach(c => c.classList.add('hidden'));
@@ -816,6 +832,7 @@ export class MCPPanel {
 							</div>
 							<div class="actions">
 								<button class="btn secondary" onclick="sendMessage('editConfig')">Configure</button>
+								<button class="btn" style="background: #ef4444;" onclick="uninstallServer('\${id}')">Uninstall</button>
 							</div>
 						</div>
 					\`}).join('');
@@ -851,14 +868,33 @@ export class MCPPanel {
 						return;
 					}
 
-					// Filter by active tags
+					// Filter by Best Picks first
 					let filteredItems = recommendedData;
+					if (showOnlyBestPicks) {
+						filteredItems = recommendedData.filter(item => item.isBestPick);
+					}
+
+					// Then filter by active tags
 					if (recommendedActiveTags.length > 0) {
-						filteredItems = recommendedData.filter(item => {
+						filteredItems = filteredItems.filter(item => {
 							const itemTags = item.tags || [];
 							return recommendedActiveTags.every(tag => itemTags.includes(tag));
 						});
 					}
+
+					// Best Picks toggle button
+					const bestPicksBtnHtml = \`
+						<div style="grid-column: 1/-1; margin-bottom: 15px; display: flex; align-items: center; gap: 12px;">
+							<button class="btn \${showOnlyBestPicks ? '' : 'secondary'}" 
+								onclick="toggleBestPicks()" 
+								style="\${showOnlyBestPicks ? 'background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1a1a;' : ''}">
+								★ Show Best Picks Only
+							</button>
+							<span style="color: var(--text-secondary); font-size: 0.85em;">
+								\${showOnlyBestPicks ? 'Showing curated recommendations' : 'Showing all recommendations'}
+							</span>
+						</div>
+					\`;
 
 					// Render active tags UI
 					let activeTagsHtml = '';
@@ -876,12 +912,13 @@ export class MCPPanel {
 						\`;
 					}
 
+
 					if (filteredItems.length === 0) {
-						container.innerHTML = activeTagsHtml + '<p style="text-align: center; grid-column: 1/-1; padding: 40px; color: var(--text-secondary);">No recommendations match your filter.</p>';
+						container.innerHTML = bestPicksBtnHtml + activeTagsHtml + '<p style="text-align: center; grid-column: 1/-1; padding: 40px; color: var(--text-secondary);">No recommendations match your filter.</p>';
 						return;
 					}
 
-					container.innerHTML = activeTagsHtml + filteredItems.map(item => \`
+					container.innerHTML = bestPicksBtnHtml + activeTagsHtml + filteredItems.map(item => \`
 						<div class="card">
 							<div class="card-header">
 								<span class="card-title" title="\${item.name}">\${item.name.split('/').pop()}</span>
@@ -921,6 +958,11 @@ export class MCPPanel {
 
 				function clearRecommendedTags() {
 					recommendedActiveTags = [];
+					filterRecommended();
+				}
+
+				function toggleBestPicks() {
+					showOnlyBestPicks = !showOnlyBestPicks;
 					filterRecommended();
 				}
 

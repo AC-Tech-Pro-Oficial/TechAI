@@ -188,6 +188,34 @@ export class MCPManager {
         }
     }
 
+    /**
+     * Removes a server from config completely
+     */
+    public async remove_server(server_id: string): Promise<boolean> {
+        logger.info(LOG_CAT, `Removing server ${server_id}`);
+
+        try {
+            const content = await fs.promises.readFile(this.config_path, 'utf8');
+            const json = JSON.parse(content) as MCPConfig;
+
+            if (!json.mcpServers) {
+                return false;
+            }
+
+            // Remove both enabled and disabled versions
+            const disabledKey = `_disabled_${server_id}`;
+            const deleted = delete json.mcpServers[server_id] || delete json.mcpServers[disabledKey];
+
+            if (deleted) {
+                await this.write_config(json);
+            }
+            return deleted;
+        } catch (e: any) {
+            logger.error(LOG_CAT, `Failed to remove server: ${e.message}`);
+            return false;
+        }
+    }
+
     private async write_config(config: MCPConfig): Promise<void> {
         await fs.promises.writeFile(this.config_path, JSON.stringify(config, null, 2), 'utf8');
         this.emit_config_change();

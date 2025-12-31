@@ -105,9 +105,25 @@ export class MCPRecommender {
             addScore('github', 10);
         }
 
-        // Git (generic)
-        if (await this.hasFile('**/.git/**')) {
+        // Git (generic) - Check for .git directory directly as findFiles excludes it
+        let hasGit = false;
+        if (vscode.workspace.workspaceFolders) {
+            for (const folder of vscode.workspace.workspaceFolders) {
+                try {
+                    const gitPath = vscode.Uri.joinPath(folder.uri, '.git');
+                    await vscode.workspace.fs.stat(gitPath);
+                    hasGit = true;
+                    break;
+                } catch {
+                    // .git does not exist in this folder
+                }
+            }
+        }
+
+        if (hasGit || await this.hasFile('**/.gitignore')) {
             addScore('git', 20);
+            // Boost GitHub if Git is present (high likelihood of remote origin)
+            addScore('github', 10);
         }
 
         // GitLab
