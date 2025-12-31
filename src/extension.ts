@@ -206,11 +206,12 @@ export async function activate(context: vscode.ExtensionContext) {
 	}, 5000);
 
 	// Check and prompt for Best Picks MCP servers (after short delay)
-	setTimeout(() => {
-		mcp_auto_manager.checkAndPrompt().catch(err => {
-			logger.error('Extension', 'Auto-apply Best Picks check failed:', err);
-		});
-	}, 3000);
+	// DISABLED temporarily due to crash loop
+	// setTimeout(() => {
+	// 	mcp_auto_manager.checkAndPrompt().catch(err => {
+	// 		logger.error('Extension', 'Auto-apply Best Picks check failed:', err);
+	// 	});
+	// }, 3000);
 
 	// Handle Config Changes
 	context.subscriptions.push(

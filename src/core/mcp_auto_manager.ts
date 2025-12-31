@@ -426,8 +426,11 @@ export class MCPAutoManager {
      * Build config for npm-based MCP server
      */
     private async buildNpmConfig(packageName: string): Promise<any> {
+        const isWin = process.platform === 'win32';
+        const command = isWin ? 'npx.cmd' : 'npx';
+
         return {
-            command: 'npx',
+            command: command,
             args: ['-y', packageName],
             env: {}
         };
