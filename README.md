@@ -1,76 +1,70 @@
 <div align="center">
 
-# 🧠 TechAI: The Neural Core
-### Advanced Agentic System & Orchestrator
+<img src="assets/AC Tech Transparente.png" alt="AC Tech Logo" width="200" />
 
-![AI](https://img.shields.io/badge/Artificial_Intelligence-FF0000?style=for-the-badge&logo=openai&logoColor=white)
-![Gemini](https://img.shields.io/badge/Gemini_Pro-4285F4?style=for-the-badge&logo=google&logoColor=white)
-![Claude](https://img.shields.io/badge/Claude_Opus-D97757?style=for-the-badge&logo=anthropic&logoColor=white)
-![System](https://img.shields.io/badge/System-Operational-green?style=for-the-badge)
+# 🧠 TechAI: The Neural Core
+### The Central Nervous System of AC Tech Solutions.
+
+![AI](https://img.shields.io/badge/Artificial_Intelligence-Claude%20%7C%20Gemini-FF0000?style=for-the-badge&logo=google-bard&logoColor=white)
+![Role](https://img.shields.io/badge/Role-Orchestrator-purple?style=for-the-badge)
+![Security](https://img.shields.io/badge/Security-Level_5-red?style=for-the-badge)
 
 </div>
 
 ---
 
-## 📜 The Protocols
+## 🌐 The "Filesystem As Database" Philosophy
 
-**TechAI** is the central nervous system for AC Tech's development operations. It creates, manages, and optimizes all other projects in the ecosystem.
+**TechAI** is not just a repository; it is the active memory of our entire multi-agent infrastructure. We treat the file system as a living database.
 
-> **[📂 Read the TechAI Manifesto](TechAI_Manifesto.md)**  
-> *The Constitution that governs all Agentic behaviors, models, and workflows.*
+*   **`D:\TechAI\Credentials`**: The Vault. (Never committed).
+*   **`D:\TechAI\Prompts`**: The Skill Library. (Where agent capabilities are defined).
+*   **`D:\TechAI\Project Rules`**: The Constitution. (Directives inherited by all spokes).
 
----
-
-## 🤖 The Swarm (Agent Roster)
-
-Our decentralized multi-agent system features specialized personas for every task:
-
-| Agent | Role | Model | Specialization |
-| :--- | :--- | :--- | :--- |
-| **TechAI** | 👑 **Chief of Staff** | `Claude 4.5 Opus` | Task Routing, High-Level Strategy. |
-| **TechPlan** | 🏗️ **Architect** | `Claude 4.5 Opus` | System Design, File Structure, planning artifact generation. |
-| **TechCode** | 🔨 **Builder** | `Gemini 3 Pro` | Heavy coding, Refactoring, "Self-Healing" loops. |
-| **TechSearch** | 🎓 **Researcher** | `Claude 4.5 Opus` | PhD-level Deep Research, Citation gathering. |
-| **TechTest** | 🛡️ **Auditor** | `Gemini 3 Pro` | Security Analysis, Unit Testing, QA. |
-| **TechDesign** | 🎨 **Artist** | `Claude 4.5 Opus` | UI/UX, CSS styling, Asset directives. |
+> **[📜 Read the Manifesto](TechAI_Manifesto.md)**  
+> *The governing document that defines our coding standards, ethical boundaries, and agentic protocols.*
 
 ---
 
-## 🏗️ Hub & Spoke Architecture
+## 🤖 The Agent Swarm (Roster)
 
-This repository (`D:\TechAI`) acts as the **Source of Truth** and centralized memory.
+Each agent is a specialized persona invoked via specific triggers.
 
-*   **Hub**: `D:\TechAI` (Rules, Prompts, Credentials, Context)
-*   **Spokes**:
-    *   `D:\TechAir` (HVAC SaaS)
-    *   `D:\Microsoft Ultimate Installer` (Automation)
-    *   `D:\TechQuotas Antigravity` (IDE Tools)
-    *   `S:\Files\Cognicir Language School` (Academic)
-
----
-
-## 🧠 Memory & Context
-
-*   **Personal Memory**: [Context File](Personal%20Context%20Memory.txt) (Notes on User Preferences)
-*   **Project Rules**: [Global Rules](PROJECT_RULES.md) (Inherited by all spokes)
-*   **Workflow Definitions**: `.gemini/antigravity/global_workflows/`
+| Agent | Trigger | Model | Personality | Role |
+| :--- | :--- | :--- | :--- | :--- |
+| **TechAI** | `@TechAI` | `Claude 4.5 Opus` | **The Chief of Staff**. Diplomatic, strategic, and high-level. | Routing & Planning. |
+| **TechCode** | `@code` | `Gemini 3 Pro` | **The Tech Lead**. No-nonsense, pragmatic, efficient. | Implementation & Refactoring. |
+| **TechDesign** | `@design` | `Claude 4.5 Opus` | **The Creative Director**. Visionary, polished, demanding. | UI/UX & Asset Generation. |
+| **TechTest** | `@test` | `Gemini 3 Pro` | **The Auditor**. Skeptical, thorough, paranoid. | QA & Security Analysis. |
+| **TechSearch** | `@research` | `Claude 4.5 Opus` | **The PhD Researcher**. Academic, citation-heavy, exhaustive. | Deep Dives & Feasibility Studies. |
 
 ---
 
-## 🛠️ Usage
+## ⚡ Global Workflows
 
-This system is designed for **autonomous operation**.
-1.  **Initiate**: User sends a natural language request.
-2.  **Route**: TechAI analyzes intent and dispatches to the correct specialist.
-3.  **Execute**: Agents perform tool calls, generating code or artifacts.
-4.  **Verify**: TechTest validates the output before User review.
+We use standardized workflows to ensure consistency across the ecosystem.
+
+*   **[Context Awareness](/workflow/sync)**: `/sync` - Scans all projects and generates semantic summaries.
+*   **[Self-Healing](/workflow/heal)**: `/heal` - Auto-detects linter errors and applies safe fixes.
+*   **[Deployment](/workflow/deploy)**: `/deploy` - Runs strict pre-flight checks before pushing to prod.
+
+---
+
+## 🔗 The Ecosystem (Spokes)
+
+TechAI orchestrates these downstream repositories:
+
+1.  **[TechAir](file:///D:/TechAir)**: The HVAC SaaS Platform.
+2.  **[Microsoft Ultimate Installer](file:///D:/Microsoft Ultimate Installer)**: The Automation Framework.
+3.  **[TechQuotas](file:///D:/TechQuotas Antigravity)**: The IDE Analytics Tool.
+4.  **[Cognicir School](file:///S:/Files/Cognicir Language School)**: The Education Division.
 
 ---
 
 <div align="center">
 
-**Operated by AC Tech Agentic Cloud**
+**Operated by AC Tech Agentic Cloud • Brazil**
 
-[🌐 Website](https://ac-tech.pro) • [🔒 Private Repository]
+[🌐 Website](https://ac-tech.pro) • [🔒 Internal Access Only]
 
 </div>
