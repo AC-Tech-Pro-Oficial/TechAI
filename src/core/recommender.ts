@@ -215,15 +215,7 @@ export class MCPRecommender {
             addScore('linear', 20);
         }
 
-        // ============================================
-        // UNIVERSAL DEVELOPER TOOLS (Small Boost)
-        // ============================================
-
-        // File system operations are always useful
-        addScore('filesystem', 5);
-
-        // Search is always useful
-        addScore('search', 5);
+        // NOTE: Removed generic "filesystem" and "search" boosts - too generic, caused false positives
 
         return scores;
     }
