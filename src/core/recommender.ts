@@ -4,9 +4,15 @@ import { RegistryData, RegistryItem } from '../utils/mcp_types';
 interface WeightedMatch {
     item: RegistryItem;
     score: number;
-    reason: string[];
+    reasons: string[];
 }
 
+/**
+ * MCP Recommender v2 - Service-Based Detection
+ * 
+ * Philosophy: Detect SERVICES and INTEGRATIONS, not programming languages.
+ * MCP tools are about connecting AI to external services (GitHub, Firebase, databases, etc.)
+ */
 export class MCPRecommender {
 
     /**
@@ -16,189 +22,265 @@ export class MCPRecommender {
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (!workspaceFolders) return [];
 
-        // 1. Detect technologies with confidence scores
-        const techScores = await this.detectTechnologies();
+        // 1. Detect services/integrations used in the project
+        const serviceScores = await this.detectServices();
 
-        // 2. Calculate matches
+        console.log('[MCPRecommender] Detected services:', Object.fromEntries(serviceScores));
+
+        // 2. Calculate matches against registry items
         const recommendations: WeightedMatch[] = [];
         const allItems = registry.flatMap(cat => cat.items);
 
         for (const item of allItems) {
-            const match = this.calculateMatch(item, techScores);
-            // Threshold: Only recommend if score is significant (> 5)
-            // or if it's a very generic highly-rated tool (optional future heuristic)
-            if (match.score > 5) {
+            const match = this.calculateMatch(item, serviceScores);
+            // Threshold: Only recommend if score is meaningful
+            if (match.score >= 10) {
                 recommendations.push(match);
             }
         }
 
-        // 3. Sort by score (descending)
+        console.log('[MCPRecommender] Found', recommendations.length, 'recommendations');
+
+        // 3. Sort by score (descending) and limit results
         return recommendations
             .sort((a, b) => b.score - a.score)
+            .slice(0, 20) // Limit to top 20
             .map(m => m.item);
     }
 
-    private async detectTechnologies(): Promise<Map<string, number>> {
+    /**
+     * Detect services and integrations from workspace files
+     * Returns a map of service name -> confidence score
+     */
+    private async detectServices(): Promise<Map<string, number>> {
         const scores = new Map<string, number>();
-        const addScore = (tech: string, points: number) => {
-            scores.set(tech, (scores.get(tech) || 0) + points);
+        const addScore = (service: string, points: number) => {
+            scores.set(service, (scores.get(service) || 0) + points);
         };
 
-        // --- Node.js / JS Ecosystem ---
-        if (await this.hasFile('**/package.json')) {
-            addScore('node', 5);
-            addScore('npm', 5);
-            addScore('javascript', 3);
+        // ============================================
+        // VERSION CONTROL
+        // ============================================
 
-            // Analyze package.json content for specific frameworks
-            const pkgContent = await this.readFileContent('**/package.json');
-            if (pkgContent) {
-                if (pkgContent.includes('"react"')) addScore('react', 10);
-                if (pkgContent.includes('"next"')) addScore('nextjs', 10);
-                if (pkgContent.includes('"vue"')) addScore('vue', 10);
-                if (pkgContent.includes('"express"')) addScore('express', 10);
-                if (pkgContent.includes('"typescript"')) {
-                    addScore('typescript', 10);
-                }
-                if (pkgContent.includes('"tailwindcss"')) addScore('tailwind', 5);
+        // GitHub
+        if (await this.hasFile('**/.github/**')) {
+            addScore('github', 25);
+        }
+        // Check package.json for github.com repository
+        const pkgContent = await this.readFileContent('**/package.json');
+        if (pkgContent && pkgContent.includes('github.com')) {
+            addScore('github', 10);
+        }
+
+        // Git (generic)
+        if (await this.hasFile('**/.git/**')) {
+            addScore('git', 20);
+        }
+
+        // GitLab
+        if (await this.hasFile('**/.gitlab-ci.yml')) {
+            addScore('gitlab', 25);
+        }
+
+        // Azure DevOps
+        if (await this.hasFile('**/azure-pipelines.yml')) {
+            addScore('azure devops', 25);
+        }
+
+        // ============================================
+        // CLOUD PLATFORMS
+        // ============================================
+
+        // Firebase
+        if (await this.hasFile('**/firebase.json') || await this.hasFile('**/.firebaserc')) {
+            addScore('firebase', 25);
+        }
+
+        // Vercel
+        if (await this.hasFile('**/vercel.json') || await this.hasFile('**/.vercel/**')) {
+            addScore('vercel', 25);
+        }
+
+        // Netlify
+        if (await this.hasFile('**/netlify.toml')) {
+            addScore('netlify', 25);
+        }
+
+        // AWS
+        if (await this.hasFile('**/serverless.yml') || await this.hasFile('**/samconfig.toml')) {
+            addScore('aws', 20);
+        }
+
+        // Terraform (infra as code)
+        if (await this.hasFile('**/*.tf')) {
+            addScore('terraform', 20);
+            addScore('aws', 10); // Often used with AWS
+        }
+
+        // Supabase
+        if (await this.hasFile('**/supabase/**')) {
+            addScore('supabase', 25);
+        }
+
+        // ============================================
+        // CONTAINERS & ORCHESTRATION
+        // ============================================
+
+        // Docker
+        if (await this.hasFile('**/Dockerfile')) {
+            addScore('docker', 20);
+        }
+        if (await this.hasFile('**/docker-compose.yml') || await this.hasFile('**/docker-compose.yaml')) {
+            addScore('docker', 25);
+
+            // Parse docker-compose for database services
+            const composeContent = await this.readFileContent('**/docker-compose.yml') ||
+                await this.readFileContent('**/docker-compose.yaml');
+            if (composeContent) {
+                if (composeContent.includes('postgres')) addScore('postgres', 15);
+                if (composeContent.includes('mysql')) addScore('mysql', 15);
+                if (composeContent.includes('mongo')) addScore('mongodb', 15);
+                if (composeContent.includes('redis')) addScore('redis', 15);
             }
         }
-        if (await this.hasFile('**/tsconfig.json')) addScore('typescript', 5);
 
-        // --- Python Ecosystem ---
-        if (await this.hasFile('**/*.py')) {
-            addScore('python', 5);
-        }
-        if (await this.hasFile('**/requirements.txt') || await this.hasFile('**/pyproject.toml')) {
-            addScore('python', 5);
-            // Analyze requirements
-            const reqContent = (await this.readFileContent('**/requirements.txt')) || (await this.readFileContent('**/pyproject.toml'));
-            if (reqContent) {
-                if (reqContent.includes('django')) addScore('django', 10);
-                if (reqContent.includes('flask')) addScore('flask', 10);
-                if (reqContent.includes('fastapi')) addScore('fastapi', 10);
-                if (reqContent.includes('pandas')) addScore('pandas', 8);
-                if (reqContent.includes('numpy')) addScore('numpy', 8);
+        // Kubernetes
+        if (await this.hasFile('**/k8s/**') || await this.hasFile('**/*.yaml')) {
+            const k8sContent = await this.readFileContent('**/k8s/**/*.yaml');
+            if (k8sContent && k8sContent.includes('apiVersion:')) {
+                addScore('kubernetes', 20);
             }
         }
 
-        // --- Dart / Flutter ---
-        if (await this.hasFile('**/pubspec.yaml')) {
-            addScore('dart', 10);
-            const pubContent = await this.readFileContent('**/pubspec.yaml');
-            if (pubContent && pubContent.includes('flutter:')) {
-                addScore('flutter', 15); // Higher confidence for Flutter
+        // ============================================
+        // DATABASES (from package.json dependencies)
+        // ============================================
+
+        if (pkgContent) {
+            // PostgreSQL
+            if (pkgContent.includes('"pg"') || pkgContent.includes('"postgres"') ||
+                pkgContent.includes('"@prisma/client"')) {
+                addScore('postgres', 15);
+            }
+
+            // MongoDB
+            if (pkgContent.includes('"mongodb"') || pkgContent.includes('"mongoose"')) {
+                addScore('mongodb', 15);
+            }
+
+            // MySQL
+            if (pkgContent.includes('"mysql"') || pkgContent.includes('"mysql2"')) {
+                addScore('mysql', 15);
+            }
+
+            // Redis
+            if (pkgContent.includes('"redis"') || pkgContent.includes('"ioredis"')) {
+                addScore('redis', 15);
+            }
+
+            // Supabase
+            if (pkgContent.includes('"@supabase/supabase-js"')) {
+                addScore('supabase', 20);
+            }
+
+            // Firebase
+            if (pkgContent.includes('"firebase"') || pkgContent.includes('"firebase-admin"')) {
+                addScore('firebase', 15);
             }
         }
 
-        // --- Go ---
-        if (await this.hasFile('**/go.mod')) addScore('go', 10);
-
-        // --- Rust ---
-        if (await this.hasFile('**/Cargo.toml')) addScore('rust', 10);
-
-        // --- Infrastructure ---
-        if (await this.hasFile('**/Dockerfile') || await this.hasFile('**/docker-compose.yml')) addScore('docker', 10);
-        if (await this.hasFile('**/*.tf') || await this.hasFile('**/*.hcl')) {
-            addScore('terraform', 10);
-            addScore('aws', 5); // Infer AWS often used with TF
-            addScore('cloud', 5);
+        // Prisma
+        if (await this.hasFile('**/prisma/schema.prisma')) {
+            addScore('prisma', 20);
         }
-        if (await this.hasFile('**/*.sql')) {
-            addScore('sql', 10);
-            addScore('database', 10);
-        }
-        if (await this.hasFile('**/firebase.json')) addScore('firebase', 15);
 
-        // --- Git ---
-        if (await this.hasFile('**/.git/**')) addScore('git', 5);
+        // ============================================
+        // PRODUCTIVITY & COLLABORATION TOOLS
+        // ============================================
+
+        if (pkgContent) {
+            // Slack
+            if (pkgContent.includes('"@slack/')) {
+                addScore('slack', 15);
+            }
+        }
+
+        // Notion (check for notion in various places)
+        if (await this.hasFile('**/.notion/**')) {
+            addScore('notion', 20);
+        }
+
+        // Linear
+        if (await this.hasFile('**/.linear/**')) {
+            addScore('linear', 20);
+        }
+
+        // ============================================
+        // UNIVERSAL DEVELOPER TOOLS (Small Boost)
+        // ============================================
+
+        // File system operations are always useful
+        addScore('filesystem', 5);
+
+        // Search is always useful
+        addScore('search', 5);
 
         return scores;
     }
 
-    private calculateMatch(item: RegistryItem, techScores: Map<string, number>): WeightedMatch {
+    /**
+     * Calculate match score between a registry item and detected services
+     * Uses word boundary matching to prevent partial matches
+     */
+    private calculateMatch(item: RegistryItem, serviceScores: Map<string, number>): WeightedMatch {
         let score = 0;
         const reasons: string[] = [];
         const lowerName = item.name.toLowerCase();
         const lowerDesc = item.description.toLowerCase();
         const tags = (item.tags || []).map(t => t.toLowerCase());
 
-        techScores.forEach((techScore, tech) => {
-            // Check if this tech is relevant to the item
+        serviceScores.forEach((serviceScore, service) => {
+            // Use word boundary regex for accurate matching
+            const regex = new RegExp(`\\b${this.escapeRegex(service)}\\b`, 'i');
 
-            // 1. Direct Tag Match (Best)
-            if (tags.includes(tech)) {
-                // PENALTY: If the matched tag is a programming language (Runtime), 
-                // but the item description suggests it's just WRITTEN in that language, not FOR that language.
-                // We assume 'typescript', 'python', 'go', 'rust', 'node' are primarily Runtimes unless
-                // the description explicitly focuses on them as a Subject.
-                const isRuntime = ['typescript', 'javascript', 'python', 'go', 'rust', 'node', 'java', 'php'].includes(tech);
-
-                if (isRuntime) {
-                    // STRICT CHECK: Only recommend if it is explicitly a tool FOR that language.
-                    // STRICT CHECK: Only recommend if it is explicitly a tool FOR that language.
-                    // Use regex with word boundaries to prevent partial matches (e.g. 'cli' in 'client', 'climate')
-                    const toolingRegex = /\b(debug|debugger|debugging|linter|linters|compiler|compilers|profiler|profilers|formatter|formatters|playground|introspector|language server|lsp|runtime|interpreter|cli)\b/i;
-                    const isTooling = toolingRegex.test(lowerDesc) || toolingRegex.test(lowerName);
-
-                    if (isTooling) {
-                        score += techScore * 2.0;
-                        reasons.push(`Tooling match: ${tech}`);
-                    }
-                } else {
-                    // It's a Subject match (e.g. 'react', 'postgres', 'docker', 'aws')
-                    score += techScore * 3.0;
-                    reasons.push(`Subject match: ${tech}`);
-                }
+            // Check name (strongest signal)
+            if (regex.test(lowerName)) {
+                score += serviceScore * 1.5;
+                reasons.push(`Name: ${service}`);
             }
-            // 2. Name Match (Strong indicator of Subject)
-            else if (lowerName.includes(tech)) {
-                // Runtime check: Don't boost if it's just a runtime language in the name
-                const isRuntime = ['typescript', 'javascript', 'python', 'go', 'rust', 'node', 'java', 'php'].includes(tech);
-                if (!isRuntime) {
-                    score += techScore * 2.0;
-                    reasons.push(`Name match: ${tech}`);
-                }
-                // Runtimes in names are ignored (e.g., time-node-mcp shouldn't match just because of 'node')
+            // Check description
+            else if (regex.test(lowerDesc)) {
+                score += serviceScore;
+                reasons.push(`Desc: ${service}`);
             }
-            // 3. Description Match
-            else if (lowerDesc.includes(tech)) {
-                // Same Runtime check for description matches
-                const isRuntime = ['typescript', 'javascript', 'python', 'go', 'rust', 'node', 'java', 'php'].includes(tech);
-
-                if (isRuntime) {
-                    // Only count if it looks like the subject, not implementation
-                    // Use regex with word boundaries to prevent partial matches
-                    const toolingRegex = /\b(debug|debugger|debugging|linter|linters|compiler|compilers|profiler|profilers|formatter|formatters|playground|introspector|language server|lsp|runtime|interpreter|cli)\b/i;
-                    if (toolingRegex.test(lowerDesc)) {
-                        score += techScore * 1.5;
-                        reasons.push(`Tooling desc match: ${tech}`);
-                    }
-                    // Otherwise 0
-                } else {
-                    // Subject match in description
-                    // Context Check: "Written in X" vs "X Linter"
-                    const contextRegex = new RegExp(`(written in|built with|based on)\\s+${tech}`, 'i');
-                    if (contextRegex.test(lowerDesc)) {
-                        score += 0.5; // Minimal boost
-                    } else {
-                        score += techScore * 0.8;
-                    }
-                }
+            // Check tags
+            else if (tags.some(tag => regex.test(tag))) {
+                score += serviceScore * 1.2;
+                reasons.push(`Tag: ${service}`);
             }
         });
 
-        // Boost for "Local" or "Cloud" if generic tech triggers present
-        // (Optional future refinement)
-
-        return { item, score, reason: reasons };
+        return { item, score, reasons };
     }
 
+    /**
+     * Escape special regex characters in service names
+     */
+    private escapeRegex(str: string): string {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    /**
+     * Check if a file matching the glob pattern exists
+     */
     private async hasFile(globPattern: string): Promise<boolean> {
         const files = await vscode.workspace.findFiles(globPattern, '**/node_modules/**', 1);
         return files.length > 0;
     }
 
+    /**
+     * Read content of first file matching the glob pattern
+     */
     private async readFileContent(globPattern: string): Promise<string | null> {
         try {
             const files = await vscode.workspace.findFiles(globPattern, '**/node_modules/**', 1);
@@ -207,7 +289,7 @@ export class MCPRecommender {
                 return new TextDecoder().decode(uint8Array);
             }
         } catch (e) {
-            console.error(`Error reading file for recommendation: ${globPattern}`, e);
+            console.error(`[MCPRecommender] Error reading file for pattern ${globPattern}:`, e);
         }
         return null;
     }
