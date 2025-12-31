@@ -21,13 +21,32 @@ export class MCPRecommender {
      */
     private static readonly BEST_PICKS: Record<string, string[]> = {
         'github': ['github/github-mcp-server', 'modelcontextprotocol/server-github'],
-        'git': ['anthropic/mcp-server-git', 'adhikasp/mcp-git-ingest', 'modelcontextprotocol/server-git'],
-        'firebase': ['anthropic/firebase-mcp', 'anthropic/mcp-server-firebase'],
+        'git': ['modelcontextprotocol/server-git', 'adhikasp/mcp-git-ingest'], // adhikasp is community
+        'firebase': ['firebase-mcp', 'gannonh/firebase-mcp'],
         'docker': ['modelcontextprotocol/server-docker'],
         'postgres': ['modelcontextprotocol/server-postgres'],
         'slack': ['modelcontextprotocol/server-slack'],
         'filesystem': ['modelcontextprotocol/server-filesystem'],
+        'cloudflare': ['cloudflare/mcp-server-cloudflare'],
     };
+
+    /**
+     * TRUSTED NAMESPACES - repos from these owners are auto-installed without warning
+     */
+    private static readonly TRUSTED_NAMESPACES = [
+        'modelcontextprotocol',   // Anthropic Official Reference Implementations
+        'anthropic',              // Anthropic's own tools
+        'github',                 // GitHub Official
+        'cloudflare',             // Cloudflare Official
+        'microsoft',              // Microsoft Official
+        'aws',                    // Amazon Web Services
+        'google',                 // Google Official
+        'vercel',                 // Vercel Official
+        'supabase',               // Supabase Official
+        'stripe',                 // Stripe Official
+        'twilio',                 // Twilio Official
+        'gannonh',                // Firebase MCP maintainer (widely trusted)
+    ];
 
     /**
      * Analyze workspace and return recommended servers from the registry
@@ -63,6 +82,15 @@ export class MCPRecommender {
                     Array.from(bestPickNames).some(bp => lowerName.includes(bp.split('/').pop() || ''))) {
                     match.item.isBestPick = true;
                 }
+
+                // Mark as Trusted if from trusted namespace
+                const namespace = item.name.split('/')[0]?.toLowerCase();
+                if (MCPRecommender.TRUSTED_NAMESPACES.includes(namespace)) {
+                    match.item.isTrusted = true;
+                } else {
+                    match.item.isTrusted = false;
+                }
+
                 recommendations.push(match);
             }
         }

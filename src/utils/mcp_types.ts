@@ -43,6 +43,7 @@ export interface RegistryItem {
     tags?: string[];
     author?: string;
     isBestPick?: boolean; // Curated "Best-in-Class" recommendation
+    isTrusted?: boolean;  // From trusted namespace (auto-install allowed)
 }
 
 export interface RegistryCategory {

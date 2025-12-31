@@ -124,11 +124,11 @@ export class MCPAutoManager {
 
     /**
      * Apply Best Picks: enable recommended servers, disable others.
-     * Only affects servers that are actually installed.
-     * Warns if recommended servers are not installed yet.
+     * Only installs TRUSTED sources automatically (community tools skipped).
      */
     public async applyBestPicks(): Promise<void> {
-        const bestPickIds = await this.getBestPickServerIds();
+        // Use trustedOnly=true to only auto-install from verified sources
+        const bestPickIds = await this.getBestPickServerIds(true);
 
         if (bestPickIds.length === 0) {
             logger.warn(LOG_CAT, 'No Best Picks to apply');
@@ -204,9 +204,11 @@ export class MCPAutoManager {
     /**
      * Installs and Enables Best Picks WITHOUT disabling other servers.
      * Use this for the "Install Best Picks" button in the UI.
+     * Only installs TRUSTED sources (community tools require manual install).
      */
     public async installMissingBestPicks(): Promise<void> {
-        const bestPickIds = await this.getBestPickServerIds();
+        // Use trustedOnly=true to only install verified sources
+        const bestPickIds = await this.getBestPickServerIds(true);
 
         if (bestPickIds.length === 0) {
             vscode.window.showInformationMessage('No Best Picks found for this workspace.');
@@ -275,53 +277,143 @@ export class MCPAutoManager {
             vscode.commands.executeCommand('workbench.action.reloadWindow');
         }
     }
+    /**
+     * TRUSTED SOURCES - Only these namespaces are auto-installed without warning
+     * Based on research of official MCP server providers
+     */
+    private static readonly TRUSTED_NAMESPACES = [
+        'modelcontextprotocol',   // Anthropic Official Reference Implementations
+        'anthropic',              // Anthropic's own tools
+        'github',                 // GitHub Official
+        'cloudflare',             // Cloudflare Official
+        'firebase',               // Firebase/Google (if official)
+        'microsoft',              // Microsoft Official
+        'aws',                    // Amazon Web Services
+        'google',                 // Google Official
+        'vercel',                 // Vercel Official
+        'supabase',               // Supabase Official
+        'stripe',                 // Stripe Official
+        'twilio',                 // Twilio Official
+    ];
 
     /**
-     * Attempts to auto-install a server by ID using known configs
+     * Comprehensive installer registry for Best Pick tools
+     * type: 'npm' | 'python'
+     * trusted: true = auto-install allowed, false = requires manual confirmation
      */
-    private async autoInstallServer(id: string): Promise<boolean> {
-        // Known installers for Best Picks
-        const INSTALLERS: Record<string, any> = {
+    private static readonly INSTALLERS: Record<string, {
+        type: 'npm' | 'python';
+        package: string;
+        trusted: boolean;
+        runConfig?: { command: string; args: string[] };
+    }> = {
+            // === TRUSTED: Anthropic Reference Implementations ===
             'github-mcp-server': {
-                command: 'npx',
-                args: ['-y', '@modelcontextprotocol/server-github'],
-                env: {}
+                type: 'npm',
+                package: '@modelcontextprotocol/server-github',
+                trusted: true,
             },
-            'server-git': { // Try official npm package
-                command: 'npx',
-                args: ['-y', '@modelcontextprotocol/server-git'],
-                env: {}
+            'server-git': {
+                type: 'npm',
+                package: '@modelcontextprotocol/server-git',
+                trusted: true,
             },
-            'mcp-git-ingest': { // Python - try pip if python available, else fail
-                command: 'pip',
-                args: ['install', 'mcp-git-ingest'], // risky assumption without venv
+            'server-filesystem': {
+                type: 'npm',
+                package: '@modelcontextprotocol/server-filesystem',
+                trusted: true,
             },
+            'server-postgres': {
+                type: 'npm',
+                package: '@modelcontextprotocol/server-postgres',
+                trusted: true,
+            },
+            'server-slack': {
+                type: 'npm',
+                package: '@modelcontextprotocol/server-slack',
+                trusted: true,
+            },
+            'server-memory': {
+                type: 'npm',
+                package: '@modelcontextprotocol/server-memory',
+                trusted: true,
+            },
+            'server-puppeteer': {
+                type: 'npm',
+                package: '@modelcontextprotocol/server-puppeteer',
+                trusted: true,
+            },
+            'server-brave-search': {
+                type: 'npm',
+                package: '@modelcontextprotocol/server-brave-search',
+                trusted: true,
+            },
+            'server-google-maps': {
+                type: 'npm',
+                package: '@modelcontextprotocol/server-google-maps',
+                trusted: true,
+            },
+            'server-fetch': {
+                type: 'npm',
+                package: '@modelcontextprotocol/server-fetch',
+                trusted: true,
+            },
+            'server-sequential-thinking': {
+                type: 'npm',
+                package: '@modelcontextprotocol/server-sequential-thinking',
+                trusted: true,
+            },
+            // === TRUSTED: Official Vendor Tools ===
             'firebase-mcp': {
-                command: 'npx',
-                args: ['-y', 'firebase-mcp'], // Check if this is the right package
-                env: {}
-            }
+                type: 'npm',
+                package: 'firebase-mcp',
+                trusted: true, // gannonh's is widely adopted
+            },
+            'cloudflare-mcp': {
+                type: 'npm',
+                package: '@cloudflare/mcp-server-cloudflare',
+                trusted: true,
+            },
+            // === COMMUNITY: Require Warning ===
+            'mcp-git-ingest': {
+                type: 'python',
+                package: 'mcp-git-ingest',
+                trusted: false, // adhikasp - community maintained
+            },
         };
 
-        const config = INSTALLERS[id];
-        if (!config) {
-            logger.warn(LOG_CAT, `No auto-install config for ${id}`);
+    /**
+     * Attempts to auto-install a server by ID
+     * @param id Server ID to install
+     * @param trustedOnly If true, skip non-trusted sources
+     */
+    private async autoInstallServer(id: string, trustedOnly: boolean = true): Promise<boolean> {
+        const installer = MCPAutoManager.INSTALLERS[id];
+        if (!installer) {
+            logger.warn(LOG_CAT, `No installer config for ${id}`);
             return false;
         }
 
-        // For Python tools, we probably shouldn't just run 'pip install' globally
-        // So for now, skip Python unless we are sure.
-        // Actually, let's skip checking and just return false for now for non-npx to be safe
-        if (config.command !== 'npx') {
-            logger.warn(LOG_CAT, `Skipping auto-install for non-npx tool ${id}`);
+        // Skip non-trusted if trustedOnly is set
+        if (trustedOnly && !installer.trusted) {
+            logger.info(LOG_CAT, `Skipping non-trusted tool ${id} (trustedOnly=true)`);
             return false;
         }
 
         try {
-            logger.info(LOG_CAT, `Auto-installing ${id}...`);
-            // We just add the config to mcp_config.json. 
-            // The actual "installation" happens when the server starts (npx downloads it).
-            // So we just need to write the config!
+            let config: any;
+
+            if (installer.type === 'npm') {
+                config = await this.buildNpmConfig(installer.package);
+            } else if (installer.type === 'python') {
+                config = await this.buildPythonConfig(installer.package);
+            }
+
+            if (!config) {
+                return false;
+            }
+
+            logger.info(LOG_CAT, `Auto-installing ${id} (${installer.type})...`);
             await this.mcpManager.install_server(id, config);
             return true;
         } catch (e: any) {
@@ -331,27 +423,117 @@ export class MCPAutoManager {
     }
 
     /**
-     * Get the server IDs of Best Picks for the current workspace.
-     * These are the IDs as they would appear in mcp_config.json.
+     * Build config for npm-based MCP server
      */
-    private async getBestPickServerIds(): Promise<string[]> {
+    private async buildNpmConfig(packageName: string): Promise<any> {
+        return {
+            command: 'npx',
+            args: ['-y', packageName],
+            env: {}
+        };
+    }
+
+    /**
+     * Build config for Python-based MCP server
+     * Prefers uvx (isolated), falls back to pip
+     */
+    private async buildPythonConfig(packageName: string): Promise<any> {
+        const hasUvx = await this.checkCommand('uvx');
+
+        if (hasUvx) {
+            logger.info(LOG_CAT, `Using uvx for Python package: ${packageName}`);
+            return {
+                command: 'uvx',
+                args: [packageName],
+                env: {}
+            };
+        }
+
+        // Try to install uv first
+        const installed = await this.ensureUvInstalled();
+        if (installed) {
+            return {
+                command: 'uvx',
+                args: [packageName],
+                env: {}
+            };
+        }
+
+        // Fallback to pip (with warning)
+        logger.warn(LOG_CAT, `Falling back to pip for ${packageName} (not isolated)`);
+        vscode.window.showWarningMessage(
+            `Installing ${packageName} globally via pip. Consider installing 'uv' for safer isolated installs.`
+        );
+        return {
+            command: 'pip',
+            args: ['install', packageName],
+            env: {}
+        };
+    }
+
+    /**
+     * Check if a command exists on the system
+     */
+    private async checkCommand(cmd: string): Promise<boolean> {
+        const { exec } = require('child_process');
+        return new Promise((resolve) => {
+            const checkCmd = process.platform === 'win32' ? `where ${cmd}` : `which ${cmd}`;
+            exec(checkCmd, (error: any) => {
+                resolve(!error);
+            });
+        });
+    }
+
+    /**
+     * Ensure uv is installed (for uvx support)
+     */
+    private async ensureUvInstalled(): Promise<boolean> {
+        const hasUv = await this.checkCommand('uv');
+        if (hasUv) return true;
+
+        // Try to install uv via pip
+        logger.info(LOG_CAT, 'Installing uv for Python package management...');
+        vscode.window.showInformationMessage('Installing uv for safe Python package management...');
+
+        const { exec } = require('child_process');
+        return new Promise((resolve) => {
+            exec('pip install uv', (error: any) => {
+                if (error) {
+                    logger.error(LOG_CAT, `Failed to install uv: ${error.message}`);
+                    resolve(false);
+                } else {
+                    logger.info(LOG_CAT, 'uv installed successfully');
+                    resolve(true);
+                }
+            });
+        });
+    }
+
+    /**
+     * Get the server IDs of Best Picks for the current workspace.
+     * @param trustedOnly If true, only return trusted Best Picks (for auto-install)
+     */
+    private async getBestPickServerIds(trustedOnly: boolean = false): Promise<string[]> {
         try {
             const registryData = await this.registry.get_registry_data();
             const recommender = new MCPRecommender();
             const recommendations = await recommender.getRecommendations(registryData);
 
             // Filter to Best Picks only
-            const bestPicks = recommendations.filter(item => item.isBestPick);
+            let bestPicks = recommendations.filter(item => item.isBestPick);
 
-            // Map registry names (e.g., "github/github-mcp-server") to likely config IDs
-            // Common pattern: the repo name part (after /) is used as the server ID
+            // If trustedOnly, further filter to trusted sources
+            if (trustedOnly) {
+                bestPicks = bestPicks.filter(item => item.isTrusted);
+            }
+
+            // Map registry names to config IDs
             const serverIds = bestPicks.map(item => {
-                // Try to extract a reasonable ID from the registry name
                 const parts = item.name.split('/');
                 return parts.length > 1 ? parts[parts.length - 1] : item.name;
             });
 
-            logger.debug(LOG_CAT, `Best Pick server IDs: ${serverIds.join(', ')}`);
+            logger.debug(LOG_CAT, `Best Pick server IDs (trustedOnly=${trustedOnly}): ${serverIds.join(', ')}`);
             return serverIds;
         } catch (e: any) {
             logger.error(LOG_CAT, `Failed to get Best Pick server IDs: ${e.message}`);
