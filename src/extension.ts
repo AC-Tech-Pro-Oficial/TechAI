@@ -120,7 +120,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('techquotas.openMCPPanel', () => {
 			logger.info('Extension', 'Opening MCP Panel');
-			MCPPanel.createOrShow(extensionUri, mcp_manager, mcp_registry);
+			MCPPanel.createOrShow(extensionUri, mcp_manager, mcp_registry, context);
 		})
 	);
 
@@ -205,13 +205,15 @@ export async function activate(context: vscode.ExtensionContext) {
 		update_checker.checkForUpdates();
 	}, 5000);
 
-	// Check and prompt for Best Picks MCP servers (after short delay)
-	// DISABLED temporarily due to crash loop
-	// setTimeout(() => {
-	// 	mcp_auto_manager.checkAndPrompt().catch(err => {
-	// 		logger.error('Extension', 'Auto-apply Best Picks check failed:', err);
-	// 	});
-	// }, 3000);
+	// Check and prompt for Best Picks MCP servers (guard with setting)
+	setTimeout(() => {
+		const autoApply = context.globalState.get<boolean>('mcp.autoApplyBestPicks', false);
+		if (autoApply) {
+			mcp_auto_manager.checkAndPrompt().catch(err => {
+				logger.error('Extension', 'Auto-apply Best Picks check failed:', err);
+			});
+		}
+	}, 3000);
 
 	// Handle Config Changes
 	context.subscriptions.push(

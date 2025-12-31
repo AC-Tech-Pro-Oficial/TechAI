@@ -20,6 +20,7 @@ export class MCPPanel {
 
 	private _mcpManager: MCPManager;
 	private _mcpRegistry: MCPRegistry;
+	private _context: vscode.ExtensionContext;
 
 	private _currentServers: MCPServersCollection = {};
 	private _registryData: RegistryData | null = null;
@@ -30,7 +31,8 @@ export class MCPPanel {
 	public static createOrShow(
 		extensionUri: vscode.Uri,
 		mcpManager: MCPManager,
-		mcpRegistry: MCPRegistry
+		mcpRegistry: MCPRegistry,
+		context: vscode.ExtensionContext
 	) {
 		const column = vscode.window.activeTextEditor
 			? vscode.window.activeTextEditor.viewColumn
@@ -54,19 +56,21 @@ export class MCPPanel {
 			}
 		);
 
-		MCPPanel.currentPanel = new MCPPanel(panel, extensionUri, mcpManager, mcpRegistry);
+		MCPPanel.currentPanel = new MCPPanel(panel, extensionUri, mcpManager, mcpRegistry, context);
 	}
 
 	private constructor(
 		panel: vscode.WebviewPanel,
 		extensionUri: vscode.Uri,
 		mcpManager: MCPManager,
-		mcpRegistry: MCPRegistry
+		mcpRegistry: MCPRegistry,
+		context: vscode.ExtensionContext
 	) {
 		this._panel = panel;
 		this._extensionUri = extensionUri;
 		this._mcpManager = mcpManager;
 		this._mcpRegistry = mcpRegistry;
+		this._context = context;
 		this._recommender = new MCPRecommender();
 
 		// Set the webview's initial html content
@@ -117,6 +121,10 @@ export class MCPPanel {
 					case 'installBestPicks':
 						await vscode.commands.executeCommand('techquotas.installBestPicks');
 						break;
+					case 'toggleAutoApply':
+						await this._context.globalState.update('mcp.autoApplyBestPicks', message.value);
+						await this._updateWebviewState();
+						break;
 				}
 			},
 			null,
@@ -147,7 +155,8 @@ export class MCPPanel {
 			command: 'updateData',
 			servers: this._currentServers,
 			registry: this._registryData,
-			recommended: this._recommendedItems
+			recommended: this._recommendedItems,
+			autoApplyEnabled: this._context.globalState.get('mcp.autoApplyBestPicks', false)
 		});
 	}
 
@@ -720,6 +729,11 @@ export class MCPPanel {
 				let recommendedData = [];
 				let activeTags = [];
 				let showOnlyBestPicks = false;
+				let autoApplyEnabled = false;
+
+				function toggleAutoApply() {
+					sendMessage('toggleAutoApply', { value: !autoApplyEnabled });
+				}
 
 				function uninstallServer(id) {
 					sendMessage('uninstallServer', { id });
@@ -897,7 +911,14 @@ export class MCPPanel {
 								style="background-color: var(--success-color); color: white; display: flex; align-items: center; gap: 6px;">
 								<span>⬇</span> Install Best Picks
 							</button>
-							<span style="color: var(--text-secondary); font-size: 0.85em;">
+							<div class="server-toggle">
+								<label class="toggle-switch">
+									<input type="checkbox" \${autoApplyEnabled ? 'checked' : ''} onchange="toggleAutoApply()">
+									<span class="slider"></span>
+								</label>
+								<span style="color: var(--text-secondary); font-size: 0.9em;">Auto-Apply on Startup</span>
+							</div>
+							<span style="color: var(--text-secondary); font-size: 0.85em; margin-left: auto;">
 								\${showOnlyBestPicks ? 'Showing curated recommendations' : 'Showing all recommendations'}
 							</span>
 						</div>
@@ -1098,6 +1119,7 @@ export class MCPPanel {
 					const message = event.data;
 					switch (message.command) {
 						case 'updateData':
+							autoApplyEnabled = message.autoApplyEnabled;
 							renderServers(message.servers);
 							renderRegistry(message.registry);
 							renderRecommended(message.recommended);
