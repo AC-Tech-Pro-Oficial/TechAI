@@ -656,17 +656,30 @@ export class MCPPanel {
 				let recommendedActiveTags = [];
 
 				function renderServers(servers) {
+					console.log('[MCP Debug] renderServers called, servers:', servers);
+					console.log('[MCP Debug] currentInstalledFilter:', currentInstalledFilter);
 					serversData = servers;
 					const container = document.getElementById('servers-list');
 					
 					// Apply filter if active
-					let displayServerIds = Object.keys(servers);
+					let displayServerIds = Object.keys(servers || {});
+					console.log('[MCP Debug] All server IDs:', displayServerIds);
 					if (currentInstalledFilter) {
 						displayServerIds = displayServerIds.filter(id => {
 							const config = servers[id];
+							let matches = false;
+							
+							if (currentInstalledFilter === 'Env Vars') {
+								matches = config.env && Object.keys(config.env).length > 0;
+							} else {
+								matches = config.command === currentInstalledFilter;
+							}
+							
+							console.log('[MCP Debug] Checking:', id, 'command:', config.command, 'matches:', matches);
 							// Filter by command (which is the main 'tag' shown)
-							return config.command === currentInstalledFilter;
+							return matches;
 						});
+						console.log('[MCP Debug] Filtered server IDs:', displayServerIds);
 					}
 
 					if (!servers || Object.keys(servers).length === 0) {
@@ -714,7 +727,7 @@ export class MCPPanel {
 							</div>
 							<div class="card-meta">
 								<span class="tag click-tag" onclick='filterInstalledServers(\${JSON.stringify(config.command)})' title="Filter by \${config.command}">\${config.command}</span>
-								\${config.env && Object.keys(config.env).length > 0 ? '<span class="tag cloud">Env Vars</span>' : ''}
+								\${config.env && Object.keys(config.env).length > 0 ? '<span class="tag cloud click-tag" onclick="filterInstalledServers(\\'Env Vars\\')">Env Vars</span>' : ''}
 							</div>
 							<div class="card-desc">
 								Running via \${config.command} with arguments: \${config.args.join(' ')}
@@ -729,6 +742,8 @@ export class MCPPanel {
 				}
 
 				function filterInstalledServers(tag) {
+					console.log('[MCP Debug] filterInstalledServers called with:', tag);
+					console.log('[MCP Debug] serversData:', serversData);
 					currentInstalledFilter = tag;
 					renderServers(serversData);
 				}
