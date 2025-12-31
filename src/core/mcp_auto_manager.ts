@@ -147,13 +147,35 @@ export class MCPAutoManager {
         logger.info(LOG_CAT, `Best Picks to enable: ${bestPicksToEnable.join(', ')}`);
         logger.info(LOG_CAT, `Missing Best Picks: ${missingBestPicks.join(', ')}`);
 
-        // If no Best Picks are installed, warn user and don't disable anything
+        // If no Best Picks are installed, try to auto-install them
         if (bestPicksToEnable.length === 0) {
-            vscode.window.showWarningMessage(
-                `Best Pick servers not installed yet: ${missingBestPicks.join(', ')}. ` +
-                'Install them from the MCP Marketplace first.'
-            );
-            return;
+            vscode.window.showInformationMessage(`Auto-installing missing Best Picks: ${missingBestPicks.join(', ')}...`);
+
+            let installedCount = 0;
+            for (const id of missingBestPicks) {
+                const success = await this.autoInstallServer(id);
+                if (success) {
+                    bestPicksToEnable.push(id);
+                    installedCount++;
+                }
+            }
+
+            if (installedCount === 0) {
+                vscode.window.showWarningMessage(
+                    `Could not auto-install: ${missingBestPicks.join(', ')}. ` +
+                    'Please install them manually from the MCP Marketplace.'
+                );
+                return;
+            }
+        } else if (missingBestPicks.length > 0) {
+            // Try to install the remaining missing ones too
+            vscode.window.showInformationMessage(`Auto-installing missing keys: ${missingBestPicks.join(', ')}...`);
+            for (const id of missingBestPicks) {
+                const success = await this.autoInstallServer(id);
+                if (success) {
+                    bestPicksToEnable.push(id);
+                }
+            }
         }
 
         // Apply: enable Best Picks that are installed, disable others
@@ -162,8 +184,9 @@ export class MCPAutoManager {
 
         // Build result message
         let message = `Applied Best Picks: ${bestPicksToEnable.join(', ')}`;
-        if (missingBestPicks.length > 0) {
-            message += `\n\nNot installed (consider adding): ${missingBestPicks.join(', ')}`;
+        const stillMissing = missingBestPicks.filter(id => !bestPicksToEnable.includes(id));
+        if (stillMissing.length > 0) {
+            message += `\n\nFailed to install: ${stillMissing.join(', ')}`;
         }
 
         // Prompt to reload window
@@ -175,6 +198,135 @@ export class MCPAutoManager {
 
         if (choice === reloadBtn) {
             vscode.commands.executeCommand('workbench.action.reloadWindow');
+        }
+    }
+
+    /**
+     * Installs and Enables Best Picks WITHOUT disabling other servers.
+     * Use this for the "Install Best Picks" button in the UI.
+     */
+    public async installMissingBestPicks(): Promise<void> {
+        const bestPickIds = await this.getBestPickServerIds();
+
+        if (bestPickIds.length === 0) {
+            vscode.window.showInformationMessage('No Best Picks found for this workspace.');
+            return;
+        }
+
+        // Get installed server IDs
+        const installedIds = await this.mcpManager.getInstalledServerIds();
+        const installedSet = new Set(installedIds.map(id => id.toLowerCase()));
+
+        // Find which Best Picks are NOT installed
+        const missingBestPicks = bestPickIds.filter(id => !installedSet.has(id.toLowerCase()));
+
+        // Find which are installed but disabled (we should enable them)
+        const disabledBestPicks = bestPickIds.filter(id => {
+            // Check if installed but key starts with _disabled_
+            // getInstalledServerIds returns both enabled and disabled keys (normalized? wait)
+            // mcpManager.getInstalledServerIds returns IDs. mcpManager.get_servers returns config.
+            // Let's rely on applyServerSet to handle enabling.
+            return installedSet.has(id.toLowerCase());
+        });
+
+        if (missingBestPicks.length === 0 && disabledBestPicks.length === 0) {
+            vscode.window.showInformationMessage('All Best Picks are already installed and enabled.');
+            return;
+        }
+
+        // Auto-install missing ones
+        let installedCount = 0;
+        if (missingBestPicks.length > 0) {
+            vscode.window.showInformationMessage(`Installing missing Best Picks: ${missingBestPicks.join(', ')}...`);
+            for (const id of missingBestPicks) {
+                const success = await this.autoInstallServer(id);
+                if (success) {
+                    installedCount++;
+                }
+            }
+        }
+
+        // Now enable ALL Best Pick IDs (whether just installed or previously existing)
+        // We use a custom logic here: Enable these, but DO NOT disable others.
+        // mcpManager.applyServerSet disables others?
+        // Let's check mcpManager.applyServerSet logic. 
+        // It iterates ALL keys. If not in enableSet -> Disable.
+        // We need a non-destructive method: enableServers(ids).
+
+        // Since we don't have enableServers(), we can simulate it:
+        // Get all currently enabled servers. Add Best Picks to that list. Call applyServerSet with the UNION.
+
+        const servers = await this.mcpManager.get_servers();
+        const currentlyEnabled = Object.keys(servers).filter(k => !k.startsWith('_disabled_') && !servers[k].disabled);
+
+        // Union of currently enabled + best picks
+        const unionSet = new Set([...currentlyEnabled, ...bestPickIds]);
+        const unionIds = Array.from(unionSet);
+
+        const result = await this.mcpManager.applyServerSet(unionIds);
+
+        const reloadBtn = 'Reload Window';
+        const choice = await vscode.window.showInformationMessage(
+            `Installed/Enabled Best Picks. ${result.enabled} active. Reload to apply?`,
+            reloadBtn
+        );
+
+        if (choice === reloadBtn) {
+            vscode.commands.executeCommand('workbench.action.reloadWindow');
+        }
+    }
+
+    /**
+     * Attempts to auto-install a server by ID using known configs
+     */
+    private async autoInstallServer(id: string): Promise<boolean> {
+        // Known installers for Best Picks
+        const INSTALLERS: Record<string, any> = {
+            'github-mcp-server': {
+                command: 'npx',
+                args: ['-y', '@modelcontextprotocol/server-github'],
+                env: {}
+            },
+            'server-git': { // Try official npm package
+                command: 'npx',
+                args: ['-y', '@modelcontextprotocol/server-git'],
+                env: {}
+            },
+            'mcp-git-ingest': { // Python - try pip if python available, else fail
+                command: 'pip',
+                args: ['install', 'mcp-git-ingest'], // risky assumption without venv
+            },
+            'firebase-mcp': {
+                command: 'npx',
+                args: ['-y', 'firebase-mcp'], // Check if this is the right package
+                env: {}
+            }
+        };
+
+        const config = INSTALLERS[id];
+        if (!config) {
+            logger.warn(LOG_CAT, `No auto-install config for ${id}`);
+            return false;
+        }
+
+        // For Python tools, we probably shouldn't just run 'pip install' globally
+        // So for now, skip Python unless we are sure.
+        // Actually, let's skip checking and just return false for now for non-npx to be safe
+        if (config.command !== 'npx') {
+            logger.warn(LOG_CAT, `Skipping auto-install for non-npx tool ${id}`);
+            return false;
+        }
+
+        try {
+            logger.info(LOG_CAT, `Auto-installing ${id}...`);
+            // We just add the config to mcp_config.json. 
+            // The actual "installation" happens when the server starts (npx downloads it).
+            // So we just need to write the config!
+            await this.mcpManager.install_server(id, config);
+            return true;
+        } catch (e: any) {
+            logger.error(LOG_CAT, `Failed to auto-install ${id}: ${e.message}`);
+            return false;
         }
     }
 

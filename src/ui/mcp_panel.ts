@@ -114,6 +114,9 @@ export class MCPPanel {
 							await this._refreshData();
 						}
 						break;
+					case 'installBestPicks':
+						await vscode.commands.executeCommand('techquotas.installBestPicks');
+						break;
 				}
 			},
 			null,
@@ -884,11 +887,15 @@ export class MCPPanel {
 
 					// Best Picks toggle button
 					const bestPicksBtnHtml = \`
-						<div style="grid-column: 1/-1; margin-bottom: 15px; display: flex; align-items: center; gap: 12px;">
+						<div style="grid-column: 1/-1; margin-bottom: 15px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
 							<button class="btn \${showOnlyBestPicks ? '' : 'secondary'}" 
 								onclick="toggleBestPicks()" 
 								style="\${showOnlyBestPicks ? 'background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1a1a;' : ''}">
 								★ Show Best Picks Only
+							</button>
+							<button class="btn" onclick="sendMessage('installBestPicks')" 
+								style="background-color: var(--success-color); color: white; display: flex; align-items: center; gap: 6px;">
+								<span>⬇</span> Install Best Picks
 							</button>
 							<span style="color: var(--text-secondary); font-size: 0.85em;">
 								\${showOnlyBestPicks ? 'Showing curated recommendations' : 'Showing all recommendations'}

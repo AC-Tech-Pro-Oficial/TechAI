@@ -155,6 +155,15 @@ export async function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
+	// Install Best Picks Only command (Additive)
+	context.subscriptions.push(
+		vscode.commands.registerCommand('techquotas.installBestPicks', async () => {
+			logger.info('Extension', 'Manual install Best Picks triggered');
+			await mcp_auto_manager.installMissingBestPicks();
+			// Message handled in installMissingBestPicks
+		})
+	);
+
 	// Reset Best Picks settings (for testing)
 	context.subscriptions.push(
 		vscode.commands.registerCommand('techquotas.resetBestPicksSettings', async () => {
