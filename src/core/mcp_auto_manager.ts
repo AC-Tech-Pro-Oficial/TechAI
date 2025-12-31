@@ -123,19 +123,59 @@ export class MCPAutoManager {
     }
 
     /**
-     * Apply Best Picks: enable recommended servers, disable others
+     * Apply Best Picks: enable recommended servers, disable others.
+     * Only affects servers that are actually installed.
+     * Warns if recommended servers are not installed yet.
      */
     public async applyBestPicks(): Promise<void> {
         const bestPickIds = await this.getBestPickServerIds();
 
         if (bestPickIds.length === 0) {
             logger.warn(LOG_CAT, 'No Best Picks to apply');
+            vscode.window.showWarningMessage('No Best Picks found for this workspace.');
             return;
         }
 
-        logger.info(LOG_CAT, `Applying Best Picks: ${bestPickIds.join(', ')}`);
-        const result = await this.mcpManager.applyServerSet(bestPickIds);
+        // Get installed server IDs
+        const installedIds = await this.mcpManager.getInstalledServerIds();
+        const installedSet = new Set(installedIds.map(id => id.toLowerCase()));
+
+        // Find which Best Picks are installed
+        const bestPicksToEnable = bestPickIds.filter(id => installedSet.has(id.toLowerCase()));
+        const missingBestPicks = bestPickIds.filter(id => !installedSet.has(id.toLowerCase()));
+
+        logger.info(LOG_CAT, `Best Picks to enable: ${bestPicksToEnable.join(', ')}`);
+        logger.info(LOG_CAT, `Missing Best Picks: ${missingBestPicks.join(', ')}`);
+
+        // If no Best Picks are installed, warn user and don't disable anything
+        if (bestPicksToEnable.length === 0) {
+            vscode.window.showWarningMessage(
+                `Best Pick servers not installed yet: ${missingBestPicks.join(', ')}. ` +
+                'Install them from the MCP Marketplace first.'
+            );
+            return;
+        }
+
+        // Apply: enable Best Picks that are installed, disable others
+        const result = await this.mcpManager.applyServerSet(bestPicksToEnable);
         logger.info(LOG_CAT, `Applied: ${result.enabled} enabled, ${result.disabled} disabled`);
+
+        // Build result message
+        let message = `Applied Best Picks: ${bestPicksToEnable.join(', ')}`;
+        if (missingBestPicks.length > 0) {
+            message += `\n\nNot installed (consider adding): ${missingBestPicks.join(', ')}`;
+        }
+
+        // Prompt to reload window
+        const reloadBtn = 'Reload Window';
+        const choice = await vscode.window.showInformationMessage(
+            message + '\n\nReload window to activate changes?',
+            reloadBtn
+        );
+
+        if (choice === reloadBtn) {
+            vscode.commands.executeCommand('workbench.action.reloadWindow');
+        }
     }
 
     /**
