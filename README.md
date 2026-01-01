@@ -140,7 +140,7 @@ npm run package
 | 📧 Email | [contato@ac-tech.pro](mailto:contato@ac-tech.pro) |
 | 🌐 GitHub | [AC-Tech-Pro-Oficial](https://github.com/AC-Tech-Pro-Oficial) |
 | 📸 Instagram | [@actech.oficial](https://www.instagram.com/actech.oficial/) |
-| 🐦 X / Twitter | [@ACTechOficial](https://x.com/ACTechOficial) |
+| 🐦 X / Twitter | [@ac_tech_pro](https://x.com/ac_tech_pro) |
 | 🎵 TikTok | [@ac.tech.pro](https://www.tiktok.com/@ac.tech.pro) |
 
 ---
@@ -148,3 +148,4 @@ npm run package
 <p align="center">
   <strong>© 2026 AC Tech. Quality > Speed > Cost.</strong>
 </p>
+
