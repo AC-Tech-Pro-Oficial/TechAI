@@ -139,8 +139,9 @@ npm run package
 |---------|------|
 | 📧 Email | [contato@ac-tech.pro](mailto:contato@ac-tech.pro) |
 | 🌐 GitHub | [AC-Tech-Pro-Oficial](https://github.com/AC-Tech-Pro-Oficial) |
-| 🐦 X / Twitter | [@ACTechOficial](https://x.com/ACTechOficial) |
 | 📸 Instagram | [@actech.oficial](https://www.instagram.com/actech.oficial/) |
+| 🐦 X / Twitter | [@ACTechOficial](https://x.com/ACTechOficial) |
+| 🎵 TikTok | [@ac.tech.pro](https://www.tiktok.com/@ac.tech.pro) |
 
 ---
 
