@@ -282,6 +282,9 @@ foreach ($p in $discoveredProjects) {
             $tag = "sync-$($p.Name)-$(Get-Date -Format 'yyyyMMdd-HHmm')" -replace ' ', '-'
             git tag $tag; git push origin $tag 2>&1 | Out-Null
             $results += @{ Name = $p.Name; Status = "✅ Pushed & Tagged" }
+            # ANTI-SPAM SAFETY: Prevent GitHub account suspension from rapid API bursts
+            Write-Host "⏳ Anti-Spam: 20s cooldown..."
+            Start-Sleep -Seconds 20
         } else {
             $results += @{ Name = $p.Name; Status = "❌ Push Failed" }
         }

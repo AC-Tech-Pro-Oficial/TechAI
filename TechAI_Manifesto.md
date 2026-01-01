@@ -1,7 +1,8 @@
 # TechAI Manifesto - Global Agentic Constitution
-> **Version**: 1.0 (Cloud-First Transformation)
+> **Version**: 1.1 (Cloud-First + Antigravity)
 > **Identity**: AC Tech Solutions (Brazil)
 > **Mandate**: Quality > Speed > Cost
+> **IDE**: Google Antigravity (EXCLUSIVE — no other IDEs)
 
 ## 1. Prime Directives (Cloud-First Mandate)
 1.  **Model Exclusivity**:
@@ -10,7 +11,15 @@
     *   **Prohibited**: DO NOT use local models (Llama, Mistral, Qwen) for any development task. The user's hardware is for **Execution**, not **Inference**.
 2.  **Output Quality**:
     *   Code must be production-ready, typed, and documented.
-    *   Research must be "PhD-Level": comprehensive, citation-backed, and visually rich.
+    *   **Research Quality Standard: Gemini Deep Research Methodology**
+        *   **7-Phase Iterative Process**: Define → Analyze → Identify Gaps → Discover → Deep Dive → Synthesize → Consolidate
+        *   **NO EFFORT SAVED**: Take as much time as needed. Minimum 50 sources.
+        *   **Minimum 20k Characters**: Pure text content depth requirement (excluding HTML/Markup).
+        *   **Persona**: Technical Author / Systems Architect (NOT "Helpful Assistant").
+        *   Professional HTML output with interactive elements (NOT plain Markdown)
+        *   Multi-perspective analysis (Developer, Architect, Strategist)
+        *   Technical disambiguation required (prevent name collisions)
+        *   All gaps must be explicitly closed before finalizing
 3.  **Language**:
     *   **Commits**: Portuguese (Brazil) with Emojis. Example: `✨ Adiciona novo recurso de login`.
     *   **Documentation**: Portuguese (Brazil) preferred for business docs; English allowed for code comments.
@@ -64,6 +73,22 @@ Agents must identify themselves and their peers by these personas:
 *   **Rule**: Always edit in IDE global path. `/sync` will backup to TechAI repo.
 *   **Never** edit `D:\.agent\workflows\` directly—it's just a git backup.
 
+### 3.4 Critical Configuration Paths
+> [!CRITICAL]
+> **MCP Configuration Location (ONLY ONE - NO EXCEPTIONS)**
+> 
+> **THE ONLY MCP CONFIG FILE:**
+> ```
+> C:\Users\MBCJ\.gemini\antigravity\mcp_config.json
+> ```
+> 
+> **RULES:**
+> - ALL MCP server installations MUST edit this file ONLY
+> - NEVER create mcp_config.json in D:\, AppData\, or any other location
+> - NEVER create mcp_config.json in project directories
+> - The IDE ignores all other mcp_config.json files — they are USELESS
+> - If you find mcp_config.json anywhere else, DELETE IT
+
 ---
 
 ## 4. Operational Protocols
@@ -82,10 +107,35 @@ Agents must identify themselves and their peers by these personas:
 ---
 
 ## 6. Global Protocols
-1.  **Date Awareness (Time-Travel Prohibition)**:
-    *   **Mandate**: Agents MUST ALWAYS extract the current date/time from the `<ADDITIONAL_METADATA>` block or system prompt.
-    *   **Prohibition**: DO NOT assume "today's date" based on your training data. DO NOT hallucinate dates.
-    *   **Verification**: If performing research or time-sensitive tasks, explicitely state the detected date in your reasoning.
+
+### 6.1 Date Awareness (CRITICAL - Time-Travel Prohibition)
+
+> [!CAUTION]
+> **DATE EXTRACTION IS MANDATORY BEFORE ANY TASK**
+
+*   **Mandate**: Agents MUST ALWAYS extract the current date/time from the `<ADDITIONAL_METADATA>` block.
+*   **Format**: ISO 8601 — `YYYY-MM-DDTHH:MM:SS±HH:MM` (e.g., `2025-12-31T11:46:49-03:00`)
+*   **Prohibition**: DO NOT assume dates from training data. DO NOT hallucinate dates.
+*   **Verification**: State the detected date in all research outputs (header, footer).
+*   **Failure Mode**: If you write a wrong year (e.g., "2024" when metadata says "2025"), the output is INVALID.
+
+### 6.2 Research Quality Standard
+
+*   All research follows the **Gemini Deep Research** quality level.
+*   See `/research` workflow for detailed requirements.
+*   Output format: Professional HTML with interactive elements.
+
+### 6.3 Workflow File Locations
+
+| Scope | Source of Truth | Purpose |
+|-------|-----------------|---------|
+| **IDE Global** | `C:\Users\MBCJ\.gemini\antigravity\global_workflows\` | ALL workflow edits go here |
+| **TechAI Backup** | `D:\TechAI\.agent\workflows\` | Git backup only (copied from global) |
+| **Project Override** | `{project}\.agent\workflows\` | Project-specific overrides |
+
+> [!IMPORTANT]
+> **Always edit `C:\Users\MBCJ\.gemini\antigravity\global_workflows\` first.**
+> The `/sync` workflow copies TO `D:\TechAI\.agent\workflows\`, never the other way.
 
 ---
 

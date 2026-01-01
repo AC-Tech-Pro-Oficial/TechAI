@@ -24,3 +24,6 @@ matches: "^/code"
     *   Action: Verify commit message format (<emoji> <pt-BR>).
     *   Agent: `TechCode`
     *   Action: Commit and Push (if acting on a repo).
+    > [!CAUTION]
+    > **SAFETY**: Before pushing, verify `SAFETY.md` rate limits (20s cooldown between pushes).
+

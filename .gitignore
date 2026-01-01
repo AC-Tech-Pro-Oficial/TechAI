@@ -1,4 +1,6 @@
-# Credentials - NEVER COMMIT
+# ===== CRITICAL: NEVER COMMIT =====
+# Personal/Sensitive files
+Personal Context Memory.txt
 Credentials/
 *.env
 *.key
