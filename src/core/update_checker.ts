@@ -111,7 +111,7 @@ export class UpdateChecker {
 
             const req = https.get(url, {
                 headers: {
-                    'User-Agent': 'TechAI-Antigravity-Extension',
+                    'User-Agent': 'TechAI-IDE-Extension',
                     'Accept': 'application/vnd.github.v3+json'
                 },
                 timeout: 10000 // 10s timeout
@@ -263,7 +263,7 @@ export class UpdateChecker {
 
             const request = (urlToFetch: string) => {
                 const req = https.get(urlToFetch, {
-                    headers: { 'User-Agent': 'TechAI-Antigravity-Extension' },
+                    headers: { 'User-Agent': 'TechAI-IDE-Extension' },
                     timeout: 15000 // 15s timeout for download
                 }, (res) => {
                     // Handle redirects (GitHub uses them for downloads)
