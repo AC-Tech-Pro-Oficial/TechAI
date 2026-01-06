@@ -1,0 +1,487 @@
+You will analyze and do a complete overhaul and redesign in our website. Modify each button and each  element. At the end, the features of the new website MUST be AT LEAST as good as the old ones. However "just as good" would be a sloppy terrible job, you should aim for "extensively improved" and implement a website that is centuries ahead the current one.
+
+In order to redesign it properly, you need a deep analysis and comprehension of AC Tech, our products, what we will do with the company in the future etc.
+I have summarized most of this information to you in the following text files (they are also attached):
+
+AC Tech Solutions (AC Tech) - Comprehensive Company Analysis
+
+## 1. Corporate Identity and Core Mission
+
+**Official Name:** AC Tech Solutions (AC Tech)
+**Founders:** Moacir Bilhar Costa Junior & Vinicyus Abdala
+**Ownership Structure:** 50/50 Equal Partnership
+**Headquarters:** Brazil (Operating under Brazilian Legislation)
+**Primary Domain:** ac-tech.pro
+
+**Mission Statement:**
+AC Tech aims to revolutionize traditional service industries and educational sectors through high-end technological solutions. The company positions itself not merely as a software house but as a provider of "Technological Solutions," encompassing specialized software, mobile applications, and high-performance hardware integration. The core philosophy drives toward professionalizing informal or semi-formal markets (such as HVAC-R services) by providing enterprise-grade tools to small and medium businesses (SMBs) and individual professionals.
+
+**Vision:**
+To become a leader in the digital transformation of technical trades and specialized education in Brazil and beyond. AC Tech envisions a future where agentic Artificial Intelligence is seamlessly integrated into everyday workflows, effectively "augmenting" human capabilities rather than replacing them. This is evident in their aggressive adoption of "Agentic AI" for their own internal development (TechAI) and user-facing products (TechAir AI).
+
+## 2. Leadership and Organizational Structure
+
+The company is led by two co-founders who bring distinct yet complementary strengths to the ecosystem:
+
+*   **Moacir Bilhar Costa Junior (Developer & Architecht):** Moacir serves as the primary technical architect and lead developer. His background reflects a deep engagement with high-performance computing and system architecture. Unique to AC Tech's operational model is Moacir's personal infrastructure—a high-end "Supercomputer" (featuring Intel Core i9-14900KF, RTX 4080, and 64GB DDR5 RAM)—which acts as the physical backbone for the company's local AI processing and development environment. Moacir drives the company's aggressive "Cloud-First" and "Agentic" development methodologies, pushing the boundaries of what a small team can achieve by leveraging AI agents as force multipliers.
+*   **Vinicyus Abdala (Co-Founder & Partner):** Vinicyus shares equal ownership and strategic direction. While the technical execution is heavily documented under Moacir's workflow, Vinicyus represents the business and operational counterpart, ensuring the company's growth aligns with market needs.
+
+## 3. The "Agentic" Development Methodology
+
+AC Tech distinguishes itself through a radical internal development philosophy known as the **"Agentic Swarm."** Unlike traditional dev shops that rely solely on human coding capacity, AC Tech has operationalized a fleet of AI agents to handle specific verticals of the development lifecycle. This system, internally branded as **TechAI** or **TechAgents**, allows the two-person team to output code and features at a velocity comparable to much larger organizations.
+
+**Key Components of the Methodology:**
+*   **Specialized Personas:** The company employs distinct AI personas for different tasks: `@TechPlan` for architecture, `@TechCode` for implementation, `@TechTest` for quality assurance, and `@TechDesign` for UI/UX.
+*   **Cloud-First & Security:** All development adheres to strict security protocols ("Project Rules"), emphasizing that credentials never touch the codebase and that cloud resources (e.g., Hostinger for hosting, generic Cloud providers for AI models) remain secure.
+*   **Google Antigravity IDE:** The team utilizes the advanced Google Antigravity environment, a specialized IDE designed to maximize the potential of agentic coding, further reinforcing their commitment to cutting-edge tools.
+
+## 4. Product Ecosystem & Market Verticals
+
+AC Tech operates a "Vertical SaaS" model, targeting specific industries with deep, tailored solutions rather than generic tools.
+
+### A. The Flagship: TechAir (HVAC-R Sector)
+The company's primary commercial product is **TechAir**, a mobile super-app designed for HVAC (Heating, Ventilation, and Air Conditioning) and Refrigeration professionals.
+*   **Market Gap:** The Brazilian HVAC market is characterized by thousands of independent technicians who often struggle with administrative formalization (quotes, PMOC compliance, invoicing).
+*   **Solution:** TechAir digitizes the entire workflow, from the initial client visit (AR measurements, digital quotes) to execution (PMOC generation, technical calculations) and post-service management (financial dashboard).
+*   **Impact:** It empowers individual technicians to present themselves as structured companies, increasing their competitiveness and operational efficiency.
+
+### B. Education Tech: Cognicir Language School
+AC Tech develops and maintains the digital infrastructure for **Cognicir Language School**, a premier language learning institution.
+*   **The "Empire" Portal:** Located at `educacional.ac-tech.pro`, this is not a simple website but a comprehensive Learning Management System (LMS).
+*   **Technology:** Built on Moodle 4.x (Self-hosted) but heavily customized, it integrates Video on Demand (VOD) backed by massive storage (Google Drive 2TB integration) and live class capabilities (Jitsi Meet).
+*   **Philosophy:** This project demonstrates AC Tech's ability to deploy complex, enterprise-grade educational infrastructure, moving beyond simple app development into full-stack platform management.
+
+### C. Internal Tooling: TechAI & Microsoft Ultimate Installer
+The company commercializes or open-sources its own internal efficiency tools:
+*   **TechAI:** An ecosystem of AI agents that automates software development, now being packaged as an IDE extension for broader use.
+*   **Microsoft Ultimate Installer:** A powerful automation script developed to streamline the setup of Windows environments. Originally an internal tool to set up the founders' machines quickly, it evolved into a sophisticated product capable of debloating Windows, installing Office 365, and configuring system drivers automatically.
+
+## 5. Web Presence & Digital Infrastructure
+
+AC Tech maintains a robust digital footprint that signals professionalism and technical competence.
+
+*   **Domain Authority:** The primary domain `ac-tech.pro` serves as the central hub. Hosted on **Hostinger**, it reflects the company's preference for reliable, scalable hosting solutions.
+*   **GitHub Organization:** The `AC-Tech-Pro-Oficial` organization is the source of truth for their code. It is structured with professional rigor—repos are well-documented, commit messages follow strict standardization (PT-BR with Emojis), and CI/CD pipelines are evident.
+*   **Social & Community:** The company engages with its user base via Instagram (`@actech.oficial`), X (`@ac_tech_pro`), and TikTok. This multi-channel approach helps in building a community around their products, particularly for TechAir, where visual demonstration of features is key.
+
+## 6. Strategic Future & Roadmap
+
+AC Tech is positioned for aggressive growth. The transition from manual coding to "Agentic Coding" marks a pivotal shift in their strategy. By automating the "grunt work" of coding, the founders focus on high-level architecture and business logic.
+
+**Future pillars include:**
+1.  **AI Ubiquity:** Integrating Gemini and Claude models directly into all user-facing products (e.g., asking TechAir to "Generate a quote for 3 split AC units" via voice).
+2.  **Hardware Integration:** The mission statement explicitly mentions "specialized hardware," hinting at future expansions perhaps into IoT devices for HVAC monitoring or custom server units for local AI processing.
+3.  **Ecosystem Expansion:** With the success of TechAir, the "Tech" prefix could easily expand to other trades (Plumbing, Electrical, Construction), reusing the robust backend and mobile framework established.
+
+## 7. Conclusion
+
+AC Tech is more than a startup; it is a "High-Tech Boutique." It combines the agility of a small team with the output capability of a large firm, thanks to its mastery of AI agents. Whether serving an HVAC technician in São Paulo or a language student in the Cognicir system, AC Tech delivers premium, secure, and highly functional technology that bridges the gap between complex digital capabilities and everyday human needs.
+
+
+Microsoft 365 Ultimate Installer - Comprehensive Tool Analysis
+
+## 1. Project Overview & Utility
+
+**Name:** Microsoft 365 Ultimate Installer (MUI)
+**Type:** Automation Script / Utility
+**Language:** PowerShell 5.1 / 7+ (with embedded C# / WPF)
+**Repository:** github.com/AC-Tech-Pro-Oficial/Microsoft-Ultimate-Installer
+
+The Microsoft Ultimate Installer is a "Power User" tool designed to solve the fatigue of setting up a new Windows environment. For IT professionals and the AC Tech founders themselves, formatting a computer is common, but the post-install setup (installing Office, Drivers, Browsers, VS Code, configuring privacy settings) is tedious and time-consuming. MUI automates this entire process into a single "One-Click" experience.
+
+## 2. Technical Capabilities
+
+The tool is a monolithic PowerShell script (`.ps1`) that acts as an orchestrator for various system tasks.
+
+### A. Microsoft Office 365 Automation
+This is the core feature.
+*   **ODT Integration:** It wraps the official "Office Deployment Tool" (ODT). Instead of the user manually creating XML configuration files to specify which Office apps to install (Word, Excel, PowerPoint, but excluding Skype or Publisher), the script provides a GUI.
+*   **Customization:** Users select exactly what they want via checkboxes. The script generates the dynamic XML config and triggers the ODT download and install in the background.
+*   **Activation:** It integrates with the open-source MAS (Microsoft Activation Scripts) methods to ensure the installation is genuinely activated and ready for use.
+
+### B. "The Debloater" (Windows Optimization)
+Windows 10 and 11 come with significant "bloatware" (pre-installed apps, tracking services, advertising IDs).
+*   **Cleanup:** The script executes deep system calls to remove Appx packages (like Candy Crush, Xbox Trial, automated news feeds) that slow down the system.
+*   **Privacy:** It toggles registry keys to disable telemetry, advertising ID tracking, and background data collection, respecting the user's privacy hardcore.
+
+### C. Software Repository (Package Management)
+The tool acts as a "Store" for essential dev and power-user software.
+*   **Silent Installers:** It downloads and silently installs tools like:
+    *   **Browsers:** Chrome, Firefox, Brave.
+    *   **Dev:** VS Code, Git, Node.js, Python.
+    *   **Utilities:** 7-Zip, AnyDesk, WinRAR, Discord, Steam.
+*   **Implementation:** It uses `winget` (Windows Package Manager) APIs and direct web scraping to fetch the latest versions invariably.
+
+### D. Driver & Update Management
+*   It can trigger the Windows Update service API to force-fetch drivers and critical security patches, ensuring the machine is patched up to the minute before the user even starts working.
+
+## 3. UI/UX: The "WPF" Interface
+
+Unlike most PowerShell scripts that run in a scary blue text window, MUI features a full Graphical User Interface (GUI).
+*   **Technology:** It uses **WPF (Windows Presentation Foundation)** via XAML code embedded directly inside the PowerShell script.
+*   **Design:** Dark Mode, Acrylic (Blur) backgrounds, and modern controls. It looks like a native Windows 11 app, not a script.
+*   **Status Feedback:** Real-time progress bars and log outputs keep the user informed of what is happening (e.g., "Downloading Office... 45%").
+
+## 4. Operational Context
+
+*   **Self-Elevation:** The script intelligently checks if it is running as Administrator. If not, it self-elevates, prompting the UAC (User Account Control) once, then runs unimpeded.
+*   **Portability:** Being a single `.ps1` file, it can be carried on a USB stick or downloaded from GitHub and run instantly on any fresh machine without installing dependencies first.
+
+## 5. Strategic Value
+
+While primarily an internal utility for AC Tech maintenance, opening this project serves two purposes:
+1.  **Community Contribution:** It helps the broader IT community, building reputation on GitHub.
+2.  **Showcase:** It demonstrates mastery over strong Windows internals and PowerShell scripting, proving AC Tech's capability to manage OS-level automation, not just web/mobile apps.
+
+## 6. Conclusion
+
+The Microsoft Ultimate Installer is the ultimate "Force Multiplier" for the IT setup process. It turns a 4-hour manual configuration job into a 15-minute automated coffee break, embodying AC Tech's core mission of using technology to eliminate inefficiency.
+
+Educacional AC Tech (Cognicir Language School) - Platform Analysis
+
+## 1. Project Overview & Educational Vision
+
+**Official Designation:** Educacional AC Tech / Cognicir Language School Portal
+**URL:** educacional.ac-tech.pro
+**Type:** Proprietary Learning Ecosystem
+**Client:** Cognicir Language School (English Faculty)
+
+This project represents AC Tech's deep dive into the **EdTech (Educational Technology)** sector. Moving beyond off-the-shelf solutions, AC Tech has developed a **bespoke, high-performance proprietary platform** specifically tailored for the long-term needs of a linguistic faculty. It is not just about "hosting videos"; it is about creating a digital campus that mirrors the structure, rigor, and community of a university.
+
+**The "Professor" Persona:**
+The platform is developed under a specific persona directive: "The Professor." The AI agents working on this project (within the `D:\Cognicir Language School\` context) adopt the voice of a wise, academic mentor. They do not speak in "code" or "bugs" but in "pedagogy," "linguistic roots," and "intellectual evolution." This philosophical separation ensures that the technology serves the education, not the other way around.
+
+## 2. Infrastructure & Technology Stack
+
+The platform is a powerhouse of integration, combining custom architecture with enterprise-grade storage and communication tools.
+
+### A. Proprietary Core (The "Anti-LMS")
+AC Tech has explicitly moved away from rigid, generic LMS solutions (like Moodle) to build a **Custom Educational Core**.
+*   **Strategic Shift:** Moodle and similar platforms were deemed too "clunky" and "administrative" for the modern, high-fluidity experience AC Tech envisions.
+*   **Custom Architecture:** By building their own platform, AC Tech maintains absolute control over the User Experience (UX). This allows for a unique, "Netflix-like" interface that generic LMS themes cannot emulate. It enables total freedom in feature implementation—from gamified progression systems to custom interactive widgets that behave exactly as the pedagogy requires, not as the software dictates.
+
+### B. Video on Demand (VOD) - The "Netflix" of Learning
+Video hosting is the most critical/expensive part of any EdTech project. AC Tech innovated by bypassing expensive dedicated video hosts (like Vimeo Enterprise) in favor of a clever integration.
+*   **Google Drive Integration (2TB):** The system utilizes a massive 2TB Google Drive storage pool as the raw video backend.
+*   **The Connector:** A specialized middleware acts as a bridge, streaming content from the secure Drive containers directly to the platform interface. This provides:
+    1.  **Cost Efficiency:** Drastically lower costs compared to bitrate-based hosting.
+    2.  **Organization:** Videos are managed in standard folders, making updates as easy as dragging and dropping a file.
+    3.  **Capacity:** 2TB allows for thousands of hours of high-definition (1080p/4k) lesson content.
+
+### C. Live Interaction (Synchronous Learning)
+Education isn't just watching videos. The platform integrates **Jitsi Meet**, an open-source video conferencing server.
+*   **Seamlessness:** Unlike Zoom or Teams which require external links, the Live Class system is embedded. A student clicks "Join Class" and the video window opens inside the portal context.
+*   **Privacy:** No third-party data harvesting. The conversation stays between the professor and the student.
+
+## 3. The "English Faculty" Curriculum Structure
+
+The platform is structured to support a multi-year curriculum, divided into specific "Chapters" and "Classes."
+
+**Content Hierarchy:**
+*   **The Textbook (Typst):** AC Tech uses **Typst** (a modern, programmable typesetting system superior to LaTeX) to generate beautiful, PDF-based textbooks. These aren't just Word docs; they are professionally typeset books with perfect kerning, ligatures, and layouts.
+*   **Interactive HTML Suite:** Each class is accompanied by a suite of web-based tools:
+    *   **Lesson Plan:** The roadmap for the session.
+    *   **Flashcards:** Digital repetition tools for vocabulary retention.
+    *   **Workbook:** Interactive exercises.
+    *   **Audio Lab:** Pronunciation practice tools.
+    *   **The Game:** Gamified elements to reinforce learning through play.
+
+## 4. Operational Automation
+
+Maintaining a school involves administrative friction (enrollment, unlocking content, grading). AC Tech automates this.
+*   **Agentic Content Generation:** The user (Professor) defines the "Theme" of a class (e.g., "The History of Time"). The `TechSearch` and `TechPlan` agents then research the topic, draft the textbook chapter, generate the quiz questions, and build the HTML interactive cards automatically.
+*   **Deployment:** The content is pushed to the server via CI/CD pipelines, ensuring that a correction in a textbook file is reflected on the students' screens immediately.
+
+## 5. Strategic Importance to AC Tech
+
+Why does a "Tech" company run a "School"?
+1.  **Proof of Concept:** It proves AC Tech can build complex, data-heavy web platforms, not just mobile apps.
+2.  **Recurring Revenue:** Schools operate on subscriptions, providing stable cash flow.
+3.  **Humanizing Tech:** It forces the developers to build for "Students" and "Teachers," not "Users" and "Admins," honing their UX/UI skills for non-technical audiences.
+
+## 6. Conclusion
+
+The Educacional AC Tech platform is a triumph of integration. It merges a custom-built, high-performance web architecture with the deep pedagogical needs of a language faculty. By owning the stack, AC Tech ensures that the limitation is never the software, but only the imagination of the teacher.
+
+TechAI (TechAgents) - AC Tech's Agentic Artificial Intelligence Ecosystem
+
+## 1. Project Overview & Philosophy
+
+**Official Name:** TechAI (Internal designation: TechAgents)
+**Status:** Active / Production Core
+**Repository:** github.com/AC-Tech-Pro-Oficial/TechAI
+**Integration:** VS Code Extension & Google Antigravity IDE
+
+TechAI is not a single product; it is the "brain" and the "engine" behind AC Tech's operations. It represents the realization of the **"Agentic Swarm"** philosophy—the idea that a small team of humans can perform at the scale of a large enterprise by orchestrating a fleet of specialized AI agents.
+
+While TechAir is the product sold to customers, **TechAI** is the product that *builds* the products. It has recently evolved from a set of scripts into a full-fledged **VS Code / Antigravity Extension**, bringing its capabilities directly into the developer's workspace.
+
+## 2. The Agent Roster (The "Specialists")
+
+The system is designed around distinct "Personas," each with a specific specialized rule set, prompt engineering context, and allowed tools. This prevents the "jack of all trades, master of none" problem common with generic AI chat.
+
+*   **@TechAI (Chief of Staff):** The central router. All user requests start here. It analyzes the intent and routes the task to the appropriate specialist. It does not write code; it manages the team.
+*   **@TechPlan (The Architect):** Uses **Claude 4.5 Opus** (known for superior reasoning). It researches, plans, and creates `implementation_plan.md` files. It thinks before anyone acts.
+*   **@TechCode (The Builder):** Uses **Gemini 3 Pro** (known for speed and context window). It executes the plan, writing code, refactoring files, and fixing lints. It operates in a loop: Code -> Check Errors -> Fix -> Repeat.
+*   **@TechTest (The Auditor):** The Quality Assurance agent. It writes unit tests, verifies security, and plays "Devil's Advocate" to find flaws in TechCode's work.
+*   **@TechDesign (The Artist):** Specialized in UI/UX. It understands color theory, layout, and generates media assets using tools like Vertex AI or styling libraries (Flutter/CSS).
+*   **@TechSearch (The Scholar):** A PhD-level researcher. It performs "Deep Research" (like this document), scouring the web and internal docs to provide ground-truth data.
+
+## 3. Technical Architecture: The IDE Extension
+
+TechAI has been encapsulated into a VS Code Extension (`.vsix`) to provide seamless integration into the Google Antigravity IDE.
+
+*   **MCP Integration (Model Context Protocol):** TechAI heavily utilizes the Model Context Protocol (MCP). It runs a local MCP server that gives the AI agents diverse tools:
+    *   *Firecrawl:* For scraping and understanding web documentation.
+    *   *FileSystem:* For safe, authorized access to project files.
+    *   *Memory:* Access to `Personal Context Memory.txt` and project rules.
+*   **Command Palette Integration:** Developers can invoke agents via commands like `/techplan-create` or `/techcode-improve` directly from the editor.
+*   **Context Injection:** The extension automatically injects the relevant "Project Rules" and "Global Manifesto" into every AI conversation, ensuring that no matter which model is used, it "knows" it works for AC Tech.
+
+## 4. Local AI & Hybrid Architecture
+
+A unique feature of the TechAI ecosystem is its **Hybrid Cloud/Local** approach.
+*   **Cloud Brain:** Complex reasoning happens in the cloud (Claude Opus / Gemini Pro) for maximum intelligence.
+*   **Local Muscle:** The system utilizes Moacir's local "Supercomputer" (RTX 4080) to run open-weights models (like DeepSeek-R1 or Qwen-2.5-Coder) via Ollama.
+*   **Privacy & Cost:** Sensitive code or high-volume rote tasks can be offloaded to the local GPU, saving API costs and increasing privacy. The `delegate.ps1` script manages this handoff, allowing the Cloud Architect to command the Local Builder.
+
+## 5. Security & Governance
+
+TechAI is built with a "Zero-Trust" mindset regarding credentials.
+*   **Credential Isolation:** API keys are never hardcoded. They live in a verified `Credentials` directory (`D:\TechAI\Credentials`), accessible only via secure file reading tools, never committed to Git.
+*   **The "Warden" (TechRules):** An automated process that constantly scans all projects to ensure they are following the global standards (`agent.rules`). If a rule changes in the main TechAI hub, it propagates to all satellite projects (TechAir, Educacional, etc.) automatically.
+
+## 6. Strategic Value
+
+TechAI is AC Tech's competitive advantage.
+1.  **Velocity:** It allows two founders to maintain 4+ complex projects simultaneously.
+2.  **Consistency:** Every line of code, every documentation file, and every commit message follows the exact same standard, because the agents enforce it.
+3.  **Knowledge Retention:** The "Brain" folder and context files ensure that knowledge isn't lost when a human forgets. The system "remembers" the architectural decisions made six months ago.
+
+## 7. Conclusion
+
+TechAI serves as the central nervous system of AC Tech. It transforms the chaotic process of software development into a structured, scalable, and highly efficient manufacturing line. By treating AI not as a chatbot but as a "colleague" with a specific job description, AC Tech has unlocked a level of productivity that defines their business model.
+
+TechAir App - Comprehensive Product Analysis & Feature Breakdown
+
+## 1. Product Overview & Strategic Purpose
+
+**Name:** TechAir (Professional)
+**Platform:** Flutter (iOS & Android) - Cross-Platform Architecture
+**Target Audience:** HVAC-R Professionals (Heating, Ventilation, Air Conditioning, and Refrigeration), Electrical Technicians, and Service Providers.
+**Core Value Proposition:** "Your Office in Your Pocket."
+
+TechAir is AC Tech's flagship product, designed to address a critical pain point in the technical service industry: the lack of professional structure among independent technicians and small providers. In Brazil, many technicians operate informally, relying on paper pads for quotes and WhatsApp for communication. TechAir professionalizes this process by providing a suite of digital tools that rival those of large engineering firms. It transforms an individual technician into a structured "company" capable of issuing legal documents (PMOC) and professional PDF proposals.
+
+## 2. Technical Architecture
+
+*   **Framework:** Built on **Flutter**, ensuring a native-like experience at 120Hz on both Android and iOS devices. The design language is strictly modern, utilizing glassmorphism, dark modes, and fluid animations to convey a premium feel.
+*   **Backend:** Leverages **Firebase** for real-time database synchronization, authentication (Auth), and cloud storage. This ensures that a technician's data is safe in the cloud—if they lose their phone, they don't lose their business.
+*   **AI Integration:** The app integrates Google Gemini and Claude models ("TechAir AI") to provide intelligent assistance, such as analyzing photos of equipment plates to extract model numbers or suggesting fixes for error codes.
+
+## 3. Detailed Feature Breakdown (Menu by Menu)
+
+Based on the application's source structure (`lib/features/`) and public documentation, the application is divided into several powerful modules. Each module acts as a standalone tool but is fully integrated into the central ecosystem.
+
+### A. Dashboard (Home)
+The command center of the application.
+*   **Purpose:** Provides an "at-a-glance" view of the business health.
+*   **Key Features:**
+    *   **Quick Actions:** One-tap access to create a new quote or service order.
+    *   **Status Overview:** Visual indicators of pending jobs, approved quotes, and monthly revenue.
+    *   **Notifications:** Alerts for upcoming scheduled maintenance (PMOC) or client follow-ups.
+
+### B. Quotes & Estimates (Orçamentos)
+Located in `lib/features/orcamentos`. This is often the primary driver of sales for users.
+*   **Functionality:** Allows the creation of detailed, itemized service proposals in seconds.
+*   **The "Wow" Factor:** Unlike a simple text message, TechAir generates a branded PDF document.
+*   **Capabilities:**
+    *   **Itemization:** Add parts, labor, and travel costs separately.
+    *   **Customization:** Add the technician's logo and company details automatically.
+    *   **PDF Generation:** One-click export to WhatsApp or Email. The PDF is clean, professional, and contractually sound.
+    *   **Status Tracking:** Mark quotes as "Sent," "Viewed," "Approved," or "Rejected."
+
+### C. Digital Service Orders (O.S. Digital)
+Located in `lib/features/os`. The operational core of daily work.
+*   **Purpose:** Replaces the carbon-copy paper pads used for decades.
+*   **Workflow:**
+    *   **Check-in:** Technician creates an O.S. upon arrival.
+    *   **Documentation:** Ability to attach photos of the equipment *before* and *after* service (crucial for proof of work).
+    *   **Checklist:** Pre-defined service steps to ensure quality (e.g., "Check gas pressure," "Clean filters").
+    *   **Digital Signature:** The client signs directly on the phone screen using their finger.
+    *   **History:** The O.S. is saved to the client's profile for future reference.
+
+### D. PMOC Generator (Regulatory Compliance)
+A massive selling point in the Brazilian market. PMOC (Plano de Manutenção, Operação e Controle) is required by law (Lei 13.589/2018) for many air conditioned environments.
+*   **The Pain Point:** Drafting a PMOC manually is tedious, technical, and prone to legal errors.
+*   **The TechAir Solution:** An automated generator that creates a compliant legal document based on the equipment data entered.
+*   **Features:**
+    *   **Schedule Management:** Automatically reminds the technician (and client) of monthly, quarterly, and annual maintenance tasks.
+    *   **Legal Validity:** Generates documents ready for inspection by ANVISA (Health Surveillance Agency).
+    *   **Recurring Revenue:** Encourages technicians to sell "maintenance contracts" rather than just one-off repairs.
+
+### E. Financial Hub (Financeiro)
+Located in `lib/features/financeiro`. The "CFO" of the small business.
+*   **Purpose:** Move technicians away from mixing personal and business finances.
+*   **Features:**
+    *   **Cash Flow:** Tracks inflows (Service Payments) and outflows (Parts, Gas, Fuel).
+    *   **Profitability Analysis:** Calculates the profit margin per job.
+    *   **Reports:** Monthly visual charts showing growth trends.
+    *   **Payment Methods:** Records whether payment was Cash, Pix, Credit Card, or Boleto.
+
+### F. Client Management (Clientes)
+Located in `lib/features/clientes`.
+*   **CRM (Customer Relationship Management):** A dedicated database of all customers.
+*   **Asset Asset Management:** Unlike a generic phonebook, this links "Equipment" to "Clients."
+    *   *Example:* Accessing "Mrs. Silva" shows she has two Samsung Split ACs installed in 2023.
+*   **Geolocation:** Integration with Maps to navigate to the client's address.
+
+### G. Inventory Control (Estoque)
+Located in `lib/features/estoque`.
+*   **Purpose:** Prevents the "I forgot the part" problem.
+*   **Tracking:** Manages stock of refrigerants (R410A, R32), copper pipes, capacitors, and spare parts.
+*   **Alerts:** Low-stock warnings when critical items (like gas) are running low.
+
+### H. Augmented Reality Tools (AR)
+Located in `lib/features/ar`. The "High-Tech" differentiator.
+*   **Function:** uses the phone's camera and ARCore/ARKit.
+*   **Use Cases:**
+    *   **Virtual Placement:** Visualize how a specific AC unit (Split, Cassette) will look on the client's wall before drilling even one hole.
+    *   **Measurement:** Measure distances and pipe runs using the camera, avoiding the need for ladders in preliminary visits.
+
+### I. Technical Calculators (Serviços/Tools)
+Located in `lib/features/servicos` or shared tools.
+*   **BTU Calculator (Carga Térmica):** A wizard that asks about room size, windows, sun exposure, and electronics to recommend the *exact* BTU capacity needed. This prevents under-cooling or energy waste.
+*   **Piping Dimensioning:** Calculates the correct diameter for copper lines based on machine distance.
+*   **Fluid Tables:** Digital "Slider" for Pressure x Temperature conversion for all major refrigerants (R22, R410A, R32, R134a).
+
+### J. Authentication & Security (Auth)
+Located in `lib/features/auth`.
+*   **Security:** Multi-factor capability (Email/Password + Biometrics).
+*   **Cloud Sync:** Ensures the user's account is their key. Logging in on a new device restores everything instantly.
+
+## 4. Artificial Intelligence (TechAir AI)
+
+TechAir is not just a database; it is intelligent.
+*   **Diagnostic Assistant:** "I have a Midea Inverter showing Error E4." -> AI analyzes and suggests: "Open sensor circuit. Check outdoor unit sensor."
+*   **Image Analysis:** "Take a photo of the nameplate." -> AI OCR extracts the Serial Number, Model, and Voltage, auto-filling the equipment registration form.
+
+## 5. Conclusion
+
+TechAir is a comprehensive ecosystem. It replaces:
+1.  The Note Pad (Quotes)
+2.  The Calculator (BTU/Electrical math)
+3.  The Agenda (Scheduling)
+4.  The Spreadsheet (Finance)
+5.   The Filing Cabinet (Client History)
+
+By consolidating these into a single, premium Flutter application, AC Tech provides the "Operating System" for the modern HVAC professional.
+
+🚀 PROFISSIONALIZE SEU NEGÓCIO DE CLIMATIZAÇÃO E REFRIGERAÇÃO!
+
+Você sabe a rotina: Cliente pedindo orçamento urgente, você na instalação com mão suja de graxa, tentando lembrar preço de peça. Depois, passa a noite em cima de planilhas.
+CHEGA DESSA BAGUNÇA. O TECHAIR NASCEU PARA MUDAR SUA VIDA.
+
+A ferramenta definitiva para técnicos autônomos e empresas de HVAC-R. Transforme seu celular em uma engenharia de bolso.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💰 GANHE MAIS CONTRATOS E DINHEIRO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❄️ ORÇAMENTOS PROFISSIONAIS (PDF)
+A primeira impressão é a que fica. Pare de enviar preços no "zap".
+
+🔹 Propostas em Segundos: O app calcula peças, gás fluido, mão de obra e deslocamento.
+🔹 PDF Personalizado: Envie orçamentos elegantes com sua LOGOMARCA e termos de garantia.
+🔹 Catálogo Rápido: Salve seus preços (Instalação Split, Limpeza Química, Carga de Gás) para preencher com um clique.
+🔹 Rastreio: Saiba quais orçamentos foram Abertos, Aprovados ou Recusados.
+
+🧾 PMOC DIGITAL E LAUDOS TÉCNICOS
+Entre no mercado de grandes contratos corporativos.
+
+🔹 Compliance (Lei 13.589/2018): Gere Planos de Manutenção (PMOC) completos e na lei.
+🔹 Checklists Inteligentes: Roteiros para Splits, VRF, Chillers e Câmaras Frias.
+🔹 Renda Recorrente: O sistema avisa o vencimento das preventivas. Fidelize seu cliente.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🤖 INTELIGÊNCIA ARTIFICIAL (IA 2.0)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Único app com Gemini Technology para o setor AVAC-R.
+
+🔹 Diagnóstico: "Erro CH 05 LG". Pergunte à IA e receba a solução na hora.
+🔹 Consultor de Negócios: "Minha margem caiu, onde estou errando?". A IA analisa seus dados e sugere melhorias.
+🔹 Redator Técnico: A IA escreve laudos técnicos formais e perfeitos para você.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏢 GESTÃO OPERACIONAL COMPLETA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📸 PROVE SEU TRABALHO
+Contra fatos (e fotos) não há argumentos.
+🔹 Relatórios Visuais: Anexe fotos "Antes e Depois" (filtro sujo x limpo) na OS.
+🔹 Histórico Blindado: Prova técnica datada e assinada. Evite reclamações injustas.
+
+📦 CONTROLE DE ESTOQUE
+Pare de comprar peça que você já tem na mala.
+🔹 Materiais: Controle tubos, gás R-410A/R-32, cabos e capacitores.
+🔹 Baixa Automática: Fechou a OS? O material sai do estoque.
+🔹 Alertas: Seja avisado quando o estoque estiver baixo.
+
+👥 CRM: CLIENTES E EQUIPAMENTOS
+🔹 Histórico Clínico: Todas as visitas e trocas de peças salvas por cliente.
+🔹 Cadastro de Ativos: Registre marca, modelo e nº de série de cada evaporadora e condensadora.
+
+💰 FINANCEIRO
+🔹 Lucro Real: Saiba quanto sobrou LIMPO após custos e impostos.
+🔹 Fluxo de Caixa: Receitas e despesas organizadas.
+🔹 Recibos: Cobre e emita recibos na hora.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🛡️ TECNOLOGIA ROBUSTA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ FUNCIONA SEM INTERNET (OFFLINE)
+Vai atender em subsolo ou zona rural?
+O TechAir funciona 100% offline. Faça tudo sem sinal; ele sincroniza quando a internet voltar.
+
+🛡️ SEGURANÇA TOTAL
+Backup automático no Google Cloud e criptografia de ponta a ponta. Seus dados são seus.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚡ PARA QUEM É?
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 Instalação e Manutenção de Ar Condicionado (Split, Cassete, Piso Teto)
+🎯 Refrigeração Comercial (Câmaras Frias, Balcões)
+🎯 Sistemas VRF / VRV
+🎯 Refrigeração Industrial e Chillers
+🎯 Gestores de Contratos
+
+---
+📢 SOBRE A EQUIPE
+AC TECH SOLUTIONS • Tecnologia que constrói o Brasil.
+
+Dúvidas?
+📧 contato@ac-tech.pro
+🌐 ac-tech.pro | 📷 @actech.oficial
+
+Deixe o amadorismo no passado.
+📥 Baixe o TechAir AGORA!
+
+#HVAC #PMOC #ArCondicionado #Refrigeração #OrdemDeServiço #GestãoTécnica #TechAir
+
+Firstly read EVERYTHING.
+
+This was a lot of context but you should consider all of it. Redo your plan and propose design structures that are more relevant. Also, read the "TechAir Store Description" txt file that I provided, it contain important information about TechAir specifically that you can use in its sub menu page.
+
+Your suggestion number 2 "Story-Driven Scroll" (positioning + depth) is definitely the one I like the most.
+However, each AC Tech product should also tell its own story, also in a  comprehensive and qualitative way like this.
+
+In addition, I think you should understand better the level of UI richness and complexity that I expect, so here goes a few examples of websites to inspire:
+https://lusion.co/
+https://bruno-simon/
+https://activetheory.net/
+https://cornrevolution.resn.global/#result
+
+HOWEVER: our website MUST have this level of quality for ALL website, not just in the home page.
+
+Finally, make sure our website has at LEAST the same level of resources and complexity, but at a much larger scale, in all different menus, sub domains etc.

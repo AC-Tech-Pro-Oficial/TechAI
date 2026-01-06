@@ -1,0 +1,33 @@
+I am implementing UI changes to the website in another conversation I have with an agent.
+
+The agent wants to know more information about AC Tech and it's products, so it can expand and improve the website interface and usage.
+To help him you will do a comprehensive analysis of numerous sources of information that I will provide about AC Tech and it's projects.
+Then, you will write the deep and explanative analysis, each at a time, starting by AC Tech the company, then going through each project.
+In addition, you can collect any data in this computer that you think it would help you (like context from other conversations, personal documents in other directories etc.)
+Generate a ".txt" file for each.
+Text files can't have LESS than 3 thousand characters, but you should aim for the 6 thousand at least.
+
+The agent that will do the redesign want to know the following:
+- "What exactly does AC Tech offer, and to whom? (e.g., IT services for SMBs, software products, web dev agency, etc.)"
+
+I realized we don't have this information properly written anywhere. I want you to first read my personal context ("D:\TechAI\Personal Context Memory.txt"). There is some important things there about AC Tech, specially at the end of the file.
+Then, proceed to run other global instruction files and non-project specific rules. You must read: "D:\.agent\agent.rules", "D:\TechAI\TechAI_Manifesto.md", "D:\README.md", "D:\Cognicir Language School\.agent\workflows\GEMINI.md".
+
+Focus on generating the AC Tech comprehensive textual description. This is by far the most important one. Talk about the vision of the company, it's goals for the future etc. Also read the main page of our GitHub: 
+https://github.com/AC-Tech-Pro-Oficial/
+
+Write the comprehensive text.
+
+Now, check for the project specific instructions. Start by TechAir:
+"D:\TechAir\PROJECT_RULES.md" and https://github.com/AC-Tech-Pro-Oficial/TechAir. Also check it's play store page: https://play.google.com/store/apps/details?id=com.actech.techair.pro
+
+For TechAir, you MUST explain the whole app, it's purpose in detail, but also EACH MENU INDIVIDUALLY, explaining all features.
+
+Write the text.
+
+Now you can analyze the rest at: "D:\TechAI\IDE Extension\PROJECT_RULES.md", "D:\TechAI\IDE Extension\.agent\agent.rules", "D:\TechAI\IDE Extension\.github\copilot-instructions.md", "D:\Microsoft Ultimate Installer\.agent\PROJECT_RULES.md", "D:\Microsoft Ultimate Installer\.agent\agent.rules" and "D:\README.md".
+Don't forget to read their GitHub page: "https://github.com/AC-Tech-Pro-Oficial/TechAI", "https://github.com/AC-Tech-Pro-Oficial/AC-Tech-Web", "https://github.com/AC-Tech-Pro-Oficial/Educacional-AC-Tech".
+
+You can also read our website to get a more complete picture of everything: www.ac-tech.pro
+
+With this information you will write a comprehensive summary of AC Tech and all it's projects, separated in individual text files that are at least 3 thousand charaters (lazily done) but should aim to be at least 6 thousand characters (comprehensive). It's better that you write too much than too little.

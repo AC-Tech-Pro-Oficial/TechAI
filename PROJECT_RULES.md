@@ -7,7 +7,9 @@
 ## Core Directives
 1. **Source of Truth**: This repository is the central hub for all TechAI projects and context.
 2. **IDE Extension**: Located at `D:\TechAI\IDE Extension` - managed as a subdirectory.
-3. Follow global rules in `D:\TechAI\Personal Context Memory.txt`.
+3. Follow global rules in `D:\TechAI\Personal Context Memory.txt` (Context Loader).
+4. **CLI-First**: Always use CLI tools before browser. Install missing CLIs automatically. Try solving autonomously before asking.
+5. **Exhaustive Execution**: Agents must be exhaustive, aim for perfection, and ignore time/complexity constraints. Solve ALL identified problems.
 
 ## Directory Structure
 ```
@@ -45,7 +47,7 @@ The IDE Extension at `D:\TechAI\IDE Extension`:
 4.  **No "Bot-Like" Activity**: Avoid exact duplicate commit messages across multiple repos in rapid succession. Vary the messages to be context-specific.
 
 ## MCP Configuration
-- **Config Path**: `~/.gemini/antigravity/mcp_config.json`
+- **Config Path**: `%USERPROFILE%\.gemini\antigravity\mcp_config.json`
 - Managed by the IDE Extension's MCP Panel
 
 <!-- MANUAL -->

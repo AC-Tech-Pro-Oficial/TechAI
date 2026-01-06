@@ -1,0 +1,30 @@
+Let's continue improving the website.
+
+Since workflows are the most efficient way to handle such a complex task, you will create a new workflow that will lead you to fix, improve and increment the AC Tech website and all its subpages.
+
+Firstly, there are plenty design imperfections in it, starting from the main page (the AC Tech is behind the white text message. There are design adjustments to be done in every page at this point.
+
+With this workflow, the agent should keep designing the website, but most importantly it should fix every interface bug in the website and leave everything in a pristine state. However it shouldn't be limited by that, instead it should also analyze every rule, instruction file and important context that it has about each of AC Tech's projects and use that to continue expanding and improving the website.
+
+The agent will modify and improve the graphical elements of anywhere it finds an opportunity for improvement.
+
+This workflow should loop until everything in the website is functional. Every link in the website must be tested and working, so all of them should be checked. Also, there should be no security failures like credentials sent by mistake, or API keys in the files (this should be checked extensively before finishing the workflow).
+
+This workflow will also ensure that all connections are working properly throughout all the services providers structures of the website (including Cloudflare, Firebase, Vercel and any other there might be).
+The agent can upload projects and files to GitHub, Vercel etc. even making them live and public if it wants - HOWEVER, this should only be done AFTER the extensive safety check in the workflow order.
+
+Level minimum required for this is mega corporation level senior websites and webservices designer and developer.
+
+**The level of complexity, attention to detail and richness of interactive and graphical resources employed in the website must be EXTREME, mega corporation technology multi services provider (Think Microsoft, Google, Amazon) at least.**
+
+**The agent is FORBIDDEN to finish the workflow before all criteria are attended.**
+
+**Agent CAN modify ANY file, including gitignore ones.**
+
+**Agent must be AUTONOMOUS and use CLI tools, MCP servers and the browser tool within the IDE. Also if they need any tool they don't have, they should install it and use it.**
+
+**Agent must RUN continuously. "// turbo-all" MUST be enabled. The agent is FORBIDDEN to ask for permission to run prompts, access or delete files etc.**
+
+------------------------------
+
+Create the workflow and make sure it does all of this. Make it comprehensive.

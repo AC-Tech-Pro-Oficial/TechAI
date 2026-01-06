@@ -5,7 +5,8 @@
     "enabled": true,
     "scanPaths": [
       "D:\\",
-      "S:\\Files\\Cognicir Language School"
+      "S:\\Files\\Cognicir Language School",
+      "S:\\Files\\Cognicir Language School\\Educacional"
     ],
     "excludePaths": [
       "D:\\$RECYCLE.BIN",

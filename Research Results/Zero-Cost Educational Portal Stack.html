@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero-Cost Educational Portal Stack | AC Tech</title>
+    <style>
+        :root {
+            --primary: #10b981;
+            --secondary: #6366f1;
+            --bg: #0a0f1a;
+            --card-bg: #111827;
+            --text: #f1f5f9;
+            --muted: #9ca3af;
+            --success: #22c55e;
+            --warning: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.8;
+            color: var(--text);
+            background: var(--bg);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.2em;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.6em;
+            color: var(--secondary);
+            margin-top: 40px;
+            border-left: 4px solid var(--secondary);
+            padding-left: 15px;
+        }
+
+        h3 {
+            font-size: 1.3em;
+            color: var(--primary);
+            margin-top: 25px;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        a {
+            color: #60a5fa;
+        }
+
+        code {
+            background: #1e293b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: Consolas, monospace;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 1px solid #1f2937;
+        }
+
+        .verdict {
+            background: rgba(16, 185, 129, 0.15);
+            border: 2px solid var(--primary);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 30px 0;
+        }
+
+        .free-badge {
+            display: inline-block;
+            background: var(--success);
+            color: #000;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 700;
+        }
+
+        .pay-badge {
+            display: inline-block;
+            background: var(--warning);
+            color: #000;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #1f2937;
+        }
+
+        th {
+            background: #0d1117;
+            color: var(--primary);
+            text-transform: uppercase;
+            font-size: 0.85em;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        .highlight {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 4px solid var(--secondary);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #1f2937;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 0.9em;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 25px;
+            border-top: 1px solid #1f2937;
+            color: var(--muted);
+        }
+
+        @media print {
+            body {
+                background: #fff;
+                color: #000;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🆓 Zero-Cost Educational Portal Stack</h1>
+            <p>Building <code>educational.ac-tech.pro</code> with $0/month recurring costs</p>
+            <p><strong>Research Date:</strong> 2026-01-02 | <strong>Target:</strong> 100-500 initial students</p>
+        </header>
+
+        <div class="verdict">
+            <h3 style="margin-top: 0; color: var(--primary);">✅ YES, It's Possible!</h3>
+            <p>You can build and run a fully functional educational portal with <strong>genuinely $0/month in recurring
+                    costs</strong> using the stack below. The only costs are:</p>
+            <ul>
+                <li><strong>Stripe transaction fees:</strong> 2.9% + $0.30 per sale (only when you make money)</li>
+                <li><strong>Domain:</strong> Already included in your Hostinger plan</li>
+                <li><strong>AI (optional):</strong> Pay-per-use only (~$0.10-0.50 per tutoring session)</li>
+            </ul>
+        </div>
+
+        <section>
+            <h2>1. The Zero-Cost Stack</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Service</th>
+                        <th>Free Tier Limits</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Hosting</strong></td>
+                        <td>Cloudflare Pages</td>
+                        <td>Unlimited sites, 500 builds/mo, unlimited bandwidth</td>
+                        <td><span class="free-badge">$0 FOREVER</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Serverless API</strong></td>
+                        <td>Cloudflare Workers</td>
+                        <td>100k requests/day, 10ms CPU per request</td>
+                        <td><span class="free-badge">$0 FOREVER</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Database</strong></td>
+                        <td>Supabase Free</td>
+                        <td>500MB DB, 1GB file storage, 50k MAUs</td>
+                        <td><span class="free-badge">$0 FOREVER*</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Authentication</strong></td>
+                        <td>Supabase Auth</td>
+                        <td>50,000 monthly active users</td>
+                        <td><span class="free-badge">$0 FOREVER</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Video Storage</strong></td>
+                        <td>Cloudflare R2</td>
+                        <td>10GB storage, 10M reads/mo, FREE egress</td>
+                        <td><span class="free-badge">$0 FOREVER</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Video Alt</strong></td>
+                        <td>YouTube Unlisted</td>
+                        <td>Unlimited storage, unlimited bandwidth</td>
+                        <td><span class="free-badge">$0 FOREVER</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>CDN</strong></td>
+                        <td>Cloudflare Free</td>
+                        <td>Unlimited bandwidth, DDoS protection</td>
+                        <td><span class="free-badge">$0 FOREVER</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Payments</strong></td>
+                        <td>Stripe</td>
+                        <td>No monthly fee, only per-transaction</td>
+                        <td><span class="pay-badge">2.9% + $0.30 per sale</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Email</strong></td>
+                        <td>Resend Free</td>
+                        <td>3,000 emails/month, 100 emails/day</td>
+                        <td><span class="free-badge">$0 FOREVER</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>AI Tutor</strong></td>
+                        <td>Gemini API Free</td>
+                        <td>~1000 requests/day (Flash-Lite model)</td>
+                        <td><span class="free-badge">$0 (limited)</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>AI Tutor Alt</strong></td>
+                        <td>OpenAI API</td>
+                        <td>Pay-per-use, no monthly fee</td>
+                        <td><span class="pay-badge">~$0.10-0.50/session</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p><small>* Supabase Free tier pauses projects after 7 days of inactivity. A simple cron job keeps it
+                    alive.</small></p>
+        </section>
+
+        <section>
+            <h2>2. Why Cloudflare Over Vercel?</h2>
+            <p>While Vercel is excellent, its Hobby tier has two issues for commercial use:</p>
+            <ul>
+                <li><strong>Commercial Use Prohibited:</strong> Vercel Hobby explicitly prohibits commercial projects.
+                    Educational courses sold for money = commercial.</li>
+                <li><strong>Hard Limits:</strong> 100GB bandwidth cap, 100 deployments/day.</li>
+            </ul>
+            <p><strong>Cloudflare Pages + Workers</strong> has no commercial restriction and offers:</p>
+            <ul>
+                <li>Unlimited bandwidth (truly unlimited)</li>
+                <li>500 builds/month (plenty for a single project)</li>
+                <li>Workers: 100,000 requests/day free tier</li>
+                <li>R2: 10GB storage with FREE egress (critical for video)</li>
+            </ul>
+            <div class="highlight">
+                <strong>Architecture Change:</strong> Instead of Next.js (Vercel-optimized), use
+                <strong>SvelteKit</strong>, <strong>Astro</strong>, or <strong>Next.js with Cloudflare adapter</strong>.
+                All work on Cloudflare Pages.
+            </div>
+        </section>
+
+        <section>
+            <h2>3. Video Strategy: Two Options</h2>
+
+            <div class="card">
+                <h3>Option A: YouTube Unlisted (Recommended for Start)</h3>
+                <ul>
+                    <li><strong>Cost:</strong> $0, unlimited storage, unlimited bandwidth</li>
+                    <li><strong>Pros:</strong> Zero maintenance, auto-transcoding, mobile-optimized player</li>
+                    <li><strong>Cons:</strong> YouTube branding, potential for students to find via search if not
+                        careful</li>
+                    <li><strong>How:</strong> Upload videos as "Unlisted" → Embed in your platform</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Option B: Cloudflare R2 + Custom Player</h3>
+                <ul>
+                    <li><strong>Cost:</strong> $0 for first 10GB storage, FREE egress</li>
+                    <li><strong>Pros:</strong> Full control, no YouTube branding, professional look</li>
+                    <li><strong>Cons:</strong> Need to transcode videos yourself (use FFmpeg locally)</li>
+                    <li><strong>Upgrade Path:</strong> When you exceed 10GB, R2 costs $0.015/GB/month (10 hours of video
+                        ≈ $0.15/month)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>4. AI Features: Pay-Per-Use Only</h2>
+            <p>AI tutoring is a "premium" feature. You have two free/low-cost options:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        <th>Free Tier</th>
+                        <th>Pay-Per-Use Cost</th>
+                        <th>Best For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Gemini Flash-Lite</strong></td>
+                        <td>1000 requests/day</td>
+                        <td>$0.0375 per 1M tokens</td>
+                        <td>High-volume basic Q&A</td>
+                    </tr>
+                    <tr>
+                        <td><strong>OpenAI GPT-4o-mini</strong></td>
+                        <td>None (pay-per-use)</td>
+                        <td>~$0.05 per session</td>
+                        <td>High-quality tutoring</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Recommendation:</strong> Start with Gemini Flash-Lite (free) for initial students. If quality
+                isn't sufficient, switch to GPT-4o-mini (pennies per interaction). <em>AI cost is revenue-dependent: you
+                    only pay when students use it.</em></p>
+        </section>
+
+        <section>
+            <h2>5. Capacity Analysis: Can This Handle 500 Students?</h2>
+
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-value">50k</div>
+                    <div class="stat-label">Monthly Active Users (Supabase)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">100k</div>
+                    <div class="stat-label">API Requests/Day (Workers)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">10M</div>
+                    <div class="stat-label">R2 Reads/Month (Video)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">∞</div>
+                    <div class="stat-label">Bandwidth (Cloudflare)</div>
+                </div>
+            </div>
+
+            <p><strong>500 students using the platform daily:</strong></p>
+            <ul>
+                <li>500 logins/day = 500 auth checks → <strong>Well under 100k/day limit</strong></li>
+                <li>500 students × 5 API calls each = 2,500/day → <strong>2.5% of limit</strong></li>
+                <li>500 students × 2 video watches/day = 1,000 R2 reads → <strong>0.03% of monthly limit</strong></li>
+            </ul>
+
+            <div class="highlight">
+                <strong>Verdict:</strong> This stack can comfortably handle 500-5,000 students before hitting any free
+                tier limits. You have <strong>massive headroom</strong>.
+            </div>
+        </section>
+
+        <section>
+            <h2>6. Upgrade Triggers (When to Start Paying)</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Trigger</th>
+                        <th>What to Upgrade</th>
+                        <th>Cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>&gt; 500MB database</td>
+                        <td>Supabase Pro</td>
+                        <td>$25/month</td>
+                    </tr>
+                    <tr>
+                        <td>&gt; 10GB video storage</td>
+                        <td>R2 paid tier</td>
+                        <td>$0.015/GB/month</td>
+                    </tr>
+                    <tr>
+                        <td>&gt; 100k Workers requests/day</td>
+                        <td>Workers Paid ($5/mo)</td>
+                        <td>$5/month</td>
+                    </tr>
+                    <tr>
+                        <td>Need better AI quality</td>
+                        <td>OpenAI pay-per-use</td>
+                        <td>~$50-200/month at scale</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>Reality check:</strong> You'll likely hit 500MB database before anything else. That happens
+                around 1,000-2,000 enrolled students. At that point, $25/month is trivial compared to revenue.</p>
+        </section>
+
+        <section>
+            <h2>7. Recommended Stack Summary</h2>
+
+            <div class="card">
+                <h3>Frontend</h3>
+                <ul>
+                    <li><strong>Framework:</strong> Astro + React (or SvelteKit) — works on Cloudflare Pages</li>
+                    <li><strong>Styling:</strong> Tailwind CSS 4</li>
+                    <li><strong>Hosting:</strong> Cloudflare Pages (free, unlimited BW)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Backend</h3>
+                <ul>
+                    <li><strong>API:</strong> Cloudflare Workers (100k req/day free) or Supabase Edge Functions</li>
+                    <li><strong>Database:</strong> Supabase PostgreSQL (500MB free)</li>
+                    <li><strong>Auth:</strong> Supabase Auth (50k MAUs free)</li>
+                    <li><strong>Storage:</strong> Cloudflare R2 (10GB free, FREE egress)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Integrations</h3>
+                <ul>
+                    <li><strong>Videos:</strong> YouTube Unlisted (start) → R2 (premium look later)</li>
+                    <li><strong>Payments:</strong> Stripe (only pays when you earn)</li>
+                    <li><strong>Email:</strong> Resend (3k/month free)</li>
+                    <li><strong>AI:</strong> Gemini Flash-Lite (1k/day free) → OpenAI (pay-per-use)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>8. What's Different from Previous Recommendation?</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Previous (Had Costs)</th>
+                        <th>New (Zero Cost)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Hosting</td>
+                        <td>Vercel (Pro $20/mo eventually)</td>
+                        <td>Cloudflare Pages (free forever)</td>
+                    </tr>
+                    <tr>
+                        <td>Video</td>
+                        <td>Cloudflare Stream ($5/mo min)</td>
+                        <td>YouTube Unlisted or R2 (free)</td>
+                    </tr>
+                    <tr>
+                        <td>AI</td>
+                        <td>OpenAI (~$500/mo at scale)</td>
+                        <td>Gemini free tier or pay-per-use</td>
+                    </tr>
+                    <tr>
+                        <td>Total Fixed Cost</td>
+                        <td>~$50-150/month</td>
+                        <td><strong>$0/month</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <div class="verdict">
+            <h3 style="margin-top: 0;">🚀 Ready to Build</h3>
+            <p>With this stack, you can launch <code>educational.ac-tech.pro</code> with:</p>
+            <ul>
+                <li><strong>$0/month fixed costs</strong> until you have thousands of students</li>
+                <li><strong>Only transaction-based costs</strong> (Stripe, optional AI)</li>
+                <li><strong>Massive free tier headroom</strong> for growth</li>
+            </ul>
+            <p>When you're ready, I can start implementing Phase 1: Cloudflare Pages + Supabase + Astro setup.</p>
+        </div>
+
+        <footer>
+            <p><strong>Generated by TechAI</strong> | Research Date: 2026-01-02</p>
+            <p>AC Tech Pro Oficial | educational.ac-tech.pro</p>
+        </footer>
+    </div>
+</body>
+
+</html>

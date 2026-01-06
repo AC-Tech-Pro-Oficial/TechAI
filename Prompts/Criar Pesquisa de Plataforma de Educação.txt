@@ -1,0 +1,8 @@
+/research 
+ I am considering finding a specialized platform to teach my classes. I just downloaded ClassIn to test it and I found it too simple and lacking resources, but I'm looking for other similar software. I also checked Google Classroom but thought it was too simple. I would like to have an environment where I can reproduce all the content from my classes and everything from the classes could be managed from there (or most things) including tests, grading, video classes, sharing screen etc. Consider the amount of comprehensiveness and complexity I always ask of you: we should find platforms that are at least as complex. Find the most complete/better education tools.
+For that goal, I had built an implementation plan together with another agent. The cost of implementing this should be ZERO reais.
+The agent has created a proposal of implementation plan at "C:\Users\MBCJ\Desktop\Comparative_Analysis_of_Educational_Eco-Systems.html" and "C:\Users\MBCJ\Desktop\Comparative_Analysis_of_Educational_Eco-Systems.pdf".
+
+Do your own research. Do you even agree with the other agent that this is the better way?
+
+After you analyze this, you should build a huge and comprehensive implementation plan to install and configure all platforms for our educational empire (as you called it).

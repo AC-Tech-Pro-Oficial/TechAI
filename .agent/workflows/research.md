@@ -7,10 +7,10 @@ matches: "^/research"
 # TechSearch Research Workflow v7.0 (Command: /research)
 
 > **Persona:** TechSearch (Principal Researcher & Systems Architect)
-> **Quality Standard:** Gemini Deep Research — 20k+ Characters, PhD depth, 50+ sources
+> **Quality Standard:** Gemini Deep Research — 30k+ Characters, PhD depth, 50+ sources
 > **Time Investment:** NO EFFORT SAVED. Iterative expansion until depth targets are met.
 > **Output:** Professional HTML with interactive elements + PDF compatibility
-> **Depth Floor:** Minimum 20,000 pure characters (Strict: No HTML, No Whitespace)
+> **Depth Floor:** Minimum 30,000 pure characters (Strict: No HTML, No Whitespace)
 
 > [!CRITICAL]
 > **YOU MUST READ THIS ENTIRE FILE.**
@@ -66,7 +66,7 @@ Based on analysis of Gemini Deep Research, implement these phases IN ORDER:
 2. **DEEP DISAMBIGUATION CHECK** — Identify ALL name collisions, including:
    - **Obvious Collisions:** Popular culture, other tech (e.g., "Python" = snake, language)
    - **NON-OBVIOUS Collisions (MANDATORY):** Legacy systems, mainframe/enterprise tech, academic papers
-     - *Example:* "MCP" = Unisys Master Control Program (1961 mainframe OS), NOT just Tron/Minecraft.
+     - *Example:* If researching "[Acronym]", search for legacy uses in mainframes, industrial systems, or pre-2000 tech.
      - **Search Query:** `"[Acronym] history" -[obvious term 1] -[obvious term 2]`
 3. Establish the historical context (when introduced, by whom, why) — **Go back at least 20 years if applicable**
 4. Set explicit research boundaries
@@ -82,7 +82,7 @@ Based on analysis of Gemini Deep Research, implement these phases IN ORDER:
  **Actions:**
  1. **BREADTH-FIRST MAPPING (MANDATORY)**
     - Use `firecrawl-mcp` to "map" at least 5 distinct high-value domains
-    - *Example:* "Map `docs.anthropic.com`, `github.com/modelcontextprotocol`, `hub.docker.com`..."
+    - *Example:* Map official docs, GitHub repos, Docker Hub, Wikipedia, industry blogs related to the topic.
     - **Goal:** Identify 50+ potential pages to visit later.
  2. Map the components and their relationships
  3. Identify the core architecture pattern
@@ -184,11 +184,11 @@ Based on analysis of Gemini Deep Research, implement these phases IN ORDER:
    # MANDATORY — Run this and LOG the output
    $c = (Get-Content "DRAFT_PATH.html" -Raw) -replace '(?s)<script.*?</script>', '' -replace '(?s)<style.*?</style>', '' -replace '<[^>]+>', '' -replace '\s', ''
    Write-Host "PURE_CHARS: $($c.Length)"
-   if ($c.Length -lt 20000) { Write-Error "GATE FAILED: $($c.Length) chars. RETURN TO PHASE 5." }
+   if ($c.Length -lt 30000) { Write-Error "GATE FAILED: $($c.Length) chars. RETURN TO PHASE 5 AND EXPAND." }
    ```
    - **YOU MUST SEE `PURE_CHARS: XXXXX` IN YOUR OUTPUT**
    - If you don't see this log, you haven't run the script
-   - If < 20,000: **STOP. DO NOT OUTPUT. Return to Phase 5.**
+   - If < 30,000: **STOP. DO NOT OUTPUT. Enter the Self-Expansion Loop.**
 3. **THE SOURCE COUNT CHECK (MANDATORY SCRIPT):**
    ```powershell
    # MANDATORY — Run this to verify source breadth
@@ -199,11 +199,30 @@ Based on analysis of Gemini Deep Research, implement these phases IN ORDER:
    ```
    - **Requirements:** Minimum 50 distinct citations
    - If < 50: **STOP. RETURN TO PHASE 4.**
-4. **THE EXPANSION LOOP:** (IF BELOW 20K):**
-   - For every bullet point: "Can I write 2 paragraphs about this?"
-   - For every concept: "Where is the code example?"
-   - For every claim: "Where is the citation?"
-   - **REPEAT until > 20,000 characters**
+
+4. **THE SELF-EXPANSION LOOP (MANDATORY IF < 30K):**
+
+   > [!CAUTION]
+   > **YOU MUST ITERATE UNTIL 30,000+ CHARACTERS.**
+   > Do NOT stop at 20k. 20k is TRASH. 30k is MINIMUM.
+
+   **For EACH section, ask yourself:**
+   - "Can I add 2 more paragraphs explaining *why* this matters?"
+   - "Where is the code example, diagram, or table?"
+   - "What is the historical context I haven't covered?"
+   - "What are the edge cases, failure modes, or criticisms?"
+
+   **Expansion Triggers (MANDATORY):**
+   | If Section Has... | Add... |
+   |-------------------|--------|
+   | No code example | Add one |
+   | < 3 paragraphs | Expand to 5+ |
+   | No dates/versions | Research and add |
+   | No criticisms | Add a "Limitations" subsection |
+   | Bullet points only | Convert to prose paragraphs |
+
+   **RE-RUN the Volume Check Script after each expansion pass.**
+   **REPEAT until `PURE_CHARS: 30000+`**
 
 ### PHASE 7.5: CHAIN-OF-VERIFICATION (BEFORE FINALIZING)
 
@@ -263,18 +282,17 @@ Every Deep Research report MUST include:
 | **Header** | Date, quality badge, source count | N/A |
 | **Executive Summary** | 2-3 paragraphs, written LAST | **1,500** |
 | **Table of Contents** | Clickable anchor links | N/A |
-| **1. Definition & Context** | What it is, DEEP history, disambiguation | **2,500** |
-| **2. Structure/Framework** | How it's organized, key components | **2,500** |
-| **3. Core Concepts** | Main ideas, principles, building blocks | **2,500** |
-| **4. Practical Applications** | Real-world uses, examples, case studies | **2,500** |
-| **5. Client/Consumer Integration** | How to USE/CONSUME the tech (IDEs, SDKs, etc.) | **2,000** |
-| **6. Risks/Limitations** | Criticisms, challenges, what can go wrong | **3,000** |
-| **7. Comparisons** | How this relates to alternatives | **2,000** |
-| **8. Current State & Future** | Today's situation, trends, predictions | **2,500** |
-| **9. Recommendations** | Actionable next steps | **1,500** |
+| **1. Definition & Context** | What it is, DEEP history, disambiguation | **3,000** |
+| **2. Structure/Framework** | How it's organized, key components | **3,000** |
+| **3. Core Concepts** | Main ideas, principles, building blocks | **3,000** |
+| **4. Practical Applications** | Real-world uses, examples, case studies | **3,000** |
+| **5. Risks/Limitations** | Criticisms, challenges, what can go wrong | **4,000** |
+| **6. Comparisons** | How this relates to alternatives | **3,000** |
+| **7. Current State & Future** | Today's situation, trends, predictions | **3,000** |
+| **8. Recommendations** | Actionable next steps | **2,000** |
 | **Sources** | **MANDATORY** - Full bibliography with numbered links | **50+ items** |
 
-> **TOTAL MINIMUM: 20,000+ characters** (sections alone sum to ~20k)
+> **TOTAL MINIMUM: 30,000+ characters** (sections alone sum to ~25k, you must expand)
 
 ---
 
@@ -306,7 +324,7 @@ Every Deep Research report MUST include:
 | **Evidence** | General claims, feature lists | JSON schemas, raw data, primary sources, exact dates |
 | **Critical Analysis** | "Pros & Cons list" | "Attack Scenarios", "Counter-arguments", "Failure Modes" |
 | **Examples** | Snippets or anecdotes | Full code, complete case studies, primary documents |
-| **Length** | < 10k chars | **> 20k chars (Mandatory)** |
+| **Length** | < 10k chars | **> 30k chars (Mandatory)** |
 
 ## 💡 THINKING PATTERNS TO EMULATE
 
@@ -373,6 +391,28 @@ else { Write-Host "✅ PHASE 8 COMPLETE: $($delivered.Count) files delivered." }
 ```
 
 **FAILURE MODE:** If you skip this step, the user will find the report in the wrong location and the research is considered **INCOMPLETE**.
+
+**PHASE 8.5: NAMING VERIFICATION (MANDATORY)**
+> HTML and PDF filenames MUST match exactly (except extension).
+
+```powershell
+# PHASE 8.5: NAMING VERIFICATION — MANDATORY
+$destDir = "D:\TechAI\Research Results"
+$htmlFiles = Get-ChildItem -Path $destDir -Filter "*.html" | Where-Object { $_.LastWriteTime -gt (Get-Date).AddMinutes(-10) }
+$pdfFiles = Get-ChildItem -Path $destDir -Filter "*.pdf" | Where-Object { $_.LastWriteTime -gt (Get-Date).AddMinutes(-10) }
+
+foreach ($html in $htmlFiles) {
+    $expectedPdf = $html.BaseName + ".pdf"
+    $matchingPdf = $pdfFiles | Where-Object { $_.Name -eq $expectedPdf }
+    if (-not $matchingPdf) {
+        Write-Error "NAMING MISMATCH: HTML '$($html.Name)' has no matching PDF. Expected '$expectedPdf'."
+    } else {
+        Write-Host "✅ NAMING VERIFIED: $($html.BaseName).html + .pdf"
+    }
+}
+```
+
+**If mismatch detected:** Rename the files to match BEFORE marking complete.
 
 ---
 

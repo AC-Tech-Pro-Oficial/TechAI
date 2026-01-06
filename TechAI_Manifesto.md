@@ -47,7 +47,7 @@ Agents must identify themselves and their peers by these personas:
 
 ## 3. Directory Structure & Resources ("Hub & Spoke")
 *   **Hub**: `D:\TechAI` (This repository). Source of Truth.
-*   **Spokes**: All other projects (e.g., `D:\TechAir`, `D:\MUI`). They **MUST** inherit this Manifesto.
+*   **Spokes**: All other projects (e.g., `D:\TechAir`, `D:\MUI`, `D:\Cognicir Language School\Educacional`). They **MUST** inherit this Manifesto.
 
 ### 3.1 Media Resources (Centralized)
 *   **Images**: `D:\Images\{ProjectName}`
@@ -67,7 +67,7 @@ Agents must identify themselves and their peers by these personas:
 
 | Scope | Path | Description |
 |-------|------|-------------|
-| **IDE Global** | `C:\Users\MBCJ\.gemini\antigravity\global_workflows\` | Source of truth for all global `/commands` |
+| **IDE Global** | `%USERPROFILE%\.gemini\antigravity\global_workflows\` | Source of truth for all global `/commands` |
 | **Project Override** | `{project}\.agent\workflows\` | Project-specific overrides (e.g., Language School) |
 
 *   **Rule**: Always edit in IDE global path. `/sync` will backup to TechAI repo.
@@ -79,7 +79,7 @@ Agents must identify themselves and their peers by these personas:
 > 
 > **THE ONLY MCP CONFIG FILE:**
 > ```
-> C:\Users\MBCJ\.gemini\antigravity\mcp_config.json
+> %USERPROFILE%\.gemini\antigravity\mcp_config.json
 > ```
 > 
 > **RULES:**
@@ -129,12 +129,12 @@ Agents must identify themselves and their peers by these personas:
 
 | Scope | Source of Truth | Purpose |
 |-------|-----------------|---------|
-| **IDE Global** | `C:\Users\MBCJ\.gemini\antigravity\global_workflows\` | ALL workflow edits go here |
+| **IDE Global** | `%USERPROFILE%\.gemini\antigravity\global_workflows\` | ALL workflow edits go here |
 | **TechAI Backup** | `D:\TechAI\.agent\workflows\` | Git backup only (copied from global) |
 | **Project Override** | `{project}\.agent\workflows\` | Project-specific overrides |
 
 > [!IMPORTANT]
-> **Always edit `C:\Users\MBCJ\.gemini\antigravity\global_workflows\` first.**
+> **Always edit `%USERPROFILE%\.gemini\antigravity\global_workflows\` first.**
 > The `/sync` workflow copies TO `D:\TechAI\.agent\workflows\`, never the other way.
 
 ---

@@ -1,0 +1,16 @@
+<contexto>:
+Eu gostaria de montar um software que automatiza o processo de jogos online, mais especificamente aqueles jogado via browser e com movimentação financeira e aposta. A automação deverá incluindo cadastro, implementação de chave pix, gerenciamento dos dados do jogador, acesso e efetuação dos movimentos de jogo..................
+</contexto>
+
+========================================
+
+<regras>:
+- Você deve implementar uma interface bonita e moderna, porém funcional e leve
+- Você não deve...
+</regras>
+
+=========================================
+
+<exemplos>:
+Se um jogador clicar em "saque rápido", o software deve iniciar seu processo de saque imediatamente, fazendo X e Y...................
+</exemplos>
