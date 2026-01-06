@@ -13,7 +13,7 @@ import { showTimedInfoMessage } from '../utils/notifications';
 
 const LOG_CAT = 'UpdateChecker';
 const GITHUB_OWNER = 'AC-Tech-Pro-Oficial';
-const GITHUB_REPO = 'techai-Antigravity';
+const GITHUB_REPO = 'TechAI';
 const REMIND_LATER_KEY = 'techai.remindLaterTimestamp';
 const REMIND_LATER_DAYS = 7;
 
@@ -33,7 +33,7 @@ export class UpdateChecker {
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
         // Get current version from package.json
-        const ext = vscode.extensions.getExtension('ac-tech-pro.techai-antigravity');
+        const ext = vscode.extensions.getExtension('ac-tech-pro.techai-ide');
         this.currentVersion = ext?.packageJSON?.version || '0.0.0';
         logger.info(LOG_CAT, `Current version: ${this.currentVersion}`);
     }

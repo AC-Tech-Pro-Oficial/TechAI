@@ -118,7 +118,8 @@
     }
   },
   "scripts": {
-    "package": "node -e \"const fs = require('fs'); fs.rmSync('export', { recursive: true, force: true });\" && npm run compile && npx vsce package",
+    "sync-workflows": "powershell -Command \"Copy-Item -Path \\\"$env:USERPROFILE\\.gemini\\antigravity\\global_workflows\\*.md\\\" -Destination 'resources\\bundled_workflows\\' -Force -Recurse\"",
+    "package": "npm run sync-workflows && node -e \"const fs = require('fs'); fs.rmSync('export', { recursive: true, force: true });\" && npm run compile && npx vsce package",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts"
