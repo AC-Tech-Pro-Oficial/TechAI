@@ -1,5 +1,5 @@
 /**
- * TechQuotas Antigravity - Type Definitions
+ * TechAI Antigravity - Type Definitions
  * Advanced quota monitoring for Antigravity IDE by AC Tech
  */
 

@@ -8,6 +8,7 @@
     "declaration": true,
     "sourceMap": true,
     "outDir": "./export",
+    "rootDir": "./src",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "experimentalDecorators": true,
@@ -16,5 +17,14 @@
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "strictNullChecks": true
-  }
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "export",
+    "mcp-proxy",
+    "docs"
+  ]
 }

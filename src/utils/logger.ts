@@ -10,11 +10,11 @@ export enum LogLevel {
 class Logger {
 	private output_channel: vscode.OutputChannel | null = null;
 	private log_level: LogLevel = LogLevel.DEBUG;
-	private prefix = '[AGQ]';
+	private prefix = '[TechAI]';
 
 	init(context?: vscode.ExtensionContext) {
 		if (!this.output_channel) {
-			this.output_channel = vscode.window.createOutputChannel('Antigravity Quota');
+			this.output_channel = vscode.window.createOutputChannel('TechAI');
 			if (context) {
 				context.subscriptions.push(this.output_channel);
 			}

@@ -1,5 +1,5 @@
 /**
- * TechQuotas Antigravity - Update Checker
+ * TechAI Antigravity - Update Checker
  * Checks GitHub Releases for updates and installs new versions
  */
 
@@ -9,11 +9,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { logger } from '../utils/logger';
+import { showTimedInfoMessage } from '../utils/notifications';
 
 const LOG_CAT = 'UpdateChecker';
-const GITHUB_OWNER = 'ACTechPRO';
-const GITHUB_REPO = 'TechQuotas-Antigravity';
-const REMIND_LATER_KEY = 'techquotas.remindLaterTimestamp';
+const GITHUB_OWNER = 'AC-Tech-Pro-Oficial';
+const GITHUB_REPO = 'techai-Antigravity';
+const REMIND_LATER_KEY = 'techai.remindLaterTimestamp';
 const REMIND_LATER_DAYS = 7;
 
 interface GitHubRelease {
@@ -32,7 +33,7 @@ export class UpdateChecker {
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
         // Get current version from package.json
-        const ext = vscode.extensions.getExtension('ac-tech-pro.techquotas-antigravity');
+        const ext = vscode.extensions.getExtension('ac-tech-pro.techai-antigravity');
         this.currentVersion = ext?.packageJSON?.version || '0.0.0';
         logger.info(LOG_CAT, `Current version: ${this.currentVersion}`);
     }
@@ -48,7 +49,7 @@ export class UpdateChecker {
         }
 
         // Check if auto-update is enabled
-        const autoUpdate = vscode.workspace.getConfiguration('techquotas').get<boolean>('autoUpdate', false);
+        const autoUpdate = vscode.workspace.getConfiguration('techai').get<boolean>('autoUpdate', false);
 
         try {
             const latestRelease = await this.fetchLatestRelease();
@@ -110,7 +111,7 @@ export class UpdateChecker {
 
             const req = https.get(url, {
                 headers: {
-                    'User-Agent': 'TechQuotas-Antigravity-Extension',
+                    'User-Agent': 'TechAI-Antigravity-Extension',
                     'Accept': 'application/vnd.github.v3+json'
                 },
                 timeout: 10000 // 10s timeout
@@ -171,7 +172,7 @@ export class UpdateChecker {
         const remindLater = 'Remind Me in 7 Days';
 
         const choice = await vscode.window.showInformationMessage(
-            `TechQuotas v${version} is available. You are using v${this.currentVersion}.`,
+            `techai v${version} is available. You are using v${this.currentVersion}.`,
             updateNow,
             enableAutoUpdate,
             remindLater
@@ -182,13 +183,13 @@ export class UpdateChecker {
                 await this.downloadAndInstall(downloadUrl, version);
                 break;
             case enableAutoUpdate:
-                await vscode.workspace.getConfiguration('techquotas').update('autoUpdate', true, vscode.ConfigurationTarget.Global);
-                vscode.window.showInformationMessage('Auto-Update enabled for TechQuotas.');
+                await vscode.workspace.getConfiguration('techai').update('autoUpdate', true, vscode.ConfigurationTarget.Global);
+                showTimedInfoMessage('Auto-Update enabled for techai.');
                 await this.downloadAndInstall(downloadUrl, version);
                 break;
             case remindLater:
                 this.setRemindLater();
-                vscode.window.showInformationMessage('You will be reminded in 7 days.');
+                showTimedInfoMessage('You will be reminded in 7 days.');
                 break;
         }
     }
@@ -196,15 +197,17 @@ export class UpdateChecker {
     private async downloadAndInstall(downloadUrl: string, version: string): Promise<void> {
         const progressOptions: vscode.ProgressOptions = {
             location: vscode.ProgressLocation.Notification,
-            title: `Updating TechQuotas to v${version}`,
+            title: `Updating techai to v${version}`,
             cancellable: false
         };
+
+        let success = false;
 
         await vscode.window.withProgress(progressOptions, async (progress) => {
             progress.report({ message: 'Downloading...' });
 
             const tempDir = os.tmpdir();
-            const vsixPath = path.join(tempDir, `techquotas-${version}.vsix`);
+            const vsixPath = path.join(tempDir, `techai-${version}.vsix`);
 
             try {
                 // Ensure we delete any existing temp file first
@@ -225,38 +228,42 @@ export class UpdateChecker {
                     fs.unlinkSync(vsixPath);
                 }
 
-                const reload = await vscode.window.showInformationMessage(
-                    `TechQuotas v${version} installed. Reload to activate.`,
-                    'Reload Now'
-                );
-
-                if (reload === 'Reload Now') {
-                    vscode.commands.executeCommand('workbench.action.reloadWindow');
-                }
+                success = true;
             } catch (e: any) {
                 logger.error(LOG_CAT, `Install failed: ${e.message}`);
                 vscode.window.showErrorMessage(`Failed to install update: ${e.message}`);
-                
+
                 // Cleanup on error
                 if (fs.existsSync(vsixPath)) {
                     fs.unlinkSync(vsixPath);
                 }
             }
         });
+
+        if (success) {
+            const reload = await vscode.window.showInformationMessage(
+                `techai v${version} installed. Reload to activate.`,
+                'Reload Now'
+            );
+
+            if (reload === 'Reload Now') {
+                vscode.commands.executeCommand('workbench.action.reloadWindow');
+            }
+        }
     }
 
     private downloadFile(url: string, destPath: string): Promise<void> {
         return new Promise((resolve, reject) => {
             const file = fs.createWriteStream(destPath);
-            
+
             file.on('error', (err) => {
-                fs.unlink(destPath, () => {}); // Async unlink, don't wait
+                fs.unlink(destPath, () => { }); // Async unlink, don't wait
                 reject(err);
             });
 
             const request = (urlToFetch: string) => {
                 const req = https.get(urlToFetch, {
-                    headers: { 'User-Agent': 'TechQuotas-Antigravity-Extension' },
+                    headers: { 'User-Agent': 'TechAI-Antigravity-Extension' },
                     timeout: 15000 // 15s timeout for download
                 }, (res) => {
                     // Handle redirects (GitHub uses them for downloads)
@@ -270,42 +277,42 @@ export class UpdateChecker {
 
                     if (res.statusCode !== 200) {
                         file.close();
-                        fs.unlink(destPath, () => {});
+                        fs.unlink(destPath, () => { });
                         reject(new Error(`Download failed with status ${res.statusCode}`));
                         return;
                     }
 
                     const contentLength = parseInt(res.headers['content-length'] || '0', 10);
-                    
+
                     res.pipe(file);
-                    
+
                     file.on('finish', () => {
                         file.close();
-                        
+
                         // Verify size if Content-Length was provided
                         if (contentLength > 0) {
                             const stats = fs.statSync(destPath);
                             if (stats.size !== contentLength) {
-                                fs.unlink(destPath, () => {});
+                                fs.unlink(destPath, () => { });
                                 reject(new Error(`Download incomplete: expected ${contentLength} bytes, got ${stats.size}`));
                                 return;
                             }
                         }
-                        
+
                         resolve();
                     });
                 });
 
                 req.on('error', (e) => {
                     file.close();
-                    fs.unlink(destPath, () => {});
+                    fs.unlink(destPath, () => { });
                     reject(e);
                 });
 
                 req.on('timeout', () => {
                     req.destroy();
                     file.close();
-                    fs.unlink(destPath, () => {});
+                    fs.unlink(destPath, () => { });
                     reject(new Error('Download timed out'));
                 });
             };
@@ -314,3 +321,4 @@ export class UpdateChecker {
         });
     }
 }
+

@@ -1,5 +1,5 @@
 /**
- * TechQuotas Antigravity - MCP Type Definitions
+ * TechAI Antigravity - MCP Type Definitions
  * Types for Model Context Protocol integration
  */
 

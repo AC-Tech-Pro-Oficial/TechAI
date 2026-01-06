@@ -1,8 +1,8 @@
 {
-  "name": "techquotas-antigravity",
-  "displayName": "TechQuotas Antigravity",
-  "description": "Advanced quota monitoring with visual gauges for Antigravity IDE by AC Tech",
-  "version": "1.8.0",
+  "name": "techai-ide",
+  "displayName": "TechAI",
+  "description": "Advanced AI quota monitoring, MCP server management, and developer tools for Antigravity IDE by AC Tech",
+  "version": "2.0.14",
   "publisher": "ac-tech-pro",
   "icon": "assets/logo.png",
   "engines": {
@@ -18,68 +18,59 @@
   "contributes": {
     "commands": [
       {
-        "command": "techquotas.refresh",
-        "title": "TechQuotas: Refresh Now"
+        "command": "techai.refresh",
+        "title": "TechAI: Refresh Now"
       },
       {
-        "command": "techquotas.reconnect",
-        "title": "TechQuotas: Reconnect"
+        "command": "techai.reconnect",
+        "title": "TechAI: Reconnect"
       },
       {
-        "command": "techquotas.show_logs",
-        "title": "TechQuotas: Show Debug Log"
+        "command": "techai.show_logs",
+        "title": "TechAI: Show Debug Log"
       },
       {
-        "command": "techquotas.openDashboard",
-        "title": "TechQuotas: Open Dashboard"
+        "command": "techai.openDashboard",
+        "title": "TechAI: Open Dashboard"
       },
       {
-        "command": "techquotas.openMCPPanel",
-        "title": "TechQuotas: Open MCP Panel"
+        "command": "techai.openMCPPanel",
+        "title": "TechAI: Open MCP Panel"
       },
       {
-        "command": "techquotas.toggleMCPServer",
-        "title": "Toggle MCP Server"
+        "command": "techai.checkForUpdates",
+        "title": "TechAI: Check for Updates"
       },
       {
-        "command": "techquotas.refreshMCP",
-        "title": "Refresh MCP Servers",
-        "icon": "$(refresh)"
+        "command": "techai.applyBestPicks",
+        "title": "TechAI: Apply Best Pick MCP Servers"
       },
       {
-        "command": "techquotas.checkForUpdates",
-        "title": "TechQuotas: Check for Updates"
+        "command": "techai.installBestPicks",
+        "title": "TechAI: Install Best Picks Only"
       },
       {
-        "command": "techquotas.applyBestPicks",
-        "title": "TechQuotas: Apply Best Pick MCP Servers"
-      },
-      {
-        "command": "techquotas.installBestPicks",
-        "title": "TechQuotas: Install Best Picks Only"
-      },
-      {
-        "command": "techquotas.resetBestPicksSettings",
-        "title": "TechQuotas: Reset Best Picks Settings"
+        "command": "techai.resetBestPicksSettings",
+        "title": "TechAI: Reset Best Picks Settings"
       }
     ],
     "configuration": {
-      "title": "TechQuotas Antigravity",
+      "title": "TechAI",
       "properties": {
-        "techquotas.enabled": {
+        "techai.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Enable auto monitoring",
           "order": 1
         },
-        "techquotas.pollingInterval": {
+        "techai.pollingInterval": {
           "type": "number",
           "default": 120,
           "minimum": 30,
           "description": "Polling interval in seconds (minimum: 30s, recommended: 120s+)",
           "order": 2
         },
-        "techquotas.pinnedModels": {
+        "techai.pinnedModels": {
           "type": "array",
           "default": [],
           "items": {
@@ -88,19 +79,19 @@
           "description": "Model IDs to display in the status bar. If empty, shows summary.",
           "order": 3
         },
-        "techquotas.showPromptCredits": {
+        "techai.showPromptCredits": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Show prompt credits in the status bar.",
           "order": 4
         },
-        "techquotas.showGauges": {
+        "techai.showGauges": {
           "type": "boolean",
           "default": true,
           "description": "Show visual gauge icons for each model.",
           "order": 5
         },
-        "techquotas.groupOrder": {
+        "techai.groupOrder": {
           "type": "array",
           "default": [],
           "items": {
@@ -109,55 +100,25 @@
           "description": "Order of groups in status bar. Available: anthropic, gemini_pro, gemini_flash, gpt_oss",
           "order": 6
         },
-        "techquotas.autoUpdate": {
+        "techai.autoUpdate": {
           "type": "boolean",
           "default": false,
           "description": "Automatically download and install updates from GitHub Releases.",
           "order": 7
+        },
+        "techai.notificationTimeout": {
+          "type": "number",
+          "default": 3,
+          "minimum": 0,
+          "maximum": 30,
+          "description": "Time in seconds before success notifications auto-dismiss. Set to 0 to keep notifications until manually dismissed.",
+          "order": 8
         }
       }
-    },
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "techquotas",
-          "title": "TechQuotas",
-          "icon": "assets/mcp-icon.svg"
-        }
-      ]
-    },
-    "views": {
-      "techquotas": [
-        {
-          "id": "techquotasMCP",
-          "name": "MCP Servers"
-        }
-      ]
-    },
-    "menus": {
-      "view/title": [
-        {
-          "command": "techquotas.refreshMCP",
-          "when": "view == techquotasMCP",
-          "group": "navigation"
-        },
-        {
-          "command": "techquotas.openMCPPanel",
-          "when": "view == techquotasMCP",
-          "group": "navigation"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "techquotas.toggleMCPServer",
-          "when": "view == techquotasMCP",
-          "group": "inline"
-        }
-      ]
     }
   },
   "scripts": {
-    "node:vsix:package": "npm run compile && npx vsce package",
+    "package": "node -e \"const fs = require('fs'); fs.rmSync('export', { recursive: true, force: true });\" && npm run compile && npx vsce package",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts"
@@ -174,15 +135,16 @@
   "dependencies": {},
   "repository": {
     "type": "git",
-    "url": "https://github.com/ACTechPRO/TechQuotas-Antigravity.git"
+    "url": "https://github.com/AC-Tech-Pro-Oficial/TechAI.git"
   },
   "keywords": [
     "antigravity",
-    "quota",
     "ai",
-    "techquotas",
+    "techai",
+    "mcp",
+    "quota",
     "ac-tech"
   ],
-  "author": "AC Tech (Original: Henrik Mertens)",
+  "author": "AC Tech",
   "license": "MIT"
 }

@@ -1,5 +1,5 @@
 /**
- * TechQuotas Antigravity - MCP Panel
+ * TechAI Antigravity - MCP Panel
  * Webview-based UI for managing MCP servers and marketplace
  */
 
@@ -9,10 +9,11 @@ import { MCPRegistry } from '../core/mcp_registry';
 import { logger } from '../utils/logger';
 import { MCPServersCollection, RegistryData, RegistryItem } from '../utils/mcp_types';
 import { MCPRecommender } from '../core/recommender';
+import { showTimedInfoMessage } from '../utils/notifications';
 
 export class MCPPanel {
 	public static currentPanel: MCPPanel | undefined;
-	public static readonly viewType = 'techquotasMCP';
+	public static readonly viewType = 'techaiMCP';
 
 	private readonly _panel: vscode.WebviewPanel;
 	private readonly _extensionUri: vscode.Uri;
@@ -32,7 +33,8 @@ export class MCPPanel {
 		extensionUri: vscode.Uri,
 		mcpManager: MCPManager,
 		mcpRegistry: MCPRegistry,
-		context: vscode.ExtensionContext
+		context: vscode.ExtensionContext,
+		initialTab?: string
 	) {
 		const column = vscode.window.activeTextEditor
 			? vscode.window.activeTextEditor.viewColumn
@@ -41,6 +43,9 @@ export class MCPPanel {
 		// If we already have a panel, show it.
 		if (MCPPanel.currentPanel) {
 			MCPPanel.currentPanel._panel.reveal(column);
+			if (initialTab) {
+				MCPPanel.currentPanel.switchToTab(initialTab);
+			}
 			return;
 		}
 
@@ -57,6 +62,21 @@ export class MCPPanel {
 		);
 
 		MCPPanel.currentPanel = new MCPPanel(panel, extensionUri, mcpManager, mcpRegistry, context);
+
+		// Switch to the requested tab after creation
+		if (initialTab) {
+			// Delay slightly to allow webview to initialize
+			setTimeout(() => {
+				MCPPanel.currentPanel?.switchToTab(initialTab);
+			}, 100);
+		}
+	}
+
+	/**
+	 * Switch to a specific tab in the panel
+	 */
+	public switchToTab(tabId: string) {
+		this._panel.webview.postMessage({ command: 'switchTab', tabId });
 	}
 
 	private constructor(
@@ -74,7 +94,9 @@ export class MCPPanel {
 		this._recommender = new MCPRecommender();
 
 		// Set the webview's initial html content
-		this._panel.webview.html = this._getHtmlForWebview();
+		const scriptUri = this._panel.webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'main.js'));
+		logger.info('MCPPanel', `Webview Script URI: ${scriptUri.toString()}`);
+		this._panel.webview.html = this._getHtmlForWebview(scriptUri);
 
 		// Listen for config changes
 		this._mcpManager.on_config_change(async (event) => {
@@ -94,7 +116,7 @@ export class MCPPanel {
 						break;
 					case 'toggleServer':
 						await this._mcpManager.toggle_server(message.id, message.enabled);
-						vscode.window.showInformationMessage(`MCP Server ${message.id} ${message.enabled ? 'enabled' : 'disabled'}`);
+						showTimedInfoMessage(`MCP Server ${message.id} ${message.enabled ? 'enabled' : 'disabled'}`);
 						break;
 					case 'installServer':
 						await this._installServer(message.repoUrl, message.name);
@@ -114,23 +136,103 @@ export class MCPPanel {
 						);
 						if (confirm === 'Uninstall') {
 							await this._mcpManager.remove_server(message.id);
-							vscode.window.showInformationMessage(`MCP Server "${message.id}" has been uninstalled.`);
+							showTimedInfoMessage(`MCP Server "${message.id}" has been uninstalled.`);
 							await this._refreshData();
 						}
 						break;
 					case 'installBestPicks':
-						await vscode.commands.executeCommand('techquotas.installBestPicks');
+						await vscode.commands.executeCommand('techai.installBestPicks');
 						break;
 					case 'toggleAutoApply':
 						await this._context.globalState.update('mcp.autoApplyBestPicks', message.value);
-						await this._updateWebviewState();
+						// If enabled, immediately apply Best Picks via command
+						if (message.value) {
+							logger.info('MCPPanel', 'Auto-Apply enabled - triggering Best Picks application');
+							await vscode.commands.executeCommand('techai.applyBestPicks');
+						}
+						// Refresh data to reflect new server states (not just updateWebviewState which uses stale data)
+						await this._refreshData();
 						break;
 					case 'updateSetting':
 						await this._context.globalState.update(message.key, message.value);
 						logger.info('MCPPanel', `Setting updated: ${message.key} = ${message.value}`);
+						await this._updateWebviewState(); // Sync all tabs
+						break;
+					case 'updateConfig':
+						// Update VS Code workspace configuration
+						const [section, setting] = message.key.split('.');
+						await vscode.workspace.getConfiguration(section).update(setting, message.value, vscode.ConfigurationTarget.Global);
+						logger.info('MCPPanel', `Config updated: ${message.key} = ${message.value}`);
 						break;
 					case 'showLogs':
 						vscode.commands.executeCommand('workbench.action.output.toggleOutput');
+						break;
+					// ========== CONTEXT INJECTION HANDLERS ==========
+					case 'updateContextSetting':
+						const currentCtx = this._context.globalState.get<any>('context.injection', {});
+						currentCtx[message.key] = message.value;
+						await this._context.globalState.update('context.injection', currentCtx);
+						logger.info('MCPPanel', `Context setting updated: ${message.key} = ${message.value}`);
+						break;
+					case 'addCustomContextFile':
+						const ctxSettings = this._context.globalState.get<any>('context.injection', {});
+						const files = ctxSettings.customFiles || [];
+						if (!files.includes(message.filePath)) {
+							files.push(message.filePath);
+							ctxSettings.customFiles = files;
+							await this._context.globalState.update('context.injection', ctxSettings);
+							await this._updateWebviewState();
+						}
+						break;
+					case 'removeCustomContextFile':
+						const ctxSet = this._context.globalState.get<any>('context.injection', {});
+						ctxSet.customFiles = (ctxSet.customFiles || []).filter((f: string) => f !== message.filePath);
+						await this._context.globalState.update('context.injection', ctxSet);
+						await this._updateWebviewState();
+						break;
+					// ========== CREDENTIALS HANDLERS ==========
+					case 'saveCredential':
+						await this._context.secrets.store(`mcp.credential.${message.serverId}`, message.value);
+						logger.info('MCPPanel', `Credential saved for: ${message.serverId}`);
+						showTimedInfoMessage(`${message.serverId} credential saved securely.`);
+						break;
+					case 'deleteCredential':
+						await this._context.secrets.delete(`mcp.credential.${message.serverId}`);
+						logger.info('MCPPanel', `Credential deleted for: ${message.serverId}`);
+						break;
+					// ========== LLM PROVIDERS HANDLERS ==========
+					case 'toggleLLMProvider':
+						const llmProviders = this._context.globalState.get<any[]>('llm.providers', []);
+						const providerIdx = llmProviders.findIndex(p => p.id === message.providerId);
+						if (providerIdx >= 0) {
+							llmProviders[providerIdx].enabled = message.enabled;
+						} else {
+							llmProviders.push({ id: message.providerId, enabled: message.enabled });
+						}
+						await this._context.globalState.update('llm.providers', llmProviders);
+						logger.info('MCPPanel', `LLM provider ${message.providerId} ${message.enabled ? 'enabled' : 'disabled'}`);
+						break;
+					case 'saveLLMKey':
+						await this._context.secrets.store(`llm.apikey.${message.providerId}`, message.apiKey);
+						logger.info('MCPPanel', `API key saved for LLM provider: ${message.providerId}`);
+						showTimedInfoMessage(`${message.providerId} API key saved securely.`);
+						break;
+					case 'updateLLMProvider':
+						const providers = this._context.globalState.get<any[]>('llm.providers', []);
+						const idx = providers.findIndex(p => p.id === message.providerId);
+						if (idx >= 0) {
+							if (message.model) providers[idx].model = message.model;
+							if (message.endpoint) providers[idx].endpoint = message.endpoint;
+						} else {
+							providers.push({
+								id: message.providerId,
+								model: message.model,
+								endpoint: message.endpoint,
+								enabled: false
+							});
+						}
+						await this._context.globalState.update('llm.providers', providers);
+						logger.info('MCPPanel', `LLM provider ${message.providerId} updated`);
 						break;
 				}
 			},
@@ -143,35 +245,90 @@ export class MCPPanel {
 	}
 
 	private async _refreshData() {
-		// Load configured servers
-		this._currentServers = await this._mcpManager.get_servers();
+		try {
+			// Load configured servers
+			logger.info('MCPPanel', 'Loading MCP servers...');
+			this._currentServers = await this._mcpManager.get_servers();
+			logger.info('MCPPanel', `Loaded ${Object.keys(this._currentServers).length} servers`);
 
-		// Load Registry data
-		this._panel.webview.postMessage({ command: 'setLoading', value: true });
-		this._registryData = await this._mcpRegistry.get_registry_data();
-		if (this._registryData) {
-			this._recommendedItems = await this._recommender.getRecommendations(this._registryData);
+			// Load Registry data
+			this._panel.webview.postMessage({ command: 'setLoading', value: true });
+			logger.info('MCPPanel', 'Fetching registry data...');
+			this._registryData = await this._mcpRegistry.get_registry_data();
+			logger.info('MCPPanel', `Registry loaded: ${this._registryData ? Object.keys(this._registryData).length : 0} entries`);
+
+			if (this._registryData) {
+				this._recommendedItems = await this._recommender.getRecommendations(this._registryData);
+				logger.info('MCPPanel', `Recommendations: ${this._recommendedItems?.length || 0}`);
+			}
+			this._panel.webview.postMessage({ command: 'setLoading', value: false });
+
+			await this._updateWebviewState();
+		} catch (e: any) {
+			logger.error('MCPPanel', `_refreshData failed: ${e.message}`);
 		}
-		this._panel.webview.postMessage({ command: 'setLoading', value: false });
-
-		await this._updateWebviewState();
 	}
 
 	private async _updateWebviewState() {
-		await this._panel.webview.postMessage({
-			command: 'updateData',
-			servers: this._currentServers,
-			registry: this._registryData,
-			recommended: this._recommendedItems,
-			autoApplyEnabled: this._context.globalState.get('mcp.autoApplyBestPicks', false),
-			settings: {
-				autoApplyEnabled: this._context.globalState.get('mcp.autoApplyBestPicks', false),
-				maxContextTokens: this._context.globalState.get('mcp.maxContextTokens', 50000),
-				showBadges: this._context.globalState.get('mcp.showBadges', true),
-				debugEnabled: this._context.globalState.get('mcp.debugLogging', false),
-				configPath: this._mcpManager.get_config_path()
+		try {
+			const vscodeConfig = vscode.workspace.getConfiguration('techai');
+
+			// Get context injection settings
+			const contextSettings = this._context.globalState.get<any>('context.injection', {
+				includeReadme: true,
+				includeManifest: true,
+				includeGitignore: true,
+				includeSystemContext: true,
+				cacheTtlSeconds: 30,
+				customFiles: []
+			});
+
+			// Get LLM providers with API key status
+			let llmProviders = this._context.globalState.get<any[]>('llm.providers', []);
+			if (!Array.isArray(llmProviders)) {
+				logger.warn('MCPPanel', 'llm.providers in globalState is not an array, resetting to []');
+				llmProviders = [];
 			}
-		});
+
+			const llmProvidersWithStatus = await Promise.all(
+				['openai', 'anthropic', 'groq', 'openrouter', 'ollama', 'together'].map(async (id) => {
+					const config = llmProviders.find(p => p.id === id) || { id, enabled: false };
+					const hasApiKey = !!(await this._context.secrets.get(`llm.apikey.${id}`));
+					return { ...config, hasApiKey };
+				})
+			);
+
+			// Get credentials status
+			const credentials = await Promise.all(
+				['github', 'supabase', 'stripe', 'firebase'].map(async (id) => ({
+					id,
+					hasCredential: !!(await this._context.secrets.get(`mcp.credential.${id}`))
+				}))
+			);
+
+			await this._panel.webview.postMessage({
+				command: 'updateData',
+				servers: this._currentServers || {},
+				registry: this._registryData || [],
+				recommended: this._recommendedItems || [],
+				autoApplyEnabled: this._context.globalState.get('mcp.autoApplyBestPicks', false),
+				settings: {
+					autoApplyEnabled: this._context.globalState.get('mcp.autoApplyBestPicks', false),
+					maxContextTokens: this._context.globalState.get('mcp.maxContextTokens', 50000),
+					showBadges: this._context.globalState.get('mcp.showBadges', true),
+					debugEnabled: this._context.globalState.get('mcp.debugLogging', false),
+					configPath: this._mcpManager.get_config_path(),
+					// VS Code config settings
+					showGauges: vscodeConfig.get<boolean>('showGauges', true),
+					showPromptCredits: vscodeConfig.get<boolean>('showPromptCredits', true)
+				},
+				contextSettings: contextSettings,
+				llmProviders: llmProvidersWithStatus,
+				credentials: credentials
+			});
+		} catch (error) {
+			logger.error('MCPPanel', `Error updating webview state: ${error instanceof Error ? error.message : String(error)}`);
+		}
 	}
 
 	private async _installServer(repoUrl: string, name: string) {
@@ -196,7 +353,7 @@ export class MCPPanel {
 			const success = await this._mcpManager.install_server(id, config);
 
 			if (success) {
-				vscode.window.showInformationMessage(`Installed ${name}. Please edit config to add required ENV variables.`);
+				showTimedInfoMessage(`Installed ${name}. Please edit config to add required ENV variables.`);
 				// Open config for user to edit env vars
 				const doc = await vscode.workspace.openTextDocument(this._mcpManager.get_config_path());
 				await vscode.window.showTextDocument(doc);
@@ -223,11 +380,12 @@ export class MCPPanel {
 		}
 	}
 
-	private _getHtmlForWebview() {
+	private _getHtmlForWebview(scriptUri: vscode.Uri) {
 		return `<!DOCTYPE html>
 		<html lang="en">
 		<head>
 			<meta charset="UTF-8">
+			<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline' https: vscode-resource:; img-src https: data: vscode-resource:; font-src 'none';">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<title>MCP Integration</title>
 			<style>
@@ -533,23 +691,6 @@ export class MCPPanel {
 					background: var(--accent-color);
 				}
 
-				.toggle-switch::after {
-					content: '';
-					position: absolute;
-					top: 2px;
-					left: 2px;
-					width: 20px;
-					height: 20px;
-					background: white;
-					border-radius: 50%;
-					transition: all 0.3s;
-					box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-				}
-
-				.toggle-switch.enabled::after {
-					left: 22px;
-				}
-
 				/* Checkbox-based toggle (for Auto-Apply) */
 				.toggle-switch input[type="checkbox"] {
 					opacity: 0;
@@ -780,9 +921,12 @@ export class MCPPanel {
 		</head>
 		<body>
 			<div class="tabs">
-				<div class="tab active" id="tab-installed" onclick="switchTab('installed')">Installed</div>
-				<div class="tab" id="tab-recommended" onclick="switchTab('recommended')">Recommended</div>
-				<div class="tab" id="tab-marketplace" onclick="switchTab('marketplace')">Marketplace</div>
+				<div class="tab active" id="tab-installed" onclick="switchTab('installed')">📦 Installed</div>
+				<div class="tab" id="tab-recommended" onclick="switchTab('recommended')">✨ Recommended</div>
+				<div class="tab" id="tab-marketplace" onclick="switchTab('marketplace')">🛍️ Marketplace</div>
+				<div class="tab" id="tab-context" onclick="switchTab('context')">🧠 Context</div>
+				<div class="tab" id="tab-credentials" onclick="switchTab('credentials')">🔑 Credentials</div>
+				<div class="tab" id="tab-llm" onclick="switchTab('llm')">🤖 LLM Providers</div>
 				<div class="tab" id="tab-settings" onclick="switchTab('settings')">⚙ Settings</div>
 			</div>
 
@@ -832,9 +976,86 @@ export class MCPPanel {
 					<h2>Extension Settings</h2>
 				</div>
 				<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
-					<!-- Auto-Apply Section -->
+					<!-- Monitoring Section -->
 					<div class="settings-section">
-						<h3 class="section-title" style="margin-top: 0;">🚀 Automation</h3>
+						<h3 class="section-title" style="margin-top: 0;">📊 Monitoring</h3>
+						<div class="settings-row">
+							<div class="settings-label">
+								<strong>Enable Auto Monitoring</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 5px 0 0;">
+									Automatically track AI quota usage in the background.
+								</p>
+							</div>
+							<div class="server-toggle">
+								<label class="toggle-switch">
+									<input type="checkbox" id="setting-enabled" checked onchange="updateSetting('enabled', this.checked)">
+									<span class="slider"></span>
+								</label>
+							</div>
+						</div>
+						<div class="settings-row">
+							<div class="settings-label">
+								<strong>Polling Interval (seconds)</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 5px 0 0;">
+									How often to refresh quota data. Minimum: 30s, Recommended: 120s+
+								</p>
+							</div>
+							<input type="number" id="setting-polling" value="120" min="30" 
+								style="width: 80px; padding: 8px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 6px; color: var(--text-primary);"
+								onchange="updateSetting('pollingInterval', parseInt(this.value))">
+						</div>
+						<div class="settings-row">
+							<div class="settings-label">
+								<strong>Auto Update</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 5px 0 0;">
+									Automatically download and install updates from GitHub Releases.
+								</p>
+							</div>
+							<div class="server-toggle">
+								<label class="toggle-switch">
+									<input type="checkbox" id="setting-auto-update" onchange="updateSetting('autoUpdate', this.checked)">
+									<span class="slider"></span>
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<!-- Status Bar Section -->
+					<div class="settings-section">
+						<h3 class="section-title">📍 Status Bar</h3>
+						<div class="settings-row">
+							<div class="settings-label">
+								<strong>Show Visual Gauges</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 5px 0 0;">
+									Display gauge icons for each model in the status bar.
+								</p>
+							</div>
+							<div class="server-toggle">
+								<label class="toggle-switch">
+									<input type="checkbox" id="setting-show-gauges" checked onchange="updateSetting('showGauges', this.checked)">
+									<span class="slider"></span>
+								</label>
+							</div>
+						</div>
+						<div class="settings-row">
+							<div class="settings-label">
+								<strong>Show Prompt Credits</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 5px 0 0;">
+									Display prompt credits in the status bar.
+								</p>
+							</div>
+							<div class="server-toggle">
+								<label class="toggle-switch">
+									<input type="checkbox" id="setting-show-prompt-credits" onchange="updateSetting('showPromptCredits', this.checked)">
+									<span class="slider"></span>
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<!-- MCP Automation Section -->
+					<div class="settings-section">
+						<h3 class="section-title">🚀 MCP Automation</h3>
 						<div class="settings-row">
 							<div class="settings-label">
 								<strong>Auto-Apply Best Picks on Startup</strong>
@@ -933,8 +1154,384 @@ export class MCPPanel {
 					<!-- About Section -->
 					<div class="settings-section" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--card-border);">
 						<div style="text-align: center; color: var(--text-secondary);">
-							<p style="margin: 0; font-size: 1.1em; font-weight: 600; color: var(--text-primary);">TechQuotas Antigravity</p>
+							<p style="margin: 0; font-size: 1.1em; font-weight: 600; color: var(--text-primary);">TechAI</p>
 							<p style="margin: 5px 0 0; font-size: 0.9em;">v<span id="version-display">1.7.2</span> by AC Tech</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- CONTEXT INJECTION TAB -->
+			<div id="context" class="content hidden">
+				<div class="header-bar">
+					<h2>🧠 Agent Context Injection</h2>
+				</div>
+				<p style="color: var(--text-secondary); margin-bottom: 20px;">
+					Configure what context is automatically injected into AI agent conversations. This helps agents understand your project better.
+				</p>
+				
+				<div class="settings-section">
+					<h3 class="section-title">📄 Automatic Context Sources</h3>
+					<div class="settings-row">
+						<div class="settings-label">
+							<strong>Include README</strong>
+							<p style="color: var(--text-secondary); font-size: 0.85em; margin: 5px 0 0;">
+								Automatically inject README.md content to help agents understand the project.
+							</p>
+						</div>
+						<div class="server-toggle">
+							<label class="toggle-switch">
+								<input type="checkbox" id="ctx-readme" checked onchange="updateContextSetting('includeReadme', this.checked)">
+								<span class="slider"></span>
+							</label>
+						</div>
+					</div>
+					<div class="settings-row">
+						<div class="settings-label">
+							<strong>Include Manifest</strong>
+							<p style="color: var(--text-secondary); font-size: 0.85em; margin: 5px 0 0;">
+								Include package.json, pubspec.yaml, or pyproject.toml for dependency awareness.
+							</p>
+						</div>
+						<div class="server-toggle">
+							<label class="toggle-switch">
+								<input type="checkbox" id="ctx-manifest" checked onchange="updateContextSetting('includeManifest', this.checked)">
+								<span class="slider"></span>
+							</label>
+						</div>
+					</div>
+					<div class="settings-row">
+						<div class="settings-label">
+							<strong>Include .gitignore</strong>
+							<p style="color: var(--text-secondary); font-size: 0.85em; margin: 5px 0 0;">
+								Help agents avoid suggesting ignored files or patterns.
+							</p>
+						</div>
+						<div class="server-toggle">
+							<label class="toggle-switch">
+								<input type="checkbox" id="ctx-gitignore" checked onchange="updateContextSetting('includeGitignore', this.checked)">
+								<span class="slider"></span>
+							</label>
+						</div>
+					</div>
+					<div class="settings-row">
+						<div class="settings-label">
+							<strong>Include System Context (Date/Time)</strong>
+							<p style="color: var(--text-secondary); font-size: 0.85em; margin: 5px 0 0;">
+								<span style="color: #ffa500;">⚠️ CRITICAL:</span> Ensures agents know the current date and timezone.
+							</p>
+						</div>
+						<div class="server-toggle">
+							<label class="toggle-switch">
+								<input type="checkbox" id="ctx-system" checked onchange="updateContextSetting('includeSystemContext', this.checked)">
+								<span class="slider"></span>
+							</label>
+						</div>
+					</div>
+				</div>
+
+				<div class="settings-section">
+					<h3 class="section-title">⏱️ Cache Settings</h3>
+					<div class="settings-row" style="flex-direction: column; align-items: flex-start;">
+						<div class="settings-label" style="margin-bottom: 15px;">
+							<strong>Context Cache TTL (seconds)</strong>
+							<p style="color: var(--text-secondary); font-size: 0.85em; margin: 5px 0 0;">
+								How long to cache workspace analysis before refreshing.
+							</p>
+						</div>
+						<div style="width: 100%; display: flex; align-items: center; gap: 15px;">
+							<input type="range" id="ctx-cache-ttl" min="10" max="300" step="10" value="30" 
+								style="flex: 1; accent-color: var(--accent-color);"
+								oninput="document.getElementById('cache-ttl-display').textContent = this.value + 's'; updateContextSetting('cacheTtlSeconds', parseInt(this.value));">
+							<span id="cache-ttl-display" style="min-width: 50px; text-align: right; font-weight: bold; color: var(--accent-color);">30s</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="settings-section">
+					<h3 class="section-title">📁 Custom Context Files</h3>
+					<p style="color: var(--text-secondary); font-size: 0.9em; margin-bottom: 15px;">
+						Add custom files that should always be included in agent context (relative to workspace root).
+					</p>
+					<div id="custom-files-list" style="margin-bottom: 15px;">
+						<!-- Custom files will be rendered here -->
+					</div>
+					<div style="display: flex; gap: 10px;">
+						<input type="text" id="new-custom-file" placeholder="e.g., docs/ARCHITECTURE.md" 
+							style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--card-bg); color: var(--text-primary);">
+						<button class="btn secondary" onclick="addCustomFile()" style="width: auto;">+ Add</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- CREDENTIALS TAB -->
+			<div id="credentials" class="content hidden">
+				<div class="header-bar">
+					<h2>🔑 MCP Server Credentials</h2>
+				</div>
+				<p style="color: var(--text-secondary); margin-bottom: 20px;">
+					Securely store API keys and tokens for MCP servers that require authentication. Keys are encrypted using VS Code's secure storage.
+				</p>
+
+				<div id="credentials-list" class="grid">
+					<!-- Credentials will be rendered here -->
+					<div class="card" style="padding: 20px;">
+						<div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+							<span style="font-size: 24px;">📦</span>
+							<div>
+								<strong>GitHub</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 2px 0 0;">GITHUB_TOKEN for repository access</p>
+							</div>
+							<span id="cred-github-status" class="status-badge" style="margin-left: auto; padding: 4px 10px; border-radius: 12px; font-size: 0.75em; background: var(--card-bg);">Not Set</span>
+						</div>
+						<div style="display: flex; gap: 10px;">
+							<input type="password" id="cred-github" placeholder="ghp_xxxxxxxxxxxx" 
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+							<button class="btn secondary" onclick="saveCredential('github')" style="width: auto;">Save</button>
+							<button class="btn" onclick="deleteCredential('github')" style="width: auto; background: transparent; color: #ff6b6b;">✕</button>
+						</div>
+					</div>
+
+					<div class="card" style="padding: 20px;">
+						<div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+							<span style="font-size: 24px;">🗄️</span>
+							<div>
+								<strong>Supabase</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 2px 0 0;">Supabase service role key</p>
+							</div>
+							<span id="cred-supabase-status" class="status-badge" style="margin-left: auto; padding: 4px 10px; border-radius: 12px; font-size: 0.75em; background: var(--card-bg);">Not Set</span>
+						</div>
+						<div style="display: flex; gap: 10px;">
+							<input type="password" id="cred-supabase" placeholder="eyJxxxxxxxxxxxx" 
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+							<button class="btn secondary" onclick="saveCredential('supabase')" style="width: auto;">Save</button>
+							<button class="btn" onclick="deleteCredential('supabase')" style="width: auto; background: transparent; color: #ff6b6b;">✕</button>
+						</div>
+					</div>
+
+					<div class="card" style="padding: 20px;">
+						<div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+							<span style="font-size: 24px;">💳</span>
+							<div>
+								<strong>Stripe</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 2px 0 0;">Stripe API key (use restricted key)</p>
+							</div>
+							<span id="cred-stripe-status" class="status-badge" style="margin-left: auto; padding: 4px 10px; border-radius: 12px; font-size: 0.75em; background: var(--card-bg);">Not Set</span>
+						</div>
+						<div style="display: flex; gap: 10px;">
+							<input type="password" id="cred-stripe" placeholder="sk_xxxxxxxxxxxx" 
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+							<button class="btn secondary" onclick="saveCredential('stripe')" style="width: auto;">Save</button>
+							<button class="btn" onclick="deleteCredential('stripe')" style="width: auto; background: transparent; color: #ff6b6b;">✕</button>
+						</div>
+					</div>
+
+					<div class="card" style="padding: 20px;">
+						<div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+							<span style="font-size: 24px;">🔥</span>
+							<div>
+								<strong>Firebase</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 2px 0 0;">Firebase service account JSON</p>
+							</div>
+							<span id="cred-firebase-status" class="status-badge" style="margin-left: auto; padding: 4px 10px; border-radius: 12px; font-size: 0.75em; background: var(--card-bg);">Not Set</span>
+						</div>
+						<div style="display: flex; gap: 10px;">
+							<input type="password" id="cred-firebase" placeholder="Path to service-account.json" 
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+							<button class="btn secondary" onclick="saveCredential('firebase')" style="width: auto;">Save</button>
+							<button class="btn" onclick="deleteCredential('firebase')" style="width: auto; background: transparent; color: #ff6b6b;">✕</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- LLM PROVIDERS TAB -->
+			<div id="llm" class="content hidden">
+				<div class="header-bar">
+					<h2>🤖 External LLM Providers</h2>
+				</div>
+				<p style="color: var(--text-secondary); margin-bottom: 10px;">
+					Configure external LLM providers that can be used as sub-agents or tools. Enable providers and add your API keys.
+				</p>
+				<div style="background: rgba(255, 165, 0, 0.1); border: 1px solid rgba(255, 165, 0, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px;">
+					<strong style="color: #ffa500;">💡 How It Works:</strong>
+					<span style="color: var(--text-secondary);"> The main agent (Gemini/Claude) can call these providers as MCP tools for specialized tasks. Double tokens may apply when using sub-agents.</span>
+				</div>
+
+				<div id="llm-providers-list" class="grid">
+					<!-- OpenAI -->
+					<div class="card" style="padding: 20px;">
+						<div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+							<span style="font-size: 28px;">🤖</span>
+							<div style="flex: 1;">
+								<strong>OpenAI</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 2px 0 0;">GPT-4o, GPT-4 Turbo, GPT-3.5</p>
+							</div>
+							<div class="server-toggle">
+								<label class="toggle-switch">
+									<input type="checkbox" id="llm-openai-enabled" onchange="toggleLLMProvider('openai', this.checked)">
+									<span class="slider"></span>
+								</label>
+							</div>
+						</div>
+						<div style="display: flex; gap: 10px; margin-bottom: 10px;">
+							<input type="password" id="llm-openai-key" placeholder="sk-xxxxxxxxxxxxxxxx" 
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+							<button class="btn secondary" onclick="saveLLMKey('openai')" style="width: auto;">Save</button>
+						</div>
+						<div style="display: flex; gap: 10px;">
+							<select id="llm-openai-model" onchange="updateLLMModel('openai', this.value)"
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+								<option value="gpt-4o">GPT-4o (Recommended)</option>
+								<option value="gpt-4o-mini">GPT-4o Mini (Faster)</option>
+								<option value="gpt-4-turbo">GPT-4 Turbo</option>
+								<option value="o1">O1 (Reasoning)</option>
+								<option value="o1-mini">O1 Mini</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- Anthropic -->
+					<div class="card" style="padding: 20px;">
+						<div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+							<span style="font-size: 28px;">🧠</span>
+							<div style="flex: 1;">
+								<strong>Anthropic (Claude)</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 2px 0 0;">Claude 3.5 Sonnet, Claude 3 Opus</p>
+							</div>
+							<div class="server-toggle">
+								<label class="toggle-switch">
+									<input type="checkbox" id="llm-anthropic-enabled" onchange="toggleLLMProvider('anthropic', this.checked)">
+									<span class="slider"></span>
+								</label>
+							</div>
+						</div>
+						<div style="display: flex; gap: 10px; margin-bottom: 10px;">
+							<input type="password" id="llm-anthropic-key" placeholder="sk-ant-xxxxxxxxxxxxxxxx" 
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+							<button class="btn secondary" onclick="saveLLMKey('anthropic')" style="width: auto;">Save</button>
+						</div>
+						<div style="display: flex; gap: 10px;">
+							<select id="llm-anthropic-model" onchange="updateLLMModel('anthropic', this.value)"
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+								<option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (Recommended)</option>
+								<option value="claude-3-opus-20240229">Claude 3 Opus (Most Capable)</option>
+								<option value="claude-3-haiku-20240307">Claude 3 Haiku (Fastest)</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- Groq -->
+					<div class="card" style="padding: 20px;">
+						<div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+							<span style="font-size: 28px;">⚡</span>
+							<div style="flex: 1;">
+								<strong>Groq</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 2px 0 0;">Llama 3.3 70B, Mixtral (Ultra Fast)</p>
+							</div>
+							<div class="server-toggle">
+								<label class="toggle-switch">
+									<input type="checkbox" id="llm-groq-enabled" onchange="toggleLLMProvider('groq', this.checked)">
+									<span class="slider"></span>
+								</label>
+							</div>
+						</div>
+						<div style="display: flex; gap: 10px; margin-bottom: 10px;">
+							<input type="password" id="llm-groq-key" placeholder="gsk_xxxxxxxxxxxxxxxx" 
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+							<button class="btn secondary" onclick="saveLLMKey('groq')" style="width: auto;">Save</button>
+						</div>
+						<div style="display: flex; gap: 10px;">
+							<select id="llm-groq-model" onchange="updateLLMModel('groq', this.value)"
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+								<option value="llama-3.3-70b-versatile">Llama 3.3 70B (Recommended)</option>
+								<option value="llama-3.1-8b-instant">Llama 3.1 8B (Fastest)</option>
+								<option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- OpenRouter -->
+					<div class="card" style="padding: 20px;">
+						<div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+							<span style="font-size: 28px;">🌐</span>
+							<div style="flex: 1;">
+								<strong>OpenRouter</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 2px 0 0;">Access 100+ models via single API</p>
+							</div>
+							<div class="server-toggle">
+								<label class="toggle-switch">
+									<input type="checkbox" id="llm-openrouter-enabled" onchange="toggleLLMProvider('openrouter', this.checked)">
+									<span class="slider"></span>
+								</label>
+							</div>
+						</div>
+						<div style="display: flex; gap: 10px; margin-bottom: 10px;">
+							<input type="password" id="llm-openrouter-key" placeholder="sk-or-xxxxxxxxxxxxxxxx" 
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+							<button class="btn secondary" onclick="saveLLMKey('openrouter')" style="width: auto;">Save</button>
+						</div>
+						<div style="display: flex; gap: 10px;">
+							<input type="text" id="llm-openrouter-model" placeholder="anthropic/claude-3.5-sonnet" 
+								onchange="updateLLMModel('openrouter', this.value)"
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+						</div>
+					</div>
+
+					<!-- Ollama -->
+					<div class="card" style="padding: 20px;">
+						<div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+							<span style="font-size: 28px;">🏠</span>
+							<div style="flex: 1;">
+								<strong>Ollama (Local)</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 2px 0 0;">Run models locally (free, private)</p>
+							</div>
+							<div class="server-toggle">
+								<label class="toggle-switch">
+									<input type="checkbox" id="llm-ollama-enabled" onchange="toggleLLMProvider('ollama', this.checked)">
+									<span class="slider"></span>
+								</label>
+							</div>
+						</div>
+						<div style="display: flex; gap: 10px; margin-bottom: 10px;">
+							<input type="text" id="llm-ollama-endpoint" placeholder="http://localhost:11434" value="http://localhost:11434"
+								onchange="updateLLMEndpoint('ollama', this.value)"
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+						</div>
+						<div style="display: flex; gap: 10px;">
+							<input type="text" id="llm-ollama-model" placeholder="llama3.2" value="llama3.2"
+								onchange="updateLLMModel('ollama', this.value)"
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+						</div>
+					</div>
+
+					<!-- Together AI -->
+					<div class="card" style="padding: 20px;">
+						<div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+							<span style="font-size: 28px;">🔗</span>
+							<div style="flex: 1;">
+								<strong>Together AI</strong>
+								<p style="color: var(--text-secondary); font-size: 0.85em; margin: 2px 0 0;">Llama 3.3, Qwen 2.5, DeepSeek</p>
+							</div>
+							<div class="server-toggle">
+								<label class="toggle-switch">
+									<input type="checkbox" id="llm-together-enabled" onchange="toggleLLMProvider('together', this.checked)">
+									<span class="slider"></span>
+								</label>
+							</div>
+						</div>
+						<div style="display: flex; gap: 10px; margin-bottom: 10px;">
+							<input type="password" id="llm-together-key" placeholder="xxxxxxxxxxxxxxxx" 
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+							<button class="btn secondary" onclick="saveLLMKey('together')" style="width: auto;">Save</button>
+						</div>
+						<div style="display: flex; gap: 10px;">
+							<select id="llm-together-model" onchange="updateLLMModel('together', this.value)"
+								style="flex: 1; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--input-bg); color: var(--text-primary);">
+								<option value="meta-llama/Llama-3.3-70B-Instruct-Turbo">Llama 3.3 70B Turbo</option>
+								<option value="Qwen/Qwen2.5-72B-Instruct-Turbo">Qwen 2.5 72B Turbo</option>
+								<option value="deepseek-ai/DeepSeek-V3">DeepSeek V3</option>
+							</select>
 						</div>
 					</div>
 				</div>
@@ -945,483 +1542,8 @@ export class MCPPanel {
 				<div class="loading-text">PROCESSING</div>
 			</div>
 
-			<script>
-				const vscode = acquireVsCodeApi();
-				let registryData = [];
-				let serversData = {};
-				let recommendedData = [];
-				let activeTags = [];
-				let showOnlyBestPicks = false;
-				let autoApplyEnabled = false;
-				let maxContextTokens = 50000;
-				let showBadges = true;
-				let debugEnabled = false;
-				let configPath = '';
-
-				function toggleAutoApply() {
-					autoApplyEnabled = !autoApplyEnabled;
-					sendMessage('toggleAutoApply', { value: autoApplyEnabled });
-				}
-
-				function updateSetting(key, value) {
-					switch(key) {
-						case 'autoApply':
-							autoApplyEnabled = value;
-							sendMessage('updateSetting', { key: 'mcp.autoApplyBestPicks', value });
-							break;
-						case 'maxTokens':
-							maxContextTokens = value;
-							sendMessage('updateSetting', { key: 'mcp.maxContextTokens', value });
-							break;
-						case 'showBadges':
-							showBadges = value;
-							sendMessage('updateSetting', { key: 'mcp.showBadges', value });
-							break;
-						case 'debug':
-							debugEnabled = value;
-							sendMessage('updateSetting', { key: 'mcp.debugLogging', value });
-							break;
-					}
-				}
-
-				function syncSettingsUI(settings) {
-					// Sync toggles
-					if (settings.autoApplyEnabled !== undefined) {
-						autoApplyEnabled = settings.autoApplyEnabled;
-						const el = document.getElementById('setting-auto-apply');
-						if (el) el.checked = autoApplyEnabled;
-					}
-					if (settings.maxContextTokens !== undefined) {
-						maxContextTokens = settings.maxContextTokens;
-						const slider = document.getElementById('setting-max-tokens');
-						const display = document.getElementById('token-display');
-						if (slider) slider.value = maxContextTokens;
-						if (display) display.textContent = (maxContextTokens/1000) + 'K';
-					}
-					if (settings.showBadges !== undefined) {
-						showBadges = settings.showBadges;
-						const el = document.getElementById('setting-show-badges');
-						if (el) el.checked = showBadges;
-					}
-					if (settings.debugEnabled !== undefined) {
-						debugEnabled = settings.debugEnabled;
-						const el = document.getElementById('setting-debug');
-						if (el) el.checked = debugEnabled;
-					}
-					if (settings.configPath !== undefined) {
-						configPath = settings.configPath;
-						const el = document.getElementById('config-path');
-						if (el) el.textContent = configPath;
-					}
-				}
-
-				function uninstallServer(id) {
-					sendMessage('uninstallServer', { id });
-				}
-				function switchTab(tabId) {
-					document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-					document.querySelectorAll('.content').forEach(c => c.classList.add('hidden'));
-					
-					// Find tab by text content approach was brittle, use direct index or clearer selection
-					// Actually the onclick in HTML passes the ID, so let's match by that.
-					// We need to find the tab element that triggers this.
-					const buttons = document.querySelectorAll('.tab');
-					buttons.forEach(b => b.classList.remove('active'));
-					
-					const activeTab = document.getElementById('tab-' + tabId);
-					if (activeTab) activeTab.classList.add('active');
-
-					document.getElementById(tabId).classList.remove('hidden');
-				}
-
-				function sendMessage(command, payload = {}) {
-					vscode.postMessage({ command, ...payload });
-				}
-
-				let activeInstalledFilters = [];
-				let recommendedActiveTags = [];
-
-				function renderServers(servers) {
-					console.log('[MCP Debug] renderServers called, servers:', servers);
-					console.log('[MCP Debug] activeInstalledFilters:', activeInstalledFilters);
-					serversData = servers;
-					const container = document.getElementById('servers-list');
-					
-					// Apply filter if active
-					let displayServerIds = Object.keys(servers || {});
-					console.log('[MCP Debug] All server IDs:', displayServerIds);
-					if (activeInstalledFilters.length > 0) {
-						displayServerIds = displayServerIds.filter(id => {
-							const config = servers[id];
-							
-							// AND Logic: Server must match ALL active filters
-							const matches = activeInstalledFilters.every(filterTag => {
-								if (filterTag === 'Env Vars') {
-									return config.env && Object.keys(config.env).length > 0;
-								} else {
-									return config.command === filterTag;
-								}
-							});
-							
-							console.log('[MCP Debug] Checking:', id, 'filters:', activeInstalledFilters, 'matches:', matches);
-							return matches;
-						});
-						console.log('[MCP Debug] Filtered server IDs:', displayServerIds);
-					}
-
-					if (!servers || Object.keys(servers).length === 0) {
-						container.innerHTML = '<p style="color: var(--text-secondary); text-align: center; grid-column: 1/-1; padding: 40px;">No servers configured. Visit the Marketplace to install one.</p>';
-						return;
-					}
-
-					if (displayServerIds.length === 0) {
-						container.innerHTML = \`
-							<div style="grid-column: 1/-1; text-align: center; padding: 20px;">
-								<p style="color: var(--text-secondary);">No servers match filters "<strong>\${activeInstalledFilters.join(', ')}</strong>"</p>
-								<button class="btn secondary" style="width: auto; margin-top: 10px;" onclick="clearInstalledFilter()">Clear All</button>
-							</div>
-						\`;
-						return;
-					}
-
-					// Show Active Filter Indicator if needed
-					let filterHtml = '';
-					if (activeInstalledFilters.length > 0) {
-						filterHtml = \`
-							<div style="grid-column: 1/-1; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-								<span style="color: var(--text-secondary); font-size: 0.9em;">Active Filters:</span>
-								\${activeInstalledFilters.map(tag => \`
-									<span class="tag-chip">
-										\${tag}
-										<span class="tag-chip-remove" onclick="filterInstalledServers('\${tag === 'Env Vars' ? 'Env Vars' : JSON.stringify(tag).replace(/^"|"$/g, '')}')">×</span>
-									</span>
-								\`).join('')}
-								<span style="color: var(--accent-color); cursor: pointer; font-size: 0.8em; text-decoration: underline;" onclick="clearInstalledFilter()">Clear All</span>
-							</div>
-						\`;
-					}
-
-					const listHtml = displayServerIds.map(id => {
-						const config = servers[id];
-						const isEnabled = !config.disabled;
-						
-						// Highlight logic
-						const isCommandActive = activeInstalledFilters.includes(config.command);
-						const isEnvActive = activeInstalledFilters.includes('Env Vars');
-
-						return \`
-						<div class="card" style="\${!isEnabled ? 'opacity: 0.7;' : ''}">
-							<div class="card-header">
-								<span class="card-title">\${id}</span>
-								<label class="toggle-container">
-									<input type="checkbox" class="toggle-chk" 
-										\${isEnabled ? 'checked' : ''} 
-										onchange="toggleServer('\${id}', this.checked)">
-									<div class="toggle-track"></div>
-								</label>
-							</div>
-							<div class="card-meta">
-								<span class="tag click-tag \${isCommandActive ? 'active-tag-highlight' : ''}" onclick='filterInstalledServers(\${JSON.stringify(config.command)})' title="Filter by \${config.command}">\${config.command}</span>
-								\${config.env && Object.keys(config.env).length > 0 ? \`<span class="tag cloud click-tag \${isEnvActive ? 'active-tag-highlight' : ''}" onclick="filterInstalledServers('Env Vars')">Env Vars</span>\` : ''}
-							</div>
-							<div class="card-desc">
-								Running via \${config.command} with arguments: \${config.args.join(' ')}
-							</div>
-							<div class="actions">
-								<button class="btn secondary" onclick="sendMessage('editConfig')">Configure</button>
-								<button class="btn" style="background: #ef4444;" onclick="uninstallServer('\${id}')">Uninstall</button>
-							</div>
-						</div>
-					\`}).join('');
-
-					container.innerHTML = filterHtml + listHtml;
-				}
-
-				function filterInstalledServers(tag) {
-					console.log('[MCP Debug] filterInstalledServers toggle:', tag);
-					if (activeInstalledFilters.includes(tag)) {
-						activeInstalledFilters = activeInstalledFilters.filter(t => t !== tag);
-					} else {
-						activeInstalledFilters.push(tag);
-					}
-					renderServers(serversData);
-				}
-
-				function clearInstalledFilter() {
-					activeInstalledFilters = [];
-					renderServers(serversData);
-				}
-
-				function renderRecommended(items) {
-					recommendedData = items || [];
-					filterRecommended();
-				}
-
-				function filterRecommended() {
-					const container = document.getElementById('recommended-list');
-					
-					if (!recommendedData || recommendedData.length === 0) {
-						container.innerHTML = '<p style="text-align: center; grid-column: 1/-1; padding: 40px; color: var(--text-secondary);">No specific recommendations found for this workspace.</p>';
-						return;
-					}
-
-					// Filter by Best Picks first
-					let filteredItems = recommendedData;
-					if (showOnlyBestPicks) {
-						filteredItems = recommendedData.filter(item => item.isBestPick);
-					}
-
-					// Then filter by active tags
-					if (recommendedActiveTags.length > 0) {
-						filteredItems = filteredItems.filter(item => {
-							const itemTags = item.tags || [];
-							return recommendedActiveTags.every(tag => itemTags.includes(tag));
-						});
-					}
-
-					// Best Picks toggle button
-					const bestPicksBtnHtml = \`
-						<div style="grid-column: 1/-1; margin-bottom: 15px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-							<button class="btn \${showOnlyBestPicks ? '' : 'secondary'}" 
-								onclick="toggleBestPicks()" 
-								style="\${showOnlyBestPicks ? 'background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a1a1a;' : ''}">
-								★ Show Best Picks Only
-							</button>
-							<button class="btn" onclick="sendMessage('installBestPicks')" 
-								style="background-color: var(--success-color); color: white; display: flex; align-items: center; gap: 6px;">
-								<span>⬇</span> Install Best Picks
-							</button>
-							<div class="server-toggle">
-								<label class="toggle-switch">
-									<input type="checkbox" \${autoApplyEnabled ? 'checked' : ''} onchange="toggleAutoApply()">
-									<span class="slider"></span>
-								</label>
-								<span style="color: var(--text-secondary); font-size: 0.9em;">Auto-Apply on Startup</span>
-							</div>
-							<span style="color: var(--text-secondary); font-size: 0.85em; margin-left: auto;">
-								\${showOnlyBestPicks ? 'Showing curated recommendations' : 'Showing all recommendations'}
-							</span>
-						</div>
-					\`;
-
-					// Render active tags UI
-					let activeTagsHtml = '';
-					if (recommendedActiveTags.length > 0) {
-						activeTagsHtml = \`
-							<div style="grid-column: 1/-1; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-								\${recommendedActiveTags.map(tag => \`
-									<span class="tag-chip">
-										\${tag}
-										<span class="tag-chip-remove" onclick="filterRecommendedWithTag('\${tag}')">×</span>
-									</span>
-								\`).join('')}
-								<small style="color: var(--text-secondary); cursor: pointer; margin-left: 10px;" onclick="clearRecommendedTags()">Clear All</small>
-							</div>
-						\`;
-					}
-
-
-					if (filteredItems.length === 0) {
-						container.innerHTML = bestPicksBtnHtml + activeTagsHtml + '<p style="text-align: center; grid-column: 1/-1; padding: 40px; color: var(--text-secondary);">No recommendations match your filter.</p>';
-						return;
-					}
-
-					container.innerHTML = bestPicksBtnHtml + activeTagsHtml + filteredItems.map(item => \`
-						<div class="card">
-							<div class="card-header">
-								<span class="card-title" title="\${item.name}">\${item.name.split('/').pop()}</span>
-								<div style="display: flex; align-items: center; gap: 8px;">
-									\${item.isBestPick ? '<span class="best-pick-badge">Best Pick</span>' : ''}
-									<small style="color: var(--text-secondary); font-size: 0.8em">\${item.name.split('/')[0]}</small>
-								</div>
-							</div>
-							<div class="card-meta">
-								\${(item.tags || []).map(t => {
-									let cls = 'tag';
-									if(t === 'Cloud') cls += ' cloud';
-									if(t === 'Local') cls += ' local';
-									if(recommendedActiveTags.includes(t)) cls += ' active-tag-highlight';
-									return \`<span class="\${cls}" onclick="filterRecommendedWithTag('\${t}')">\${t}</span>\`;
-								}).join('')}
-							</div>
-							<div class="card-desc" title="\${item.description}">
-								\${item.description}
-							</div>
-							<div class="actions">
-								<button class="btn" onclick="installServer('\${item.url}', '\${item.name}')">Install</button>
-								<button class="btn secondary" onclick="sendMessage('openLink', {url: '\${item.url}'})">GitHub</button>
-							</div>
-						</div>
-					\`).join('');
-				}
-
-				function filterRecommendedWithTag(tag) {
-					if (recommendedActiveTags.includes(tag)) {
-						recommendedActiveTags = recommendedActiveTags.filter(t => t !== tag);
-					} else {
-						recommendedActiveTags.push(tag);
-					}
-					filterRecommended();
-				}
-
-				function clearRecommendedTags() {
-					recommendedActiveTags = [];
-					filterRecommended();
-				}
-
-				function toggleBestPicks() {
-					showOnlyBestPicks = !showOnlyBestPicks;
-					filterRecommended();
-				}
-
-				function renderRegistry(data) {
-					registryData = data || [];
-					filterMarketplace();
-				}
-
-				function filterMarketplace() {
-					const query = document.getElementById('search').value.toLowerCase();
-					const container = document.getElementById('registry-list');
-					
-					if (!registryData || registryData.length === 0) {
-						container.innerHTML = '<p style="text-align: center; padding: 40px; color: var(--text-secondary);">Loading registry data...</p>';
-						return;
-					}
-
-					let html = '';
-					let hasResults = false;
-
-					registryData.forEach(category => {
-						const items = category.items.filter(item => {
-							// 1. Check text search
-							const matchesText = item.name.toLowerCase().includes(query) || 
-											  item.description.toLowerCase().includes(query);
-							
-							// 2. Check active tags (must have ALL active tags)
-							const itemTags = item.tags || [];
-							const matchesTags = activeTags.every(tag => itemTags.includes(tag));
-
-							return matchesText && matchesTags;
-						});
-
-						if (items.length > 0) {
-							hasResults = true;
-							html += \`<div class="section-title">\${category.name}</div><div class="grid">\`;
-							html += items.map(item => \`
-								<div class="card">
-									<div class="card-header">
-										<span class="card-title" title="\${item.name}">\${item.name.split('/').pop()}</span>
-										<small style="color: var(--text-secondary); font-size: 0.8em">\${item.name.split('/')[0]}</small>
-									</div>
-									<div class="card-meta">
-										\${(item.tags || []).map(t => {
-											let cls = 'tag';
-											if(t === 'Cloud') cls += ' cloud';
-											if(t === 'Local') cls += ' local';
-											// Check if active to style differently if needed in future
-											const isActive = activeTags.includes(t);
-											if (isActive) cls += ' active-tag-highlight'; // Optional: add styles for this if desired
-											return \`<span class="\${cls}" onclick="filterWithTag('\${t}')">\${t}</span>\`;
-										}).join('')}
-									</div>
-									<div class="card-desc" title="\${item.description}">
-										\${item.description}
-									</div>
-									<div class="actions">
-										<button class="btn" onclick="installServer('\${item.url}', '\${item.name}')">Install</button>
-										<button class="btn secondary" onclick="sendMessage('openLink', {url: '\${item.url}'})">GitHub</button>
-									</div>
-								</div>
-							\`).join('');
-							html += \`</div>\`;
-						}
-					});
-
-					container.innerHTML = hasResults ? html : '<p style="text-align: center; padding: 40px; color: var(--text-secondary);">No servers found matching your criteria.</p>';
-				}
-
-				function renderActiveTags() {
-					const container = document.getElementById('active-tags');
-					if (activeTags.length === 0) {
-						container.innerHTML = '';
-						return;
-					}
-					
-					container.innerHTML = activeTags.map(tag => \`
-						<span class="tag-chip">
-							\${tag}
-							<span class="tag-chip-remove" onclick="filterWithTag('\${tag}')">×</span>
-						</span>
-					\`).join('') + (activeTags.length > 0 ? '<small style="color: var(--text-secondary); align-self: center; cursor: pointer; margin-left: 10px;" onclick="clearTags()">Clear All</small>' : '');
-				}
-
-				function clearTags() {
-					activeTags = [];
-					renderActiveTags();
-					filterMarketplace();
-				}
-
-				function filterWithTag(tag) {
-					// Switch to marketplace
-					switchTab('marketplace');
-					
-					// Toggle tag
-					if (activeTags.includes(tag)) {
-						activeTags = activeTags.filter(t => t !== tag);
-					} else {
-						activeTags.push(tag);
-					}
-					
-					renderActiveTags();
-					filterMarketplace();
-				}
-
-				function toggleServer(id, enabled) {
-					sendMessage('toggleServer', { id, enabled });
-				}
-
-				function installServer(repoUrl, name) {
-					sendMessage('installServer', { repoUrl, name });
-				}
-
-				function setLoading(isLoading) {
-					const loader = document.getElementById('loading');
-					// Safely handle loader visibility
-					if (isLoading) {
-						loader.classList.remove('hidden');
-					} else {
-						loader.classList.add('hidden');
-					}
-				}
-
-				// Handle messages from the extension
-				window.addEventListener('message', event => {
-					const message = event.data;
-					switch (message.command) {
-						case 'updateData':
-							autoApplyEnabled = message.autoApplyEnabled;
-							renderServers(message.servers);
-							renderRegistry(message.registry);
-							renderRecommended(message.recommended);
-							// Sync settings if provided
-							if (message.settings) {
-								syncSettingsUI(message.settings);
-							}
-							setLoading(false);
-							break;
-						case 'syncSettings':
-							syncSettingsUI(message.settings);
-							break;
-						case 'setLoading':
-							setLoading(message.value);
-							break;
-						case 'setBusy':
-							setLoading(message.busy);
-							break;
-					}
-				});
-			</script>
+			<script src="${scriptUri}"></script>
 		</body>
-		</html>`;
+		</html>`.trim();
 	}
 }

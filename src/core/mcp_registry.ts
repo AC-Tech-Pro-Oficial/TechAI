@@ -1,12 +1,14 @@
 /**
- * TechQuotas Antigravity - MCP Registry
+ * TechAI Antigravity - MCP Registry
  * Fetches and parses the MCP Marketplace from punkpeye/awesome-mcp-servers
+ * Also merges curated local servers for expanded marketplace
  */
 
 import * as vscode from 'vscode';
 import * as https from 'https';
 import { logger } from '../utils/logger';
 import { RegistryData, RegistryCategory, RegistryItem } from '../utils/mcp_types';
+import { mergeCuratedServers } from '../data/curated_servers';
 
 const LOG_CAT = 'MCPRegistry';
 const REGISTRY_URL = 'https://raw.githubusercontent.com/punkpeye/awesome-mcp-servers/main/README.md';
@@ -18,6 +20,7 @@ export class MCPRegistry {
 
     /**
      * Fetch registry data (cached)
+     * Returns merged data from upstream + curated servers
      */
     public async get_registry_data(force_refresh: boolean = false): Promise<RegistryData> {
         if (!force_refresh && this.cache && (Date.now() - this.last_fetch_time < CACHE_DURATION_MS)) {
@@ -28,9 +31,11 @@ export class MCPRegistry {
         logger.info(LOG_CAT, 'Fetching registry data from GitHub...');
         try {
             const content = await this.fetch_url(REGISTRY_URL);
-            this.cache = this.parse_markdown(content);
+            const upstream = this.parse_markdown(content);
+            // Merge curated servers with upstream (curated takes precedence)
+            this.cache = mergeCuratedServers(upstream);
             this.last_fetch_time = Date.now();
-            logger.info(LOG_CAT, `Parsed ${this.count_items(this.cache)} servers from registry`);
+            logger.info(LOG_CAT, `Parsed ${this.count_items(this.cache)} servers from registry (includes curated)`);
             return this.cache;
         } catch (e: any) {
             logger.error(LOG_CAT, `Failed to fetch registry: ${e.message}`);

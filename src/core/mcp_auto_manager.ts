@@ -1,5 +1,5 @@
 /**
- * TechQuotas Antigravity - MCP Auto Manager
+ * TechAI Antigravity - MCP Auto Manager
  * Automatically applies Best Pick MCP servers per workspace
  */
 
@@ -8,6 +8,7 @@ import { logger } from '../utils/logger';
 import { MCPManager } from './mcp_manager';
 import { MCPRecommender } from './recommender';
 import { MCPRegistry } from './mcp_registry';
+import { showTimedInfoMessage } from '../utils/notifications';
 
 const LOG_CAT = 'MCPAutoManager';
 
@@ -105,13 +106,13 @@ export class MCPAutoManager {
         switch (choice) {
             case applyBtn:
                 await this.applyBestPicks();
-                vscode.window.showInformationMessage(`Best Picks applied for ${workspaceName}`);
+                vscode.window.setStatusBarMessage(`$(check) Best Picks applied for ${workspaceName}`, 5000);
                 break;
 
             case alwaysBtn:
                 await this.context.globalState.update(SETTING_AUTO_APPLY, true);
                 await this.applyBestPicks();
-                vscode.window.showInformationMessage('Best Picks applied. Auto-apply enabled for all workspaces.');
+                vscode.window.setStatusBarMessage('$(check) Best Picks applied. Auto-apply enabled.', 5000);
                 break;
 
             case dismissBtn:
@@ -131,8 +132,22 @@ export class MCPAutoManager {
         const bestPickIds = await this.getBestPickServerIds(true);
 
         if (bestPickIds.length === 0) {
-            logger.warn(LOG_CAT, 'No Best Picks to apply');
-            vscode.window.showWarningMessage('No Best Picks found for this workspace.');
+            logger.info(LOG_CAT, 'No Best Picks found. Auto-Apply enabled -> Disabling ALL servers.');
+
+            const result = await this.mcpManager.applyServerSet([]);
+
+            if (result.disabled > 0) {
+                vscode.window.setStatusBarMessage('$(info) No Best Picks. All MCP servers disabled.', 5000);
+                // Prompt to reload
+                const reloadBtn = 'Reload Window';
+                const choice = await vscode.window.showInformationMessage(
+                    'All MCP servers disabled. Reload window to ensure clean state?',
+                    reloadBtn
+                );
+                if (choice === reloadBtn) {
+                    vscode.commands.executeCommand('workbench.action.reloadWindow');
+                }
+            }
             return;
         }
 
@@ -140,66 +155,76 @@ export class MCPAutoManager {
         const installedIds = await this.mcpManager.getInstalledServerIds();
         const installedSet = new Set(installedIds.map(id => id.toLowerCase()));
 
-        // Find which Best Picks are installed
+        // Find which Best Picks are installed (and thus should be enabled)
         const bestPicksToEnable = bestPickIds.filter(id => installedSet.has(id.toLowerCase()));
         const missingBestPicks = bestPickIds.filter(id => !installedSet.has(id.toLowerCase()));
 
         logger.info(LOG_CAT, `Best Picks to enable: ${bestPicksToEnable.join(', ')}`);
         logger.info(LOG_CAT, `Missing Best Picks: ${missingBestPicks.join(', ')}`);
 
-        // If no Best Picks are installed, try to auto-install them
-        if (bestPicksToEnable.length === 0) {
-            vscode.window.showInformationMessage(`Auto-installing missing Best Picks: ${missingBestPicks.join(', ')}...`);
-
-            let installedCount = 0;
-            for (const id of missingBestPicks) {
-                const success = await this.autoInstallServer(id);
-                if (success) {
-                    bestPicksToEnable.push(id);
-                    installedCount++;
+        // Handle missing items notification
+        if (bestPicksToEnable.length === 0 && missingBestPicks.length > 0) {
+            vscode.window.showInformationMessage(
+                `Best Picks recommended: ${missingBestPicks.join(', ')}. Use 'Install Best Picks' command to install them.`,
+                'Install Now'
+            ).then(selection => {
+                if (selection === 'Install Now') {
+                    vscode.commands.executeCommand('techai.installBestPicks');
                 }
-            }
-
-            if (installedCount === 0) {
-                vscode.window.showWarningMessage(
-                    `Could not auto-install: ${missingBestPicks.join(', ')}. ` +
-                    'Please install them manually from the MCP Marketplace.'
-                );
-                return;
-            }
+            });
+            return;
         } else if (missingBestPicks.length > 0) {
-            // Try to install the remaining missing ones too
-            vscode.window.showInformationMessage(`Auto-installing missing keys: ${missingBestPicks.join(', ')}...`);
-            for (const id of missingBestPicks) {
-                const success = await this.autoInstallServer(id);
-                if (success) {
-                    bestPicksToEnable.push(id);
+            vscode.window.showInformationMessage(
+                `Applying ${bestPicksToEnable.length} available Best Picks. Missing: ${missingBestPicks.join(', ')}.`,
+                'Install Missing'
+            ).then(selection => {
+                if (selection === 'Install Missing') {
+                    vscode.commands.executeCommand('techai.installBestPicks');
                 }
+            });
+        }
+
+        // CRITICAL CHECK: Before applying, check if we actually NEED to change anything.
+        // applyServerSet returns 'changed' if it rewrites the config, but we want to avoid prompts if no logical change occurred.
+        const servers = await this.mcpManager.get_servers();
+        const enableSet = new Set(bestPicksToEnable.map(id => id.toLowerCase()));
+
+        let needsEnable = false;
+        let needsDisable = false;
+
+        for (const [key, config] of Object.entries(servers)) {
+            const isCurrentlyDisabled = key.startsWith('_disabled_');
+            const realId = isCurrentlyDisabled ? key.replace('_disabled_', '') : key;
+            const shouldBeEnabled = enableSet.has(realId.toLowerCase());
+
+            if (shouldBeEnabled && isCurrentlyDisabled) {
+                needsEnable = true;
+            } else if (!shouldBeEnabled && !isCurrentlyDisabled) {
+                needsDisable = true;
             }
         }
+
+        if (!needsEnable && !needsDisable) {
+            logger.info(LOG_CAT, 'Best Picks state already matches config (Deep Check). No changes applied.');
+            return;
+        }
+
+
 
         // Apply: enable Best Picks that are installed, disable others
         const result = await this.mcpManager.applyServerSet(bestPicksToEnable);
         logger.info(LOG_CAT, `Applied: ${result.enabled} enabled, ${result.disabled} disabled`);
 
-        // Only prompt/notify if there were actual changes
+        // Notify user but DO NOT PROMPT TO RELOAD
+        // MCP Proxy hot-reloads config, so changes take effect immediately for new connections.
         if (result.enabled > 0 || result.disabled > 0) {
-            // Build result message
-            let message = `Applied Best Picks: ${bestPicksToEnable.join(', ')}`;
-            const stillMissing = missingBestPicks.filter(id => !bestPicksToEnable.includes(id));
-            if (stillMissing.length > 0) {
-                message += `\n\nFailed to install: ${stillMissing.join(', ')}`;
-            }
+            const msg = `TechAI: Applied Best Pick MCP servers (${bestPicksToEnable.length} enabled)`;
+            logger.info(LOG_CAT, msg);
+            vscode.window.setStatusBarMessage(`$(check) ${msg}`, 5000);
 
-            // Prompt to reload window
-            const reloadBtn = 'Reload Window';
-            const choice = await vscode.window.showInformationMessage(
-                message + '\n\nReload window to activate changes?',
-                reloadBtn
-            );
-
-            if (choice === reloadBtn) {
-                vscode.commands.executeCommand('workbench.action.reloadWindow');
+            // Optional: Info notification if it's a significant change, but keep it non-blocking
+            if (result.enabled > 0) {
+                showTimedInfoMessage(`TechAI: Best Pick MCP servers enabled and ready.`);
             }
         } else {
             logger.debug(LOG_CAT, 'Best Picks already active, no changes needed.');
@@ -216,7 +241,7 @@ export class MCPAutoManager {
         const bestPickIds = await this.getBestPickServerIds(true);
 
         if (bestPickIds.length === 0) {
-            vscode.window.showInformationMessage('No Best Picks found for this workspace.');
+            showTimedInfoMessage('No Best Picks found for this workspace.');
             return;
         }
 
@@ -237,14 +262,14 @@ export class MCPAutoManager {
         });
 
         if (missingBestPicks.length === 0 && disabledBestPicks.length === 0) {
-            vscode.window.showInformationMessage('All Best Picks are already installed and enabled.');
+            showTimedInfoMessage('All Best Picks are already installed and enabled.');
             return;
         }
 
         // Auto-install missing ones
         let installedCount = 0;
         if (missingBestPicks.length > 0) {
-            vscode.window.showInformationMessage(`Installing missing Best Picks: ${missingBestPicks.join(', ')}...`);
+            showTimedInfoMessage(`Installing missing Best Picks: ${missingBestPicks.join(', ')}...`);
             for (const id of missingBestPicks) {
                 const success = await this.autoInstallServer(id);
                 if (success) {
@@ -299,6 +324,8 @@ export class MCPAutoManager {
         'supabase',               // Supabase Official
         'stripe',                 // Stripe Official
         'twilio',                 // Twilio Official
+        'adhikasp',               // mcp-git-ingest maintainer (widely used)
+        'gannonh',                // Firebase MCP maintainer (widely trusted)
     ];
 
     /**
@@ -344,6 +371,17 @@ export class MCPAutoManager {
             'server-memory': {
                 type: 'npm',
                 package: '@modelcontextprotocol/server-memory',
+                trusted: true,
+            },
+            'server-github': {
+                type: 'npm',
+                package: '@modelcontextprotocol/server-github',
+                trusted: true,
+                requires: ['GITHUB_PERSONAL_ACCESS_TOKEN'],
+            },
+            'server-docker': {
+                type: 'npm',
+                package: '@modelcontextprotocol/server-docker',
                 trusted: true,
             },
             'server-puppeteer': {
@@ -397,11 +435,11 @@ export class MCPAutoManager {
                 trusted: true,
                 requires: ['VERCEL_API_TOKEN'],
             },
-            // === COMMUNITY: Require Warning ===
+            // === COMMUNITY: Widely Trusted ===
             'mcp-git-ingest': {
                 type: 'python',
                 package: 'mcp-git-ingest',
-                trusted: false, // adhikasp - community maintained
+                trusted: true, // adhikasp - widely used, added to trusted list
             },
         };
 
@@ -559,7 +597,7 @@ export class MCPAutoManager {
 
         // Try to install uv via pip
         logger.info(LOG_CAT, 'Installing uv for Python package management...');
-        vscode.window.showInformationMessage('Installing uv for safe Python package management...');
+        showTimedInfoMessage('Installing uv for safe Python package management...');
 
         const { exec } = require('child_process');
         return new Promise((resolve) => {

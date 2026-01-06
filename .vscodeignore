@@ -1,2 +1,48 @@
+# Environment and secrets
 .env
+.env.*
+
+# Dependencies (extension uses compiled output)
 node_modules/**
+!mcp-proxy/node_modules/**
+
+
+
+# Source TypeScript files (only need compiled JS)
+src/**
+mcp-proxy/src/**
+
+# TypeScript config
+tsconfig.json
+mcp-proxy/tsconfig.json
+
+# Development files
+.vscode/**
+.vscode-test/**
+**/*.test.ts
+**/*.spec.ts
+
+# Git and CI
+.git/**
+.github/**
+.gitignore
+.gitattributes
+
+# Documentation (reduce size)
+docs/**
+
+# Old VSIX packages
+*.vsix
+
+# IDE and OS files
+.DS_Store
+Thumbs.db
+*.log
+
+# Test files
+**/__tests__/**
+**/__mocks__/**
+coverage/**
+
+# Source maps (optional - remove for smaller size)
+**/*.map

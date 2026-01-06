@@ -1,5 +1,5 @@
 /**
- * TechQuotas Antigravity - Dashboard Webview Panel
+ * TechAI Antigravity - Dashboard Webview Panel
  * Full-featured dashboard with circular progress charts and toggle controls
  */
 
@@ -29,8 +29,8 @@ export class DashboardPanel {
 
 		// Create new panel
 		const panel = vscode.window.createWebviewPanel(
-			'techquotasDashboard',
-			'TechQuotas Dashboard',
+			'techaiDashboard',
+			'TechAI Dashboard',
 			column || vscode.ViewColumn.One,
 			{
 				enableScripts: true,
@@ -61,13 +61,13 @@ export class DashboardPanel {
 						await this._moveGroup(message.groupId, message.direction);
 						break;
 					case 'refresh':
-						vscode.commands.executeCommand('techquotas.refresh');
+						vscode.commands.executeCommand('techai.refresh');
 						break;
 					case 'openSettings':
-						vscode.commands.executeCommand('workbench.action.openSettings', 'techquotas');
+						vscode.commands.executeCommand('techai.openMCPPanelSettings');
 						break;
 					case 'openMCP':
-						vscode.commands.executeCommand('techquotas.openMCPPanel');
+						vscode.commands.executeCommand('techai.openMCPPanel');
 						break;
 				}
 			},
@@ -166,12 +166,12 @@ export class DashboardPanel {
 	}
 
 	private _getPinnedGroups(): string[] {
-		const config = vscode.workspace.getConfiguration('techquotas');
+		const config = vscode.workspace.getConfiguration('techai');
 		return config.get<string[]>('pinnedModels') || [];
 	}
 
 	private async _toggleGroup(groupId: string) {
-		const config = vscode.workspace.getConfiguration('techquotas');
+		const config = vscode.workspace.getConfiguration('techai');
 		const pinned = [...(config.get<string[]>('pinnedModels') || [])];
 
 		const index = pinned.indexOf(groupId);
@@ -191,12 +191,12 @@ export class DashboardPanel {
 	}
 
 	private _getGroupOrder(): string[] {
-		const config = vscode.workspace.getConfiguration('techquotas');
+		const config = vscode.workspace.getConfiguration('techai');
 		return config.get<string[]>('groupOrder') || [];
 	}
 
 	private async _moveGroup(groupId: string, direction: 'up' | 'down') {
-		const config = vscode.workspace.getConfiguration('techquotas');
+		const config = vscode.workspace.getConfiguration('techai');
 
 		// Get current order, or build default from current groups
 		let order = [...this._getGroupOrder()];
@@ -231,7 +231,7 @@ export class DashboardPanel {
 		});
 
 		// Trigger a refresh to update the status bar
-		vscode.commands.executeCommand('techquotas.refresh');
+		vscode.commands.executeCommand('techai.refresh');
 	}
 
 	private _updateWebview() {
@@ -255,7 +255,7 @@ export class DashboardPanel {
 		<head>
 			<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title>TechQuotas Dashboard</title>
+			<title>TechAI Dashboard</title>
 			<style>
 				:root {
 					--bg-color: #0d1117;
@@ -590,7 +590,7 @@ export class DashboardPanel {
 			<div class="header">
 				<h1>
 					<span style="font-size: 1.2em; margin-right: 10px;">🚀</span>
-					TechQuotas Dashboard
+					TechAI Dashboard
 				</h1>
 				<div class="header-actions">
 					<button class="btn secondary" onclick="refresh()">Refresh</button>

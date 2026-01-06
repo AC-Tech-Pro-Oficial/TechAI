@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { RegistryData, RegistryItem } from '../utils/mcp_types';
+import { logger } from '../utils/logger';
 
 interface WeightedMatch {
     item: RegistryItem;
@@ -30,6 +31,14 @@ export class MCPRecommender {
         // Cloudflare Docs server only (lightweight, avoids context overload from full server)
         'cloudflare-docs': ['cloudflare/mcp-server-cloudflare-docs'],
         'vercel': ['vercel/mcp-server'], // Official Vercel MCP
+        // PDF Generation
+        'pdf': ['nicholasxuu/mcp-html-to-pdf', '@nicholasxuu/mcp-pdf-generator'],
+        // Browser Automation
+        'playwright': ['microsoft/playwright-mcp'],
+        'browser': ['microsoft/playwright-mcp'],
+        // Scripting & System
+        'powershell': ['modelcontextprotocol/server-filesystem'],
+        'shell': ['modelcontextprotocol/server-filesystem'],
     };
 
     /**
@@ -40,7 +49,7 @@ export class MCPRecommender {
         'anthropic',              // Anthropic's own tools
         'github',                 // GitHub Official
         'cloudflare',             // Cloudflare Official
-        'microsoft',              // Microsoft Official
+        'microsoft',              // Microsoft Official (Playwright, etc.)
         'aws',                    // Amazon Web Services
         'google',                 // Google Official
         'vercel',                 // Vercel Official
@@ -48,6 +57,14 @@ export class MCPRecommender {
         'stripe',                 // Stripe Official
         'twilio',                 // Twilio Official
         'gannonh',                // Firebase MCP maintainer (widely trusted)
+        'adhikasp',               // mcp-git-ingest maintainer (widely used)
+        'nicholasxuu',            // PDF generators (mcp-html-to-pdf, mcp-pdf-generator)
+        'resend',                 // Email service
+        'jetbrains',              // JetBrains IDEs
+        'grafana',                // Monitoring
+        'datadog',                // APM
+        'sentry',                 // Error tracking
+        'atlassian',              // Jira
     ];
 
     /**
@@ -60,7 +77,11 @@ export class MCPRecommender {
         // 1. Detect services/integrations used in the project
         const serviceScores = await this.detectServices();
 
-        console.log('[MCPRecommender] Detected services:', Object.fromEntries(serviceScores));
+        if (serviceScores.size > 0) {
+            logger.info('MCPRecommender', 'Detailed Scores:', JSON.stringify(Object.fromEntries(serviceScores), null, 2));
+        } else {
+            logger.info('MCPRecommender', 'No services detected.');
+        }
 
         // 2. Calculate matches against registry items
         const recommendations: WeightedMatch[] = [];
@@ -71,6 +92,7 @@ export class MCPRecommender {
         const bestPickNames = new Set<string>();
         for (const service of detectedServices) {
             const picks = MCPRecommender.BEST_PICKS[service] || [];
+            if (picks.length > 0) logger.debug('MCPRecommender', `Service "${service}" maps to Best Picks:`, picks);
             picks.forEach(p => bestPickNames.add(p.toLowerCase()));
         }
 
@@ -78,6 +100,9 @@ export class MCPRecommender {
             const match = this.calculateMatch(item, serviceScores);
             // Threshold: Only recommend if score is meaningful
             if (match.score >= 10) {
+                // Log why we matched
+                logger.debug('MCPRecommender', `Matched "${item.name}" (Score: ${match.score}) Reasons: ${match.reasons.join(', ')}`);
+
                 // Mark as Best Pick if in curated list
                 const lowerName = item.name.toLowerCase();
                 if (bestPickNames.has(lowerName) ||
@@ -130,9 +155,17 @@ export class MCPRecommender {
             addScore('github', 25);
         }
         // Check package.json for github.com repository
+        // Check package.json for "repository": { "type": "git", "url": "...github.com..." }
         const pkgContent = await this.readFileContent('**/package.json');
-        if (pkgContent && pkgContent.includes('github.com')) {
-            addScore('github', 10);
+        if (pkgContent) {
+            try {
+                const pkg = JSON.parse(pkgContent);
+                if (pkg.repository?.url?.includes('github.com') || pkg.repository?.includes('github.com')) {
+                    addScore('github', 10);
+                }
+            } catch {
+                // Ignore parse errors
+            }
         }
 
         // Git (generic) - Check for .git directory directly as findFiles excludes it
@@ -151,9 +184,28 @@ export class MCPRecommender {
         }
 
         if (hasGit || await this.hasFile('**/.gitignore')) {
-            addScore('git', 20);
+            // Git is ubiquitous. Only give a small score to avoid spamming "server-git"
+            // unless there are other strong signals.
+            addScore('git', 5);
             // Boost GitHub if Git is present (high likelihood of remote origin)
-            addScore('github', 10);
+            addScore('github', 5);
+        }
+
+        // ============================================
+        // SHELL & SCRIPTING
+        // ============================================
+
+        // PowerShell
+        if (await this.hasFile('**/*.ps1') || await this.hasFile('**/*.psm1')) {
+            addScore('powershell', 25);
+            // PowerShell scripts often need filesystem access
+            addScore('filesystem', 15);
+        }
+
+        // Batch / Shell
+        if (await this.hasFile('**/*.bat') || await this.hasFile('**/*.sh')) {
+            addScore('shell', 20);
+            addScore('filesystem', 10);
         }
 
         // GitLab
@@ -170,9 +222,33 @@ export class MCPRecommender {
         // CLOUD PLATFORMS
         // ============================================
 
-        // Firebase
-        if (await this.hasFile('**/firebase.json') || await this.hasFile('**/.firebaserc')) {
-            addScore('firebase', 25);
+        // Firebase - Contextual Validation
+        // Requirement: Stronger signal than just .firebaserc (often left over)
+        let firebaseScore = 0;
+        const hasFirebaseJson = await this.hasFile('**/firebase.json');
+        const hasFirebaseRc = await this.hasFile('**/.firebaserc');
+
+        // Check for actual Firebase SDK usage in package.json
+        let hasFirebaseSDK = false;
+        if (pkgContent && (pkgContent.includes('"firebase"') || pkgContent.includes('"firebase-admin"'))) {
+            hasFirebaseSDK = true;
+        }
+
+        // Scoring logic: require stronger signals
+        if (hasFirebaseJson) {
+            firebaseScore += 15; // Primary config file
+        }
+        if (hasFirebaseRc && hasFirebaseJson) {
+            firebaseScore += 10; // Both files = stronger signal
+        }
+        if (hasFirebaseSDK) {
+            firebaseScore += 15; // SDK in dependencies
+        }
+
+        // Note: .firebaserc alone gets ZERO score to prevent false positives in non-JS projects
+
+        if (firebaseScore > 0) {
+            addScore('firebase', firebaseScore);
         }
 
         // Vercel

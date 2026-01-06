@@ -1,5 +1,5 @@
 /**
- * TechQuotas Antigravity - Status Bar UI Manager
+ * TechAI Antigravity - Status Bar UI Manager
  * Enhanced visual indicators with colored balls (icons) and standard white text
  */
 
@@ -179,7 +179,7 @@ class StatusBarGroupRender {
 
 		// Only the text item is clickable
 		// Icon is now static visual
-		this.textItem.command = 'techquotas.show_menu';
+		this.textItem.command = 'techai.openDashboard'; // Opens AI Providers Dashboard
 	}
 
 	update(group: grouped_model, newPriority: number) {
@@ -225,27 +225,49 @@ class StatusBarGroupRender {
 
 export class StatusBarManager {
 	private main_item: vscode.StatusBarItem;
+	private credits_item: vscode.StatusBarItem;
 	private group_renders: Map<string, StatusBarGroupRender> = new Map();
 	private last_snapshot: quota_snapshot | undefined;
+	private disposables: vscode.Disposable[] = [];
 
 	constructor() {
 		this.main_item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-		this.main_item.command = 'techquotas.show_menu';
-		this.main_item.text = '$(rocket) TQ';
-		this.main_item.tooltip = 'TechQuotas Antigravity - Click for details';
+		this.main_item.command = 'techai.openDashboard'; // Opens AI Providers Dashboard
+		this.main_item.text = '$(rocket) TA';
+		this.main_item.tooltip = 'TechAI - Click for details';
 		this.main_item.show();
+
+		// Credits display item (higher priority = further LEFT, so it appears before AI providers)
+		this.credits_item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 101);
+		this.credits_item.command = 'techai.openDashboard';
+		this.credits_item.hide();
+
+		// Listen for config changes to update status bar in real-time
+		this.disposables.push(
+			vscode.workspace.onDidChangeConfiguration(e => {
+				if (e.affectsConfiguration('techai.showPromptCredits') ||
+					e.affectsConfiguration('techai.showGauges') ||
+					e.affectsConfiguration('techai.pinnedModels')) {
+					// Re-render with current snapshot if available
+					if (this.last_snapshot) {
+						const config = vscode.workspace.getConfiguration('techai');
+						this.update(this.last_snapshot, !!config.get('showPromptCredits'));
+					}
+				}
+			})
+		);
 	}
 
 	show_loading() {
-		this.main_item.text = '$(sync~spin) TQ';
-		this.main_item.tooltip = 'TechQuotas: Connecting to Antigravity...';
+		this.main_item.text = '$(sync~spin) TA';
+		this.main_item.tooltip = 'TechAI: Connecting...';
 		this.main_item.show();
 		this.group_renders.forEach(r => r.hide());
 	}
 
 	show_error(msg: string) {
-		this.main_item.text = '$(error) TQ';
-		this.main_item.tooltip = `TechQuotas Error: ${msg}`;
+		this.main_item.text = '$(error) TA';
+		this.main_item.tooltip = `TechAI Error: ${msg}`;
 		this.main_item.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
 		this.main_item.show();
 		this.group_renders.forEach(r => r.hide());
@@ -255,6 +277,20 @@ export class StatusBarManager {
 		this.last_snapshot = snapshot;
 		this.main_item.backgroundColor = undefined;
 
+		// Display prompt credits if enabled and available
+		if (show_credits && snapshot.prompt_credits) {
+			const credits = snapshot.prompt_credits;
+			const pct = credits.remaining_percentage;
+			const color = get_status_color_hex(pct);
+
+			this.credits_item.text = `$(credit-card) ${credits.available.toLocaleString()}`;
+			this.credits_item.tooltip = `Prompt Credits: ${credits.available.toLocaleString()} / ${credits.monthly.toLocaleString()} (${pct.toFixed(0)}% remaining)`;
+			this.credits_item.color = color;
+			this.credits_item.show();
+		} else {
+			this.credits_item.hide();
+		}
+
 		const show_gauges = this.get_show_gauges();
 		const pinned = this.get_pinned_models();
 		const customOrder = this.get_group_order();
@@ -262,13 +298,22 @@ export class StatusBarManager {
 		let grouped = group_models(snapshot.models);
 
 		// Logic:
-		// - If pinned list is empty -> Show ONLY Rocket (main_item)
-		// - If pinned list has items -> Show pinned items, HIDE Rocket (main_item)
+		// - If credits are showing -> Hide Rocket (credits replaces it as the anchor)
+		// - If pinned list is empty AND credits not showing -> Show ONLY Rocket
+		// - If pinned list has items -> Show pinned items, HIDE Rocket
+		const creditsShowing = show_credits && snapshot.prompt_credits;
+
 		if (pinned.length === 0) {
-			// No models selected: Show Rocket
-			this.main_item.text = '$(rocket) TQ';
-			this.main_item.tooltip = 'TechQuotas Antigravity - Click to select models';
-			this.main_item.show();
+			// No models selected
+			if (creditsShowing) {
+				// Credits are showing, hide rocket
+				this.main_item.hide();
+			} else {
+				// Show Rocket as anchor
+				this.main_item.text = '$(rocket) TA';
+				this.main_item.tooltip = 'TechAI - Click to select models';
+				this.main_item.show();
+			}
 			this.group_renders.forEach(r => r.hide());
 			return;
 		} else {
@@ -321,7 +366,7 @@ export class StatusBarManager {
 			// Let's assume user wants to see nothing if gauges are off, or just Rocket.
 			// Reverting to Rocket if gauges explicitly off.
 			if (!show_gauges) {
-				this.main_item.text = '$(rocket) TQ';
+				this.main_item.text = '$(rocket) TA';
 				this.main_item.show();
 				this.group_renders.forEach(r => r.hide());
 			} else {
@@ -334,7 +379,7 @@ export class StatusBarManager {
 
 	show_menu() {
 		const pick = vscode.window.createQuickPick();
-		pick.title = 'TechQuotas Antigravity';
+		pick.title = 'TechAI';
 		pick.placeholder = 'Click a model to pin/unpin from status bar';
 		pick.matchOnDescription = false;
 		pick.matchOnDetail = false;
@@ -356,24 +401,24 @@ export class StatusBarManager {
 				await this.toggle_pinned_group((currentActiveItem as any).group_id);
 				pick.items = this.build_menu_items();
 				if (this.last_snapshot) {
-					const config = vscode.workspace.getConfiguration('techquotas');
+					const config = vscode.workspace.getConfiguration('techai');
 					this.update(this.last_snapshot, !!config.get('showPromptCredits'));
 				}
 			}
 			// Check if it's Dashboard
 			else if ('action' in currentActiveItem && (currentActiveItem as any).action === 'dashboard') {
 				pick.hide();
-				vscode.commands.executeCommand('techquotas.openDashboard');
+				vscode.commands.executeCommand('techai.openDashboard');
 			}
 			// Check if it's Settings
 			else if ('action' in currentActiveItem && (currentActiveItem as any).action === 'settings') {
 				pick.hide();
-				vscode.commands.executeCommand('workbench.action.openSettings', 'techquotas');
+				vscode.commands.executeCommand('techai.openMCPPanelSettings');
 			}
 			// Check if it's Refresh
 			else if ('action' in currentActiveItem && (currentActiveItem as any).action === 'refresh') {
 				pick.hide();
-				vscode.commands.executeCommand('techquotas.refresh');
+				vscode.commands.executeCommand('techai.refresh');
 			}
 		});
 
@@ -385,7 +430,7 @@ export class StatusBarManager {
 	}
 
 	private async toggle_pinned_group(group_id: string): Promise<void> {
-		const config = vscode.workspace.getConfiguration('techquotas');
+		const config = vscode.workspace.getConfiguration('techai');
 		const pinned = [...(config.get<string[]>('pinnedModels') || [])];
 
 		const index = pinned.indexOf(group_id);
@@ -406,7 +451,10 @@ export class StatusBarManager {
 		items.push({ label: '📊 Model Groups (click to pin/unpin)', kind: vscode.QuickPickItemKind.Separator });
 
 		if (snapshot && snapshot.models.length > 0) {
-			const grouped = group_models(snapshot.models);
+			// Sort alphabetically by display_name for the menu
+			const grouped = group_models(snapshot.models).sort((a, b) =>
+				a.display_name.localeCompare(b.display_name)
+			);
 
 			for (const g of grouped) {
 				const pct = g.remaining_percentage;
@@ -452,7 +500,7 @@ export class StatusBarManager {
 
 		const settingsItem: vscode.QuickPickItem & { action?: string } = {
 			label: '$(gear) Settings',
-			description: 'Configure TechQuotas',
+			description: 'Configure TechAI',
 		};
 		(settingsItem as any).action = 'settings';
 		items.push(settingsItem);
@@ -461,23 +509,25 @@ export class StatusBarManager {
 	}
 
 	private get_pinned_models(): string[] {
-		const config = vscode.workspace.getConfiguration('techquotas');
+		const config = vscode.workspace.getConfiguration('techai');
 		return config.get<string[]>('pinnedModels') || [];
 	}
 
 	private get_show_gauges(): boolean {
-		const config = vscode.workspace.getConfiguration('techquotas');
+		const config = vscode.workspace.getConfiguration('techai');
 		return config.get<boolean>('showGauges', true);
 	}
 
 	private get_group_order(): string[] {
-		const config = vscode.workspace.getConfiguration('techquotas');
+		const config = vscode.workspace.getConfiguration('techai');
 		return config.get<string[]>('groupOrder') || [];
 	}
 
 	dispose() {
 		this.main_item.dispose();
+		this.credits_item.dispose();
 		this.group_renders.forEach(r => r.dispose());
 		this.group_renders.clear();
+		this.disposables.forEach(d => d.dispose());
 	}
 }
