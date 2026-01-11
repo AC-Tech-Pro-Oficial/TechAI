@@ -2,7 +2,7 @@
   "name": "techai-ide",
   "displayName": "TechAI",
   "description": "Advanced AI quota monitoring, MCP server management, and developer tools for Antigravity IDE by AC Tech",
-  "version": "2.0.14",
+  "version": "2.0.15",
   "publisher": "ac-tech-pro",
   "icon": "assets/logo.png",
   "engines": {
@@ -119,7 +119,8 @@
   },
   "scripts": {
     "sync-workflows": "powershell -Command \"Copy-Item -Path \\\"$env:USERPROFILE\\.gemini\\antigravity\\global_workflows\\*.md\\\" -Destination 'resources\\bundled_workflows\\' -Force -Recurse\"",
-    "package": "npm run sync-workflows && node -e \"const fs = require('fs'); fs.rmSync('export', { recursive: true, force: true });\" && npm run compile && npx vsce package",
+    "sync-contexts": "powershell -Command \"Copy-Item -Path 'D:\\TechAI\\Contexts\\*' -Destination 'resources\\bundled_contexts\\' -Force; Copy-Item -Path 'D:\\TechAI\\Context_Loader.txt' -Destination 'resources\\bundled_contexts\\' -Force\"",
+    "package": "npm run sync-workflows && npm run sync-contexts && node -e \"const fs = require('fs'); fs.rmSync('export', { recursive: true, force: true });\" && npm run compile && npx vsce package",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts"

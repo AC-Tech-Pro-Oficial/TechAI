@@ -1,6 +1,7 @@
 /**
  * Workflow Bootstrapper
  * Copies bundled workflows to %USERPROFILE%\.gemini\antigravity\global_workflows\
+ * Copies bundled contexts to %USERPROFILE%\.gemini\antigravity\contexts\
  * Applies PROJECT_RULES.md to D:\ projects.
  */
 
@@ -10,12 +11,19 @@ import * as path from 'path';
 import { logger } from '../utils/logger';
 
 export class WorkflowBootstrapper {
-    private static readonly GLOBAL_WORKFLOWS_PATH = path.join(
+    private static readonly ANTIGRAVITY_ROOT = path.join(
         process.env.USERPROFILE || process.env.HOME || '',
-        '.gemini', 'antigravity', 'global_workflows'
+        '.gemini', 'antigravity'
+    );
+    private static readonly GLOBAL_WORKFLOWS_PATH = path.join(
+        this.ANTIGRAVITY_ROOT, 'global_workflows'
+    );
+    private static readonly CONTEXTS_PATH = path.join(
+        this.ANTIGRAVITY_ROOT, 'contexts'
     );
     private static readonly AC_TECH_DRIVE = 'D:';
     private static readonly BUNDLED_WORKFLOWS_PATH = 'resources/bundled_workflows';
+    private static readonly BUNDLED_CONTEXTS_PATH = 'resources/bundled_contexts';
 
     /**
      * Initialize the bootstrapper. Called on extension activation.
@@ -24,8 +32,9 @@ export class WorkflowBootstrapper {
         logger.section('Bootstrapper', 'Initializing Workflow Bootstrapper');
 
         try {
-            await this.ensureGlobalWorkflowsDir();
+            await this.ensureDirectories();
             await this.syncBundledWorkflows(context);
+            await this.syncBundledContexts(context);
             await this.applyProjectRulesToDDrive();
             logger.info('Bootstrapper', 'Workflow Bootstrapper initialized successfully');
         } catch (err) {
@@ -34,18 +43,20 @@ export class WorkflowBootstrapper {
     }
 
     /**
-     * Ensure the global workflows directory exists.
+     * Ensure all required directories exist.
      */
-    private static async ensureGlobalWorkflowsDir(): Promise<void> {
-        if (!fs.existsSync(this.GLOBAL_WORKFLOWS_PATH)) {
-            logger.info('Bootstrapper', `Creating global workflows directory: ${this.GLOBAL_WORKFLOWS_PATH}`);
-            await fs.promises.mkdir(this.GLOBAL_WORKFLOWS_PATH, { recursive: true });
+    private static async ensureDirectories(): Promise<void> {
+        for (const dir of [this.GLOBAL_WORKFLOWS_PATH, this.CONTEXTS_PATH]) {
+            if (!fs.existsSync(dir)) {
+                logger.info('Bootstrapper', `Creating directory: ${dir}`);
+                await fs.promises.mkdir(dir, { recursive: true });
+            }
         }
     }
 
     /**
      * Copy bundled workflows from extension resources to global workflows directory.
-     * Only copies if the file is missing or older than the bundled version.
+     * ALWAYS overwrites to ensure users have the latest AC Tech standard workflows.
      */
     private static async syncBundledWorkflows(context: vscode.ExtensionContext): Promise<void> {
         const bundledPath = path.join(context.extensionPath, this.BUNDLED_WORKFLOWS_PATH);
@@ -65,22 +76,9 @@ export class WorkflowBootstrapper {
             const destFile = path.join(this.GLOBAL_WORKFLOWS_PATH, file);
 
             try {
-                const srcStat = await fs.promises.stat(srcFile);
-                let shouldCopy = false;
-
-                if (!fs.existsSync(destFile)) {
-                    shouldCopy = true;
-                } else {
-                    const destStat = await fs.promises.stat(destFile);
-                    // Copy if bundled is newer
-                    shouldCopy = srcStat.mtimeMs > destStat.mtimeMs;
-                }
-
-                if (shouldCopy) {
-                    await fs.promises.copyFile(srcFile, destFile);
-                    copiedCount++;
-                    logger.debug('Bootstrapper', `Synced workflow: ${file}`);
-                }
+                await fs.promises.copyFile(srcFile, destFile);
+                copiedCount++;
+                logger.debug('Bootstrapper', `Synced workflow: ${file}`);
             } catch (err) {
                 logger.warn('Bootstrapper', `Failed to sync ${file}: ${err}`);
             }
@@ -88,6 +86,41 @@ export class WorkflowBootstrapper {
 
         if (copiedCount > 0) {
             logger.info('Bootstrapper', `Synced ${copiedCount} workflow file(s)`);
+        }
+    }
+
+    /**
+     * Copy bundled contexts from extension resources to contexts directory.
+     * ALWAYS overwrites to ensure users have the latest AC Tech context templates.
+     */
+    private static async syncBundledContexts(context: vscode.ExtensionContext): Promise<void> {
+        const bundledPath = path.join(context.extensionPath, this.BUNDLED_CONTEXTS_PATH);
+
+        if (!fs.existsSync(bundledPath)) {
+            logger.warn('Bootstrapper', `Bundled contexts not found at: ${bundledPath}`);
+            return;
+        }
+
+        const files = await fs.promises.readdir(bundledPath);
+        let copiedCount = 0;
+
+        for (const file of files) {
+            if (!file.endsWith('.txt')) continue;
+
+            const srcFile = path.join(bundledPath, file);
+            const destFile = path.join(this.CONTEXTS_PATH, file);
+
+            try {
+                await fs.promises.copyFile(srcFile, destFile);
+                copiedCount++;
+                logger.debug('Bootstrapper', `Synced context: ${file}`);
+            } catch (err) {
+                logger.warn('Bootstrapper', `Failed to sync ${file}: ${err}`);
+            }
+        }
+
+        if (copiedCount > 0) {
+            logger.info('Bootstrapper', `Synced ${copiedCount} context file(s)`);
         }
     }
 
@@ -115,7 +148,6 @@ export class WorkflowBootstrapper {
                 const projectPath = path.join(acTechRoot, folder.name);
                 const rulesPath = path.join(projectPath, 'PROJECT_RULES.md');
 
-                // Only check if it's a git repo or has pubspec/package.json
                 const isProject =
                     fs.existsSync(path.join(projectPath, '.git')) ||
                     fs.existsSync(path.join(projectPath, 'pubspec.yaml')) ||
@@ -141,8 +173,8 @@ export class WorkflowBootstrapper {
 - **Path**: ${path.dirname(rulesPath)}
 
 ## Core Directives
-1. Follow global rules in \`D:\\TechAI\\TechAI_Manifesto.md\`.
-2. Follow workflow definitions in \`%USERPROFILE%\\.gemini\\antigravity\\global_workflows\\\`.
+1. Follow global rules in \`%USERPROFILE%\\.gemini\\antigravity\\global_workflows\\TechAI_Instructions.md\`.
+2. Follow context from \`%USERPROFILE%\\.gemini\\antigravity\\contexts\\Context_Loader.txt\`.
 3. **CLI-First**: Always use CLI tools before browser.
 4. **Exhaustive Execution**: Agents must be exhaustive and aim for perfection.
 
