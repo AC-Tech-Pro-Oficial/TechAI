@@ -1,20 +1,19 @@
 {
-  "version": "2.0",
-  "lastUpdated": "2024-12-30",
+  "version": "3.0",
+  "lastUpdated": "2026-01-08",
   "autoDiscover": {
     "enabled": true,
     "scanPaths": [
       "D:\\",
-      "S:\\Files\\Cognicir Language School",
-      "S:\\Files\\Cognicir Language School\\Educacional"
+      "D:\\AC Educacional"
     ],
     "excludePaths": [
       "D:\\$RECYCLE.BIN",
       "D:\\System Volume Information",
-      "D:\\Images",
-      "D:\\Videos",
-      "D:\\Downloads",
-      "D:\\Backup"
+      "D:\\Assets",
+      "D:\\nodejs-cache",
+      "D:\\nuget-cache",
+      "D:\\python-cache"
     ],
     "maxDepth": 2
   },
@@ -23,6 +22,8 @@
     "ideGlobalWorkflows": "C:\\Users\\MBCJ\\.gemini\\antigravity\\global_workflows",
     "brainFolder": "C:\\Users\\MBCJ\\.gemini\\antigravity\\brain",
     "manifestoPath": "D:\\TechAI\\TechAI_Manifesto.md",
+    "contextFilesPath": "D:\\TechAI\\Contexts",
+    "assetsPath": "D:\\Assets",
     "syncHistoryLog": "D:\\TechAI\\sync_history.log",
     "contextWindowHours": 24,
     "notifications": {

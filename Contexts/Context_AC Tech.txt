@@ -1,0 +1,105 @@
+AC Tech Solutions (AC Tech) - Comprehensive Company Analysis
+
+## 1. Corporate Identity and Core Mission
+
+**Official Name:** AC Tech Solutions (AC Tech)
+**Founders:** Moacir Bilhar Costa Junior & Vinicyus Abdala
+**Ownership Structure:** 50/50 Equal Partnership
+**Headquarters:** Brazil (Operating under Brazilian Legislation)
+**Primary Domain:** ac-tech.pro
+
+**Mission Statement:**
+AC Tech aims to revolutionize traditional service industries and educational sectors through high-end technological solutions. The company positions itself not merely as a software house but as a provider of "Technological Solutions," encompassing specialized software, mobile applications, and high-performance hardware integration. The core philosophy drives toward professionalizing informal or semi-formal markets (such as HVAC-R services) by providing enterprise-grade tools to small and medium businesses (SMBs) and individual professionals.
+
+**Vision:**
+To become a leader in the digital transformation of technical trades and specialized education in Brazil and beyond. AC Tech envisions a future where agentic Artificial Intelligence is seamlessly integrated into everyday workflows, effectively "augmenting" human capabilities rather than replacing them. This is evident in their aggressive adoption of "Agentic AI" for their own internal development (TechAI) and user-facing products (TechAir AI).
+
+## 2. Leadership and Organizational Structure
+
+The company is led by two co-founders who bring distinct yet complementary strengths to the ecosystem:
+
+*   **Moacir Bilhar Costa Junior (Developer & Architect):** Moacir serves as the primary technical architect and lead developer. His background reflects a deep engagement with high-performance computing and system architecture. Unique to AC Tech's operational model is Moacir's personal infrastructure—a high-end "Supercomputer" (featuring Intel Core i9-14900KF, RTX 4080, and 64GB DDR5 RAM)—which acts as the physical backbone for the company's local AI processing and development environment. Moacir drives the company's aggressive "Cloud-First" and "Agentic" development methodologies, pushing the boundaries of what a small team can achieve by leveraging AI agents as force multipliers.
+*   **Vinicyus Abdala (Co-Founder & Partner):** Vinicyus shares equal ownership and strategic direction. While the technical execution is heavily documented under Moacir's workflow, Vinicyus represents the business and operational counterpart, ensuring the company's growth aligns with market needs.
+
+## 3. The "Agentic" Development Methodology
+
+AC Tech distinguishes itself through a radical internal development philosophy known as the **"Agentic Swarm."** Unlike traditional dev shops that rely solely on human coding capacity, AC Tech has operationalized a fleet of AI agents to handle specific verticals of the development lifecycle. This system, internally branded as **TechAI** or **TechAgents**, allows the two-person team to output code and features at a velocity comparable to much larger organizations.
+
+**Key Components of the Methodology:**
+*   **Specialized Personas:** The company employs distinct AI personas for different tasks: `@TechPlan` for architecture, `@TechCode` for implementation, `@TechTest` for quality assurance, and `@TechDesign` for UI/UX.
+*   **Cloud-First & Security:** All development adheres to strict security protocols ("Project Rules"), emphasizing that credentials never touch the codebase and that cloud resources remain secure.
+*   **Google Antigravity IDE:** The team utilizes the advanced Google Antigravity environment, a specialized IDE designed to maximize the potential of agentic coding, further reinforcing their commitment to cutting-edge tools.
+
+## 4. Product Ecosystem & Market Verticals
+
+AC Tech operates a "Vertical SaaS" model, targeting specific industries with deep, tailored solutions rather than generic tools.
+
+### A. The Flagship: TechAir (HVAC-R Sector)
+The company's primary commercial product is **TechAir**, a mobile super-app designed for HVAC (Heating, Ventilation, and Air Conditioning) and Refrigeration professionals.
+*   **Market Gap:** The Brazilian HVAC market is characterized by thousands of independent technicians who often struggle with administrative formalization (quotes, PMOC compliance, invoicing).
+*   **Solution:** TechAir digitizes the entire workflow, from the initial client visit (AR measurements, digital quotes) to execution (PMOC generation, technical calculations) and post-service management (financial dashboard).
+*   **Impact:** It empowers individual technicians to present themselves as structured companies, increasing their competitiveness and operational efficiency.
+
+### B. Education Tech: AC Educacional
+AC Tech develops and maintains the digital infrastructure for **AC Educacional**, a premier language learning platform.
+*   **The Portal:** Located at `educacional.ac-tech.pro`, this is not a simple website but a comprehensive custom Learning Management System.
+*   **Technology:** Built with Astro 4.x using React islands, hosted on Cloudflare Pages, with Firebase backend.
+*   **Philosophy:** This project demonstrates AC Tech's ability to deploy complex, enterprise-grade educational infrastructure, moving beyond simple app development into full-stack platform management.
+
+### C. Internal Tooling: TechAI & Microsoft Ultimate Installer
+The company commercializes or open-sources its own internal efficiency tools:
+*   **TechAI:** An ecosystem of AI agents that automates software development, now being packaged as an IDE extension for broader use. Source: `D:\TechAI`
+*   **Microsoft Ultimate Installer:** A powerful automation script developed to streamline the setup of Windows environments. Originally an internal tool to set up the founders' machines quickly, it evolved into a sophisticated product capable of debloating Windows, installing Office 365, and configuring system drivers automatically. Source: `D:\Microsoft Ultimate Installer`
+
+## 5. Web Presence & Digital Infrastructure
+
+AC Tech maintains a robust digital footprint that signals professionalism and technical competence.
+
+*   **Domain Authority:** The primary domain `ac-tech.pro` serves as the central hub. Main site hosted on **Vercel**, subdomains on **Cloudflare Pages**.
+*   **GitHub Organization:** The `AC-Tech-Pro-Oficial` organization is the source of truth for their code. It is structured with professional rigor—repos are well-documented, commit messages follow strict standardization (PT-BR with Emojis), and CI/CD pipelines are evident.
+*   **Social & Community:** The company engages with its user base via Instagram (`@actech.oficial`), X (`@ac_tech_pro`), and TikTok (`@ac.tech.pro`). This multi-channel approach helps in building a community around their products, particularly for TechAir, where visual demonstration of features is key.
+
+### Infrastructure Details
+
+| Service | Provider | Purpose |
+|---------|----------|---------|
+| Main Website | Vercel | ac-tech.pro |
+| Subdomains | Cloudflare Pages | *.ac-tech.pro |
+| Storage | Cloudflare R2 | Files, downloads, assets |
+| Backend | Firebase (ac-tech-pro) | Auth, Firestore, Functions |
+| Email | Hostinger | @ac-tech.pro domain |
+
+## 6. Directory Structure
+
+```
+D:\
+├── .agent\                      # Global workflows and rules
+├── Assets\                      # Centralized resources
+│   ├── IDE Extensions\          # VSIX files
+│   ├── Images\                  # Per-project images
+│   ├── Videos\                  # Per-project videos
+│   └── Projetos Futuros\        # Future project ideas
+├── TechAI\                      # AI Hub (D:\TechAI)
+│   ├── Contexts\                # Context files for agents
+│   └── Credentials\             # API keys (never commit)
+├── TechAir\                     # Flutter app (D:\TechAir)
+├── Website\                     # Main website (D:\Website)
+├── AC Educacional\              # Education platform (D:\AC Educacional)
+└── Microsoft Ultimate Installer\ # PowerShell script (D:\Microsoft Ultimate Installer)
+```
+
+## 7. Strategic Future & Roadmap
+
+AC Tech is positioned for aggressive growth. The transition from manual coding to "Agentic Coding" marks a pivotal shift in their strategy. By automating the "grunt work" of coding, the founders focus on high-level architecture and business logic.
+
+**Future pillars include:**
+1.  **AI Ubiquity:** Integrating Gemini and Claude models directly into all user-facing products (e.g., asking TechAir to "Generate a quote for 3 split AC units" via voice).
+2.  **Hardware Integration:** The mission statement explicitly mentions "specialized hardware," hinting at future expansions perhaps into IoT devices for HVAC monitoring or custom server units for local AI processing.
+3.  **Ecosystem Expansion:** With the success of TechAir, the "Tech" prefix could easily expand to other trades (Plumbing, Electrical, Construction), reusing the robust backend and mobile framework established.
+
+## 8. Conclusion
+
+AC Tech is more than a startup; it is a "High-Tech Boutique." It combines the agility of a small team with the output capability of a large firm, thanks to its mastery of AI agents. Whether serving an HVAC technician in São Paulo or a language student in the AC Educacional system, AC Tech delivers premium, secure, and highly functional technology that bridges the gap between complex digital capabilities and everyday human needs.
+
+---
+*Last Updated: 2026-01-08*

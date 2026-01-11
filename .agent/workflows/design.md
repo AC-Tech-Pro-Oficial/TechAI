@@ -10,7 +10,7 @@ Design premium user interfaces and generate media assets. Creates design systems
 ## Safety Principles
 
 > [!CAUTION]
-> - **Never** delete existing assets without backup
+> - **Never** delete existing assets without backup (can be done using GitHub)
 > - **Never** override design tokens without reviewing existing usage
 > - **Always** verify responsive behavior before finalizing
 > - **Preserve** existing color accessibility (WCAG contrast ratios)
@@ -35,6 +35,12 @@ Design premium user interfaces and generate media assets. Creates design systems
    - **Spacing:** Define consistent spacing scale
 
 3. **Asset Generation**
+   > [!TIP]
+   > **CLI Asset Generation (Try First):**
+   > - Flutter icons: `flutter pub run flutter_launcher_icons:main`
+   > - PWA assets: `npx pwa-asset-generator`
+   > - Image optimization: `npx sharp-cli`
+   
    - Generate icons using available tools
    - Create mockups for complex UI
    - Design splash screens / loading states

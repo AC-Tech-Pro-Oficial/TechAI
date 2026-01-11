@@ -63,7 +63,7 @@ Before responding, classify the user's request into one of three tiers:
 |--------|--------|
 | **Primary** | **PDF file** (generated using `mcp-pdf` or `html2pdf` MCP tools) |
 | **Secondary** | Well-designed **HTML file** (interactive, styled, professional) |
-| **Location** | Brain folder: `C:\Users\MBCJ\.gemini\antigravity\brain\<id>\` |
+| **Location** | Brain folder: `%USERPROFILE%\.gemini\antigravity\brain\<id>\` |
 
 > [!CAUTION]
 > **PDF GENERATION IS MANDATORY FOR TIER 2**
@@ -186,7 +186,7 @@ These tools are **COMPLETELY BANNED** during `/ask` mode:
 
 You MAY create files **only** in the artifacts folder:
 
-**Path:** `C:\Users\MBCJ\.gemini\antigravity\brain\<conversation-id>\`
+**Path:** `%USERPROFILE%\.gemini\antigravity\brain\<conversation-id>\`
 
 | Tier | Primary Format | Secondary Format |
 |------|----------------|------------------|

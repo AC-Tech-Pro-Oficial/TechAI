@@ -12,7 +12,7 @@ matches: "^/plan"
 2.  **Drafting**:
     *   Agent: `TechPlan`
     *   Action: Draft `implementation_plan.md` based on "{{input}}".
-    *   Constraint: Must adhere to "Hub & Spoke" architecture.
+    *   Constraint: Must adhere to "Hub & Spoke" architecture. Must be EXHAUSTIVE and OPTIMAL (ignore complexity/time).
 
 3.  **Review**:
     *   Agent: `TechPlan`

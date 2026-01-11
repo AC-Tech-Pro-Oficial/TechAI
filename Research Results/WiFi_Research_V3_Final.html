@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório V3: O Guia Definitivo de Adaptadores Pentest (2026)</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --card-bg: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent: #f472b6;
+            --gold: #fbbf24;
+            --border: #475569;
+            --font-sans: 'Inter', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            margin: 0;
+            padding: 40px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #60a5fa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .tier-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .tier-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .tier-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .tier-card.premium {
+            border: 2px solid var(--gold);
+            background: linear-gradient(to bottom right, var(--bg-secondary), rgba(251, 191, 36, 0.1));
+        }
+
+        .tier-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            color: #0f172a;
+        }
+
+        .badge-budget {
+            background: #94a3b8;
+        }
+
+        .badge-mid {
+            background: #60a5fa;
+            color: white;
+        }
+
+        .badge-premium {
+            background: var(--gold);
+        }
+
+        h2 {
+            margin-top: 10px;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .price-range {
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin: 10px 0 20px 0;
+            color: var(--text-secondary);
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 12px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        li::before {
+            content: "•";
+            color: var(--accent);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .chipset-info {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-family: monospace;
+            color: var(--accent);
+        }
+
+        .verdict {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            font-size: 0.9rem;
+            font-style: italic;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .search-helper {
+            margin-top: 60px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Análise Final de Mercado: Kali Linux WiFi</h1>
+            <div class="subtitle">Comparativo de 3 Níveis para o Laboratório "Casadosol"</div>
+        </header>
+
+        <div class="tier-grid">
+
+            <!-- TIER 1 -->
+            <div class="tier-card">
+                <div class="tier-badge badge-budget">Nível 1: O "Guerreiro"</div>
+                <h2>Adaptador Genérico</h2>
+                <div class="price-range">R$ 35 - R$ 50</div>
+                <ul>
+                    <li><strong>Frequência:</strong> 2.4GHz (Apenas)</li>
+                    <li><strong>Antena:</strong> 2dBi ou 5dBi (Curto Alcance)</li>
+                    <li><strong>Estabilidade:</strong> ⭐⭐⭐⭐⭐ (Nativa)</li>
+                    <li><strong>Velocidade:</strong> Baixa (150Mbps)</li>
+                </ul>
+                <div class="chipset-info">Chipset: Ralink RT5370</div>
+                <div class="verdict">"Funciona sempre, mas é cego para redes modernas 5GHz."</div>
+            </div>
+
+            <!-- TIER 2 -->
+            <div class="tier-card">
+                <div class="tier-badge badge-mid">Nível 2: O Equilibrado</div>
+                <h2>Genérico Dual Band</h2>
+                <div class="price-range">R$ 80 - R$ 130</div>
+                <ul>
+                    <li><strong>Frequência:</strong> 2.4GHz + 5GHz</li>
+                    <li><strong>Antena:</strong> 2 antenas (Médio Alcance)</li>
+                    <li><strong>Estabilidade:</strong> ⭐⭐⭐⭐ (Plug & Play)</li>
+                    <li><strong>Velocidade:</strong> Média (1200Mbps AC)</li>
+                </ul>
+                <div class="chipset-info">Chipset: MT7612U</div>
+                <div class="verdict">"O melhor custo-benefício. Resolverá seu problema com 5GHz sem gastar muito."</div>
+            </div>
+
+            <!-- TIER 3 -->
+            <div class="tier-card premium">
+                <div class="tier-badge badge-premium">Nível 3: "O Digno"</div>
+                <h2>Comfast CF-WU785AC</h2>
+                <div class="price-range">R$ 190 - R$ 230</div>
+                <ul>
+                    <li><strong>Frequência:</strong> 2.4GHz + 5GHz</li>
+                    <li><strong>Antena:</strong> 4 Antenas de 6dBi (Longo Alcance)</li>
+                    <li><strong>Potência:</strong> High Power (Atravessa paredes)</li>
+                    <li><strong>Estabilidade:</strong> ⭐⭐⭐⭐ (Chipset Nativo)</li>
+                </ul>
+                <div class="chipset-info">Chipset: MT7612U</div>
+                <div class="verdict">"Se você tem R$ 200, compre este. A diferença de sinal é brutal comparado aos
+                    outros dois."</div>
+            </div>
+
+        </div>
+
+        <div class="search-helper">
+            <h3>🛒 Guia de Busca Rápida (Mercado Livre / Shopee)</h3>
+            <p>Copie e cole estes termos para encontrar exatamente o que você precisa:</p>
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
+
+            <p><strong>Para Nível 2 (R$ 80-130):</strong><br>
+                <code>Adaptador Wifi Usb 1200mbps Mt7612u</code>
+            </p>
+
+            <p><strong>Para Nível 3 "Premium" (R$ 190-230):</strong><br>
+                <code>Comfast CF-WU785AC 1300mbps</code> ou <code>Adaptador Wifi 4 Antenas High Power Kali Linux</code>
+            </p>
+        </div>
+    </div>
+
+</body>
+
+</html>

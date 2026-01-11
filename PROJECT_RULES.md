@@ -3,17 +3,27 @@
 ## Metadata
 - **Type**: Hub
 - **Path**: D:\TechAI
+- **Account**: contato@ac-tech.pro
 
 ## Core Directives
-1. **Source of Truth**: This repository is the central hub for all TechAI projects and context.
-2. **IDE Extension**: Located at `D:\TechAI\IDE Extension` - managed as a subdirectory.
-3. Follow global rules in `D:\TechAI\Personal Context Memory.txt` (Context Loader).
-4. **CLI-First**: Always use CLI tools before browser. Install missing CLIs automatically. Try solving autonomously before asking.
-5. **Exhaustive Execution**: Agents must be exhaustive, aim for perfection, and ignore time/complexity constraints. Solve ALL identified problems.
+1.  **Language Mirroring**: **ALWAYS** match the user's prompt language for output/artifacts.
+2.  Follow global rules in `D:\TechAI\TechAI_Manifesto.md`.
+3.  **CLI-First**: Always use CLI tools before browser.
+4.  Install missing CLIs automatically. Try solving autonomously before asking.
+5.  **Exhaustive Execution**: Agents must be exhaustive, aim for perfection, and ignore time/complexity constraints. Solve ALL identified problems.
 
 ## Directory Structure
 ```
 D:\TechAI\
+├── Contexts/             # Context files for AI agents
+│   ├── Context_Global.txt
+│   ├── Context_AC Tech.txt
+│   ├── Context_Moacir.txt
+│   ├── Context_Vinicyus.txt
+│   ├── Context_TechAI.txt
+│   ├── Context_TechAir.txt
+│   ├── Context_Microsoft Ultimate Installer.txt
+│   └── Context_Portal Educacional.txt
 ├── Credentials/          # API keys (NEVER commit)
 ├── IDE Extension/        # TechAI IDE Extension (Antigravity)
 ├── Prompts/              # Agent prompts and templates
@@ -21,10 +31,16 @@ D:\TechAI\
 ├── assets/               # Images and media
 ├── docs/                 # Documentation
 ├── tools/                # CLI tools and utilities
-├── Personal Context Memory.txt
+├── Context_Loader.txt
 ├── PROJECT_RULES.md
+├── TechAI_Manifesto.md
 └── README.md
 ```
+
+## Context Files
+Load relevant context files from `D:\TechAI\Contexts\` when working on projects:
+- `Context_Global.txt` - Company-wide information
+- `Context_{ProjectName}.txt` - Project-specific details
 
 ## IDE Extension Rules
 The IDE Extension at `D:\TechAI\IDE Extension`:
@@ -33,9 +49,14 @@ The IDE Extension at `D:\TechAI\IDE Extension`:
 - **Commands Prefix**: `techai.*`
 - **Configuration Prefix**: `techai.*`
 - **Output Channel**: `TechAI`
-- **Deployment**: Copy VSIX to `D:\IDE Extensions\TechAI.vsix`
+- **Deployment**: Copy VSIX to `D:\Assets\IDE Extensions\TechAI.vsix`
 
-## 4. Operational Safety (GitHub Limits)
+## Assets Location
+- **Images**: `D:\Assets\Images\TechAI\`
+- **Videos**: `D:\Assets\Videos\TechAI\`
+- **IDE Extensions**: `D:\Assets\IDE Extensions\`
+
+## Operational Safety (GitHub Limits)
 > **CRITICAL: ANTI-SPAM PROTECTION**
 > To prevent account suspension (Error 404/Flagged), ALL agents must adhere to:
 

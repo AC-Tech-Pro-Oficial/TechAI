@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparativo: Adaptadores Wi-Fi para Pentesting (2.4GHz vs 5GHz)</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --font-mono: 'JetBrains Mono', monospace;
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --border: #334155;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 15px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .badge.native {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+        }
+
+        .badge.complex {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .badge.moderate {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .recommendation-box {
+            background: linear-gradient(to right, rgba(56, 189, 248, 0.1), transparent);
+            border-left: 4px solid var(--accent);
+            padding: 20px;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Comparativo Técnico: Opções para Kali Linux (R$ < 100)</h1>
+                <p>Você pediu uma opção 5GHz com preço similar. Existe, mas há um custo oculto:
+                    <strong>complexidade</strong>.</p>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Característica</th>
+                            <th>Opção A (A Segura)</th>
+                            <th>Opção B (A 5GHz Barata)</th>
+                            <th>Opção C (A Ideal)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Chipset</strong></td>
+                            <td>Ralink RT5370</td>
+                            <td>Realtek RTL8811AU</td>
+                            <td>MediaTek MT7921AU / RTL8812AU</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Frequência</strong></td>
+                            <td>2.4GHz Apenas</td>
+                            <td>Dual Band (2.4 + 5GHz)</td>
+                            <td>Dual Band (2.4 + 5GHz)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Preço Médio (BR)</strong></td>
+                            <td>R$ 35,00 - R$ 50,00</td>
+                            <td>R$ 40,00 - R$ 70,00</td>
+                            <td>R$ 150,00+</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Instalação no Kali</strong></td>
+                            <td><span class="badge native">Plug & Play (Nativo)</span></td>
+                            <td><span class="badge complex">Requer Compilação (DKMS)</span></td>
+                            <td><span class="badge moderate">Depende do Kernel</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Estabilidade Injeção</strong></td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                            <td>⭐⭐⭐ (Pode falhar)</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nome de Mercado</strong></td>
+                            <td>"Antena WiFi USB PC/Receptores"</td>
+                            <td>"Adaptador WiFi AC 600Mbps"</td>
+                            <td>"Alfa AWUS036ACH", "Comfast CF-912AC"</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="recommendation-box">
+                    <h3>🔍 Veredito para o seu caso</h3>
+                    <p>Se a rede "Casadosol" tiver sinal 5GHz, o <strong>RT5370 será inútil</strong>. Nesse caso, você é
+                        <strong>obrigado</strong> a ir para a <strong>Opção B (RTL8811AU)</strong>.</p>
+                    <p><strong>Bizu para comprar a Opção B barato:</strong><br>
+                        Procure no Mercado Livre por <em>"Adaptador Wifi Ac 600mbps Dual Band 5ghz"</em>. <br>
+                        <strong>⚠️ Regra de Ouro:</strong> Pergunte ao vendedor se o chipset é RTL8811 ou MT7610. Se for
+                        RTL8811AU, compre, mas esteja preparado para compilar drivers no Kali.
+                    </p>
+                </div>
+    </div>
+
+</body>
+
+</html>

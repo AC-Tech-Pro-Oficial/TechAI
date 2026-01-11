@@ -47,7 +47,7 @@ Agents must identify themselves and their peers by these personas:
 
 ## 3. Directory Structure & Resources ("Hub & Spoke")
 *   **Hub**: `D:\TechAI` (This repository). Source of Truth.
-*   **Spokes**: All other projects (e.g., `D:\TechAir`, `D:\MUI`, `D:\Cognicir Language School\Educacional`). They **MUST** inherit this Manifesto.
+*   **Spokes**: All other projects (e.g., `D:\TechAir`, `D:\MUI`, `D:\AC Educacional`). They **MUST** inherit this Manifesto.
 
 ### 3.1 Media Resources (Centralized)
 *   **Images**: `D:\Images\{ProjectName}`
@@ -55,7 +55,7 @@ Agents must identify themselves and their peers by these personas:
 *   *Rule*: Check these folders FIRST. Do not clutter specific project folders with raw assets if they can be centralized.
 
 ### 3.2 Context & Memory
-*   **Personal Memory**: `D:\TechAI\Personal Context Memory.txt`.
+*   **Context Loader**: `%USERPROFILE%\.gemini\antigravity\contexts\Context_Loader.txt`
     *   *Rule*: Agents must read this to understand User Preferences (Vinicyus Abdala & Moacir Costa).
 *   **Credentials**: `D:\TechAI\Credentials\` (NEVER COMMIT).
     * Each key is stored in its own `.txt` file (e.g., `gemini_api_key.txt`, `anthropic_api_key.txt`)

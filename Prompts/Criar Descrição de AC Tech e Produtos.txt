@@ -10,8 +10,8 @@ Text files can't have LESS than 3 thousand characters, but you should aim for th
 The agent that will do the redesign want to know the following:
 - "What exactly does AC Tech offer, and to whom? (e.g., IT services for SMBs, software products, web dev agency, etc.)"
 
-I realized we don't have this information properly written anywhere. I want you to first read my personal context ("D:\TechAI\Personal Context Memory.txt"). There is some important things there about AC Tech, specially at the end of the file.
-Then, proceed to run other global instruction files and non-project specific rules. You must read: "D:\.agent\agent.rules", "D:\TechAI\TechAI_Manifesto.md", "D:\README.md", "D:\Cognicir Language School\.agent\workflows\GEMINI.md".
+I realized we don't have this information properly written anywhere. I want you to first read my personal context ("D:\TechAI\Context_Loader.txt" -> then load the appropriate context from "D:\TechAI\Contexts\"). There is some important things there about AC Tech, specially at the end of the file.
+Then, proceed to run other global instruction files and non-project specific rules. You must read: "D:\.agent\agent.rules", "D:\TechAI\TechAI_Manifesto.md", "D:\README.md", "D:\AC Educacional\Language School\English\Private Course\Lucas & Vinicyus\.agent\workflows\GEMINI.md".
 
 Focus on generating the AC Tech comprehensive textual description. This is by far the most important one. Talk about the vision of the company, it's goals for the future etc. Also read the main page of our GitHub: 
 https://github.com/AC-Tech-Pro-Oficial/

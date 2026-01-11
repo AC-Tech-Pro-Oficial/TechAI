@@ -45,8 +45,8 @@ The company's primary commercial product is **TechAir**, a mobile super-app desi
 *   **Solution:** TechAir digitizes the entire workflow, from the initial client visit (AR measurements, digital quotes) to execution (PMOC generation, technical calculations) and post-service management (financial dashboard).
 *   **Impact:** It empowers individual technicians to present themselves as structured companies, increasing their competitiveness and operational efficiency.
 
-### B. Education Tech: Cognicir Language School
-AC Tech develops and maintains the digital infrastructure for **Cognicir Language School**, a premier language learning institution.
+### B. Education Tech: AC Educacional
+AC Tech develops and maintains the digital infrastructure for **AC Educacional**, a premier language learning institution.
 *   **The "Empire" Portal:** Located at `educacional.ac-tech.pro`, this is not a simple website but a comprehensive Learning Management System (LMS).
 *   **Technology:** Built on Moodle 4.x (Self-hosted) but heavily customized, it integrates Video on Demand (VOD) backed by massive storage (Google Drive 2TB integration) and live class capabilities (Jitsi Meet).
 *   **Philosophy:** This project demonstrates AC Tech's ability to deploy complex, enterprise-grade educational infrastructure, moving beyond simple app development into full-stack platform management.
@@ -75,7 +75,7 @@ AC Tech is positioned for aggressive growth. The transition from manual coding t
 
 ## 7. Conclusion
 
-AC Tech is more than a startup; it is a "High-Tech Boutique." It combines the agility of a small team with the output capability of a large firm, thanks to its mastery of AI agents. Whether serving an HVAC technician in São Paulo or a language student in the Cognicir system, AC Tech delivers premium, secure, and highly functional technology that bridges the gap between complex digital capabilities and everyday human needs.
+AC Tech is more than a startup; it is a "High-Tech Boutique." It combines the agility of a small team with the output capability of a large firm, thanks to its mastery of AI agents. Whether serving an HVAC technician in São Paulo or a language student in the AC Educacional system, AC Tech delivers premium, secure, and highly functional technology that bridges the gap between complex digital capabilities and everyday human needs.
 
 
 Microsoft 365 Ultimate Installer - Comprehensive Tool Analysis
@@ -137,19 +137,19 @@ While primarily an internal utility for AC Tech maintenance, opening this projec
 
 The Microsoft Ultimate Installer is the ultimate "Force Multiplier" for the IT setup process. It turns a 4-hour manual configuration job into a 15-minute automated coffee break, embodying AC Tech's core mission of using technology to eliminate inefficiency.
 
-Educacional AC Tech (Cognicir Language School) - Platform Analysis
+Educacional AC Tech (AC Educacional) - Platform Analysis
 
 ## 1. Project Overview & Educational Vision
 
-**Official Designation:** Educacional AC Tech / Cognicir Language School Portal
+**Official Designation:** Educacional AC Tech / AC Educacional Portal
 **URL:** educacional.ac-tech.pro
 **Type:** Proprietary Learning Ecosystem
-**Client:** Cognicir Language School (English Faculty)
+**Client:** AC Educacional (English Faculty)
 
 This project represents AC Tech's deep dive into the **EdTech (Educational Technology)** sector. Moving beyond off-the-shelf solutions, AC Tech has developed a **bespoke, high-performance proprietary platform** specifically tailored for the long-term needs of a linguistic faculty. It is not just about "hosting videos"; it is about creating a digital campus that mirrors the structure, rigor, and community of a university.
 
 **The "Professor" Persona:**
-The platform is developed under a specific persona directive: "The Professor." The AI agents working on this project (within the `D:\Cognicir Language School\` context) adopt the voice of a wise, academic mentor. They do not speak in "code" or "bugs" but in "pedagogy," "linguistic roots," and "intellectual evolution." This philosophical separation ensures that the technology serves the education, not the other way around.
+The platform is developed under a specific persona directive: "The Professor." The AI agents working on this project (within the `D:\AC Educacional\` context) adopt the voice of a wise, academic mentor. They do not speak in "code" or "bugs" but in "pedagogy," "linguistic roots," and "intellectual evolution." This philosophical separation ensures that the technology serves the education, not the other way around.
 
 ## 2. Infrastructure & Technology Stack
 
@@ -234,7 +234,7 @@ TechAI has been encapsulated into a VS Code Extension (`.vsix`) to provide seaml
 *   **MCP Integration (Model Context Protocol):** TechAI heavily utilizes the Model Context Protocol (MCP). It runs a local MCP server that gives the AI agents diverse tools:
     *   *Firecrawl:* For scraping and understanding web documentation.
     *   *FileSystem:* For safe, authorized access to project files.
-    *   *Memory:* Access to `Personal Context Memory.txt` and project rules.
+    *   *Memory:* Access to `Context_Loader.txt` and project rules.
 *   **Command Palette Integration:** Developers can invoke agents via commands like `/techplan-create` or `/techcode-improve` directly from the editor.
 *   **Context Injection:** The extension automatically injects the relevant "Project Rules" and "Global Manifesto" into every AI conversation, ensuring that no matter which model is used, it "knows" it works for AC Tech.
 
