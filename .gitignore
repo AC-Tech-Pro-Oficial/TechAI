@@ -3,6 +3,8 @@
 Personal Context Memory.txt
 Contexts/Context_Moacir.txt
 Contexts/Context_Vinicyus.txt
+IDE Extension/resources/bundled_contexts/Context_Moacir.txt
+IDE Extension/resources/bundled_contexts/Context_Vinicyus.txt
 Credentials/
 *.env
 *.key
