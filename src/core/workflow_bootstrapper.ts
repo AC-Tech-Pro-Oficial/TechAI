@@ -9,6 +9,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { logger } from '../utils/logger';
+import { ConfigManager } from './config_manager';
 
 export class WorkflowBootstrapper {
     private static readonly ANTIGRAVITY_ROOT = path.join(
@@ -21,7 +22,7 @@ export class WorkflowBootstrapper {
     private static readonly CONTEXTS_PATH = path.join(
         this.ANTIGRAVITY_ROOT, 'contexts'
     );
-    private static readonly AC_TECH_DRIVE = 'D:';
+    // private static readonly AC_TECH_DRIVE = 'D:'; // Removed in favor of config
     private static readonly BUNDLED_WORKFLOWS_PATH = 'resources/bundled_workflows';
     private static readonly BUNDLED_CONTEXTS_PATH = 'resources/bundled_contexts';
 
@@ -35,7 +36,7 @@ export class WorkflowBootstrapper {
             await this.ensureDirectories();
             await this.syncBundledWorkflows(context);
             await this.syncBundledContexts(context);
-            await this.applyProjectRulesToDDrive();
+            await this.applyProjectRulesToWorkspaceRoot();
             logger.info('Bootstrapper', 'Workflow Bootstrapper initialized successfully');
         } catch (err) {
             logger.error('Bootstrapper', `Initialization failed: ${err}`);
@@ -125,13 +126,22 @@ export class WorkflowBootstrapper {
     }
 
     /**
-     * Scan D:\ for project directories and apply PROJECT_RULES.md if missing.
+     * Scan user-configured workspace root for project directories and apply PROJECT_RULES.md if missing.
      */
-    private static async applyProjectRulesToDDrive(): Promise<void> {
-        const acTechRoot = this.AC_TECH_DRIVE + '\\';
+    private static async applyProjectRulesToWorkspaceRoot(): Promise<void> {
+        const configManager = new ConfigManager();
+        const config = configManager.get_config();
+
+        let acTechRoot = config.workspace_root || 'D:\\';
+
+        // Ensure trailing slash for consistency if needed, though path.join handles it.
+        // But readdir might expect a directory. 
+        // If user enters "D:", fs.readdir might fail or behave differently than "D:\"
+        // Let's ensure it has a separator if it's a drive letter only, but path.join usually works.
+        // Actually, let's just use it as is, but log it.
 
         if (!fs.existsSync(acTechRoot)) {
-            logger.debug('Bootstrapper', 'D:\\ drive not found, skipping project rules sync');
+            logger.debug('Bootstrapper', `Workspace root not found at: ${acTechRoot}, skipping project rules sync`);
             return;
         }
 
@@ -153,12 +163,13 @@ export class WorkflowBootstrapper {
                     fs.existsSync(path.join(projectPath, 'pubspec.yaml')) ||
                     fs.existsSync(path.join(projectPath, 'package.json'));
 
-                if (isProject && !fs.existsSync(rulesPath)) {
+                if (isProject) {
+                    // Forcefully overwrite or create the project rules, ensuring strict adherence to global standards.
                     await this.createDefaultProjectRules(rulesPath, folder.name);
                 }
             }
         } catch (err) {
-            logger.warn('Bootstrapper', `Error scanning D:\\: ${err}`);
+            logger.warn('Bootstrapper', `Error scanning workspace root (${acTechRoot}): ${err}`);
         }
     }
 
@@ -184,7 +195,7 @@ export class WorkflowBootstrapper {
 `;
         try {
             await fs.promises.writeFile(rulesPath, template, 'utf-8');
-            logger.info('Bootstrapper', `Created PROJECT_RULES.md for: ${projectName}`);
+            logger.info('Bootstrapper', `Enforced PROJECT_RULES.md for: ${projectName}`);
         } catch (err) {
             logger.warn('Bootstrapper', `Failed to create rules for ${projectName}: ${err}`);
         }

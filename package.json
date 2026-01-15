@@ -2,7 +2,7 @@
   "name": "techai-ide",
   "displayName": "TechAI",
   "description": "Advanced AI quota monitoring, MCP server management, and developer tools for Antigravity IDE by AC Tech",
-  "version": "2.0.15",
+  "version": "2.0.17",
   "publisher": "ac-tech-pro",
   "icon": "assets/logo.png",
   "engines": {
@@ -113,6 +113,12 @@
           "maximum": 30,
           "description": "Time in seconds before success notifications auto-dismiss. Set to 0 to keep notifications until manually dismissed.",
           "order": 8
+        },
+        "techai.workspaceRoot": {
+          "type": "string",
+          "default": "D:\\",
+          "description": "Root directory for AC Tech projects.",
+          "order": 9
         }
       }
     }

@@ -56,6 +56,7 @@ export interface config_options {
 	show_prompt_credits?: boolean;
 	show_gauges?: boolean;
 	pinned_models?: string[];
+	workspace_root?: string;
 }
 
 // Server Response Types (Must match external API, usually camelCase or snake_case depending on proto to JSON mapping)

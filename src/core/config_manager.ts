@@ -20,6 +20,7 @@ export class ConfigManager {
 			show_prompt_credits: config.get<boolean>('showPromptCredits', true),
 			show_gauges: config.get<boolean>('showGauges', true),
 			pinned_models: config.get<string[]>('pinnedModels', []),
+			workspace_root: config.get<string>('workspaceRoot', 'D:\\'),
 		};
 	}
 

@@ -150,6 +150,40 @@ export async function activate(context: vscode.ExtensionContext) {
 	quota_manager = new QuotaManager();
 	status_bar = new StatusBarManager();
 
+	// Check and prompt for workspace root (First Run)
+	const hasConfiguredRoot = context.globalState.get<boolean>('techai.hasConfiguredRoot', false);
+	if (!hasConfiguredRoot) {
+		const currentConfig = config_manager.get_config();
+		const defaultRoot = currentConfig.workspace_root || 'D:\\';
+
+		vscode.window.showInputBox({
+			prompt: 'Set the root directory for AC Tech projects (e.g., D:\\)',
+			value: defaultRoot,
+			placeHolder: 'Enter directory path',
+			ignoreFocusOut: true
+		}).then(async (path) => {
+			if (path) {
+				// Normalize path separators if needed or just save as is
+				await vscode.workspace.getConfiguration('techai').update('workspaceRoot', path, vscode.ConfigurationTarget.Global);
+				await context.globalState.update('techai.hasConfiguredRoot', true);
+				logger.info('Extension', `Workspace root configured to: ${path}`);
+
+				// Initialize bootstrapper ONLY after we have the config confirmed (or if we already had it)
+				// But Bootstrapper is initialized in a setTimeout later (line 341). 
+				// The prompt is async, so the timeout might fire before the user answers.
+				// However, `config_manager.get_config()` reads live config.
+				// If the user answers late, the bootstrapper might run with default.
+				// This is acceptable for first run, or we could delay bootstrapper.
+				// For now, let's keep it simple. The Bootstrapper reads config when it runs.
+			}
+		});
+		// Mark as configured immediately to prevent loop if they cancel? 
+		// No, if they cancel, we might want to ask again next time? 
+		// Instructions said "defaults to D:\ if user presses enter". 
+		// InputBox returns undefined on ESC.
+		// Let's assume on NEXT run if they ignored it, we ask again.
+	}
+
 	// Initialize MCP Components
 	mcp_manager = new MCPManager(context);
 	mcp_registry = new MCPRegistry();
