@@ -1,6 +1,8 @@
 # ===== CRITICAL: NEVER COMMIT =====
 # Personal/Sensitive files
 Personal Context Memory.txt
+Contexts/Context_Moacir.txt
+Contexts/Context_Vinicyus.txt
 Credentials/
 *.env
 *.key

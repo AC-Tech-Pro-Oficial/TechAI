@@ -20,8 +20,13 @@
         *   Multi-perspective analysis (Developer, Architect, Strategist)
         *   Technical disambiguation required (prevent name collisions)
         *   All gaps must be explicitly closed before finalizing
-3.  **Language**:
-    *   **Commits**: Portuguese (Brazil) with Emojis. Example: `✨ Adiciona novo recurso de login`.
+3.  **Language & Naming Conventions** (STRICT ENFORCEMENT):
+    *   **Code Structure**: **ENGLISH ONLY**.
+        *   All file names (`user_controller.dart`), class names (`UserProfile`), functions (`getUser`), and variables (`isLoading`) MUST be in English.
+        *   Directory paths MUST be in English (`lib/features/auth`).
+    *   **User Interface (UI)**: **PORTUGUESE (BRAZIL)**.
+        *   All text displayed to the final user (Strings,Dialogs, Button Labels) MUST be in PT-BR.
+    *   **Commits**: **PORTUGUESE (BRAZIL)** with Emojis. Example: `✨ Adiciona novo recurso de login`.
     *   **Documentation**: Portuguese (Brazil) preferred for business docs; English allowed for code comments.
 
 ---
