@@ -58,6 +58,7 @@ export class WorkflowBootstrapper {
     /**
      * Copy bundled workflows from extension resources to global workflows directory.
      * ALWAYS overwrites to ensure users have the latest AC Tech standard workflows.
+     * Removes orphan files that no longer exist in the bundled source.
      */
     private static async syncBundledWorkflows(context: vscode.ExtensionContext): Promise<void> {
         const bundledPath = path.join(context.extensionPath, this.BUNDLED_WORKFLOWS_PATH);
@@ -67,12 +68,12 @@ export class WorkflowBootstrapper {
             return;
         }
 
-        const files = await fs.promises.readdir(bundledPath);
+        const bundledFiles = await fs.promises.readdir(bundledPath);
+        const bundledSet = new Set(bundledFiles.filter(f => f.endsWith('.md')));
         let copiedCount = 0;
 
-        for (const file of files) {
-            if (!file.endsWith('.md')) continue;
-
+        // Copy bundled files
+        for (const file of bundledSet) {
             const srcFile = path.join(bundledPath, file);
             const destFile = path.join(this.GLOBAL_WORKFLOWS_PATH, file);
 
@@ -85,6 +86,25 @@ export class WorkflowBootstrapper {
             }
         }
 
+        // Remove orphan files (files in destination that don't exist in source)
+        try {
+            const destFiles = await fs.promises.readdir(this.GLOBAL_WORKFLOWS_PATH);
+            let removedCount = 0;
+            for (const file of destFiles) {
+                if (file.endsWith('.md') && !bundledSet.has(file)) {
+                    const orphanPath = path.join(this.GLOBAL_WORKFLOWS_PATH, file);
+                    await fs.promises.unlink(orphanPath);
+                    removedCount++;
+                    logger.debug('Bootstrapper', `Removed orphan workflow: ${file}`);
+                }
+            }
+            if (removedCount > 0) {
+                logger.info('Bootstrapper', `Removed ${removedCount} orphan workflow file(s)`);
+            }
+        } catch (err) {
+            logger.warn('Bootstrapper', `Failed to cleanup orphan workflows: ${err}`);
+        }
+
         if (copiedCount > 0) {
             logger.info('Bootstrapper', `Synced ${copiedCount} workflow file(s)`);
         }
@@ -93,6 +113,7 @@ export class WorkflowBootstrapper {
     /**
      * Copy bundled contexts from extension resources to contexts directory.
      * ALWAYS overwrites to ensure users have the latest AC Tech context templates.
+     * Removes orphan files that no longer exist in the bundled source.
      */
     private static async syncBundledContexts(context: vscode.ExtensionContext): Promise<void> {
         const bundledPath = path.join(context.extensionPath, this.BUNDLED_CONTEXTS_PATH);
@@ -102,12 +123,12 @@ export class WorkflowBootstrapper {
             return;
         }
 
-        const files = await fs.promises.readdir(bundledPath);
+        const bundledFiles = await fs.promises.readdir(bundledPath);
+        const bundledSet = new Set(bundledFiles.filter(f => f.endsWith('.txt')));
         let copiedCount = 0;
 
-        for (const file of files) {
-            if (!file.endsWith('.txt')) continue;
-
+        // Copy bundled files
+        for (const file of bundledSet) {
             const srcFile = path.join(bundledPath, file);
             const destFile = path.join(this.CONTEXTS_PATH, file);
 
@@ -118,6 +139,25 @@ export class WorkflowBootstrapper {
             } catch (err) {
                 logger.warn('Bootstrapper', `Failed to sync ${file}: ${err}`);
             }
+        }
+
+        // Remove orphan files (files in destination that don't exist in source)
+        try {
+            const destFiles = await fs.promises.readdir(this.CONTEXTS_PATH);
+            let removedCount = 0;
+            for (const file of destFiles) {
+                if (file.endsWith('.txt') && !bundledSet.has(file)) {
+                    const orphanPath = path.join(this.CONTEXTS_PATH, file);
+                    await fs.promises.unlink(orphanPath);
+                    removedCount++;
+                    logger.debug('Bootstrapper', `Removed orphan context: ${file}`);
+                }
+            }
+            if (removedCount > 0) {
+                logger.info('Bootstrapper', `Removed ${removedCount} orphan context file(s)`);
+            }
+        } catch (err) {
+            logger.warn('Bootstrapper', `Failed to cleanup orphan contexts: ${err}`);
         }
 
         if (copiedCount > 0) {

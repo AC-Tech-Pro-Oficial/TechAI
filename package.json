@@ -2,7 +2,7 @@
   "name": "techai-ide",
   "displayName": "TechAI",
   "description": "Advanced AI quota monitoring, MCP server management, and developer tools for Antigravity IDE by AC Tech",
-  "version": "2.0.17",
+  "version": "2.0.18",
   "publisher": "ac-tech-pro",
   "icon": "assets/logo.png",
   "engines": {
